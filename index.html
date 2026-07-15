@@ -1,0 +1,910 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GPT 中转站倍率看板</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #eef3f7;
+      --panel: #ffffff;
+      --text: #182230;
+      --muted: #667085;
+      --line: #d9dee7;
+      --soft-line: #edf0f5;
+      --accent: #0f9f8f;
+      --accent-dark: #087f73;
+      --accent-soft: #e3f7f4;
+      --warn-soft: #fff4d7;
+      --blue-soft: #eaf3ff;
+      --shadow: 0 18px 44px rgba(16, 24, 40, 0.10);
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      min-width: 980px;
+      scroll-behavior: smooth;
+      background: linear-gradient(180deg, #fbfcfe 0, var(--bg) 310px), var(--bg);
+      color: var(--text);
+      font-family: "Segoe UI", "Microsoft YaHei", Arial, sans-serif;
+      font-size: 14px;
+    }
+    header {
+      padding: 30px 32px 22px;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.96), rgba(247,251,255,0.94)),
+        radial-gradient(circle at 18% 0%, rgba(15, 159, 143, 0.12), transparent 34%),
+        radial-gradient(circle at 82% 6%, rgba(23, 92, 211, 0.12), transparent 30%),
+        rgba(255, 255, 255, 0.92);
+      border-bottom: 1px solid rgba(217, 222, 231, 0.88);
+    }
+    .header-row {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 24px;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 30px;
+      line-height: 1.2;
+      font-weight: 820;
+      letter-spacing: 0;
+    }
+    .meta, .hint {
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    .hint code {
+      padding: 2px 6px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: #344054;
+    }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(150px, 1fr));
+      gap: 14px;
+      margin-top: 22px;
+    }
+    .metric {
+      position: relative;
+      overflow: hidden;
+      padding: 17px 18px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 10px 26px rgba(16, 24, 40, 0.06);
+    }
+    .metric::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 4px;
+      background: linear-gradient(180deg, var(--accent), var(--blue));
+    }
+    .metric-label {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+    .metric-value {
+      font-size: 24px;
+      font-weight: 820;
+      line-height: 1.1;
+      font-variant-numeric: tabular-nums;
+    }
+    main {
+      padding: 24px 32px 34px;
+    }
+    .table-panel {
+      margin-bottom: 18px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .table-panel:nth-of-type(3) {
+      border-color: #b2ddff;
+      box-shadow: 0 18px 42px rgba(23, 92, 211, 0.10);
+    }
+    .table-panel:nth-of-type(4) {
+      border-color: #abefc6;
+      box-shadow: 0 18px 42px rgba(6, 118, 71, 0.10);
+    }
+    .quality-panel {
+      margin-top: 18px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .tool-panel {
+      margin-bottom: 18px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .panel-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--line);
+      background: #fbfcfe;
+    }
+    .panel-title {
+      font-size: 17px;
+      font-weight: 800;
+    }
+    .panel-subtitle {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .legend {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 650;
+    }
+    .table-tools {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .global-search {
+      margin-bottom: 18px;
+      padding: 16px 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.98), rgba(248,251,255,0.96));
+      box-shadow: var(--shadow);
+    }
+    .global-search-row {
+      display: grid;
+      grid-template-columns: minmax(260px, 430px) 1fr auto;
+      gap: 12px;
+      align-items: center;
+    }
+    .search-field {
+      position: relative;
+      width: 100%;
+    }
+    .report-search {
+      width: 100%;
+      height: 40px;
+      padding: 0 76px 0 14px;
+      border: 1px solid #cdd6e1;
+      border-radius: 8px;
+      background: #fff;
+      color: var(--text);
+      font: inherit;
+      font-size: 14px;
+      outline: none;
+      transition: 120ms ease;
+    }
+    .search-help {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.5;
+      max-width: 100%;
+    }
+    .global-search-count {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      min-width: 54px;
+      color: #175cd3;
+      font-size: 13px;
+      font-weight: 850;
+      text-align: right;
+      pointer-events: none;
+    }
+    .quick-jumps {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 6px;
+      flex-wrap: wrap;
+      padding: 4px;
+      border: 1px solid #dbe7f2;
+      border-radius: 999px;
+      background: #f8fbff;
+    }
+    .jump-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 32px;
+      padding: 0 12px;
+      border: 1px solid transparent;
+      border-radius: 999px;
+      background: transparent;
+      color: #344054;
+      font-size: 13px;
+      font-weight: 850;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: 120ms ease;
+    }
+    .jump-link:hover {
+      border-color: #84adff;
+      background: #eaf3ff;
+      color: #175cd3;
+      transform: translateY(-1px);
+    }
+    .balance-filter {
+      cursor: pointer;
+      font: inherit;
+    }
+    .balance-filter.is-active {
+      border-color: #84adff;
+      background: #eaf3ff;
+      color: #175cd3;
+    }
+    .jump-link.is-free {
+      border-color: #abefc6;
+      background: #ecfdf3;
+      color: #067647;
+    }
+    .report-search:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(15, 159, 143, 0.12);
+    }
+    .report-search::placeholder {
+      color: #98a2b3;
+    }
+    .search-count {
+      min-width: 58px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+      text-align: right;
+    }
+    .top-jump {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 30px;
+      padding: 0 11px;
+      border: 1px solid #cdd6e1;
+      border-radius: 999px;
+      background: #ffffff;
+      color: #175cd3;
+      font-size: 13px;
+      font-weight: 850;
+      text-decoration: none;
+      transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+    }
+    .top-jump:hover {
+      border-color: #84adff;
+      background: #eaf3ff;
+      transform: translateY(-1px);
+    }
+    .no-results {
+      display: none;
+      padding: 26px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-weight: 800;
+      text-align: center;
+    }
+    .no-results.is-visible {
+      display: block;
+    }
+    .quality-tip {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 650;
+    }
+    .tool-content {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: center;
+      padding: 16px 18px 18px;
+      background: linear-gradient(135deg, #ffffff, #f8fbff);
+    }
+    .tool-name {
+      font-size: 18px;
+      font-weight: 850;
+      margin-bottom: 5px;
+    }
+    .tool-desc {
+      color: #475467;
+      line-height: 1.6;
+    }
+    .tool-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 34px;
+      padding: 0 14px;
+      border: 1px solid #b2ccff;
+      border-radius: 8px;
+      background: #eaf3ff;
+      color: #175cd3;
+      font-weight: 800;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: 120ms ease;
+    }
+    .tool-link:hover {
+      border-color: #84adff;
+      background: #dceaff;
+      transform: translateY(-1px);
+    }
+    .dot {
+      width: 9px;
+      height: 9px;
+      display: inline-block;
+      border-radius: 50%;
+      margin-right: 5px;
+      vertical-align: -1px;
+    }
+    .dot-low { background: #0f9f8f; }
+    .dot-mid { background: #d99a00; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--panel);
+    }
+    th, td {
+      padding: 13px 14px;
+      border-bottom: 1px solid var(--soft-line);
+      text-align: left;
+      white-space: nowrap;
+      vertical-align: middle;
+    }
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      background: #f5f7fb;
+      color: #344054;
+      font-size: 14px;
+      font-weight: 750;
+      box-shadow: inset 0 -1px 0 var(--line);
+    }
+    tbody tr {
+      transition: background 120ms ease, box-shadow 120ms ease;
+    }
+    tbody tr:hover {
+      background: #f7fafc;
+      outline: 1px solid #d7e1ec;
+      outline-offset: -1px;
+    }
+    tr:last-child td {
+      border-bottom: 0;
+    }
+    .rank {
+      width: 52px;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+    .site-name {
+      font-weight: 700;
+      color: #182230;
+    }
+    .site-url {
+      margin-top: 3px;
+      max-width: 360px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .rate {
+      color: var(--accent-dark);
+      font-size: 16px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+    .plus-rate span,
+    .pro-rate span,
+    .rate span {
+      margin-left: 1px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .plus-rate,
+    .pro-rate {
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+    .tier-low .rate {
+      color: #00806f;
+    }
+    .tier-low {
+      background: linear-gradient(90deg, rgba(227, 247, 244, 0.75), #fff 34%);
+    }
+    .tier-mid {
+      background: linear-gradient(90deg, rgba(255, 244, 215, 0.65), #fff 34%);
+    }
+    .has-balance {
+      box-shadow: inset 4px 0 0 #175cd3;
+    }
+    .has-balance .site-name::after {
+      content: "有余额";
+      display: inline-flex;
+      align-items: center;
+      height: 19px;
+      margin-left: 8px;
+      padding: 0 7px;
+      border: 1px solid #b2ccff;
+      border-radius: 999px;
+      background: #eaf3ff;
+      color: #175cd3;
+      font-size: 12px;
+      font-weight: 800;
+      vertical-align: 1px;
+    }
+    .balance-cell {
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+    .has-balance .balance-cell {
+      color: #175cd3;
+    }
+    .has-checkin {
+      box-shadow: inset 4px 0 0 #d99a00;
+    }
+    .has-balance.has-checkin {
+      box-shadow: inset 4px 0 0 #175cd3, inset 8px 0 0 #d99a00;
+    }
+    .has-checkin .site-name::before {
+      content: "待签到";
+      display: inline-flex;
+      align-items: center;
+      height: 19px;
+      margin-right: 8px;
+      padding: 0 7px;
+      border: 1px solid #fedf89;
+      border-radius: 999px;
+      background: #fff4d7;
+      color: #93370d;
+      font-size: 12px;
+      font-weight: 800;
+      vertical-align: 1px;
+    }
+    .has-checkin.signed-today {
+      box-shadow: inset 4px 0 0 #12b76a;
+    }
+    .has-balance.has-checkin.signed-today {
+      box-shadow: inset 4px 0 0 #175cd3, inset 8px 0 0 #12b76a;
+    }
+    .has-checkin.signed-today .site-name::before {
+      content: "已签到";
+      border-color: #abefc6;
+      background: #ecfdf3;
+      color: #067647;
+    }
+    .checkin-cell {
+      font-weight: 800;
+      color: #93370d;
+      max-width: 240px;
+      white-space: normal;
+    }
+    .checkin-actions {
+      display: inline-flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .checkin-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 28px;
+      padding: 0 10px;
+      border: 1px solid #fedf89;
+      border-radius: 8px;
+      background: #fff8e6;
+      color: #93370d;
+      font: inherit;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: 120ms ease;
+    }
+    .checkin-toggle:hover {
+      border-color: #fdb022;
+      background: #fff4d7;
+      transform: translateY(-1px);
+    }
+    .signed-today .checkin-toggle {
+      border-color: #abefc6;
+      background: #ecfdf3;
+      color: #067647;
+    }
+    .open-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 52px;
+      height: 30px;
+      padding: 0 12px;
+      border: 1px solid #b8ddd8;
+      border-radius: 8px;
+      background: var(--accent-soft);
+      color: var(--accent-dark);
+      font-weight: 700;
+      text-decoration: none;
+      transition: 120ms ease;
+    }
+    .open-link:hover {
+      border-color: var(--accent);
+      background: #d3f1ed;
+      transform: translateY(-1px);
+    }
+    .invite-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .copy-link,
+    .invite-open {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 30px;
+      padding: 0 12px;
+      border: 1px solid #cdd6e1;
+      border-radius: 8px;
+      background: #fff;
+      color: #344054;
+      font: inherit;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      transition: 120ms ease;
+    }
+    .copy-link {
+      border-color: #9fc8ff;
+      background: var(--blue-soft);
+      color: #175cd3;
+    }
+    .copy-link:hover,
+    .invite-open:hover {
+      border-color: #84adff;
+      background: #dceaff;
+      transform: translateY(-1px);
+    }
+    .notes {
+      color: #475467;
+      white-space: normal;
+      min-width: 180px;
+    }
+    .quality-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 12px;
+      padding: 16px 18px 18px;
+    }
+    .quality-card {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 6px 12px;
+      align-items: center;
+      padding: 14px;
+      border: 1px solid var(--soft-line);
+      border-radius: 8px;
+      background: linear-gradient(180deg, #ffffff, #f8fafc);
+      transition: 120ms ease;
+    }
+    .quality-card:hover {
+      border-color: #cdd6e1;
+      background: #ffffff;
+      transform: translateY(-1px);
+    }
+    .quality-name {
+      font-size: 17px;
+      font-weight: 800;
+    }
+    .quality-note {
+      color: #475467;
+      line-height: 1.5;
+    }
+    .quality-url {
+      grid-column: 1 / -1;
+      color: var(--muted);
+      font-size: 12px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    @media (max-width: 1100px) {
+      body {
+        min-width: 0;
+      }
+      .header-row {
+        display: block;
+      }
+      .summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      main {
+        padding: 16px;
+        overflow-x: auto;
+      }
+      header {
+        padding: 20px 16px 16px;
+      }
+      .table-panel {
+        min-width: 920px;
+      }
+      .quality-panel {
+        min-width: 920px;
+      }
+      .tool-panel {
+        min-width: 920px;
+      }
+      .table-tools {
+        justify-content: flex-start;
+      }
+      .global-search-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body id="top">
+  <header>
+    <div class="header-row">
+      <div>
+        <h1>GPT 中转站倍率看板</h1>
+        <div class="meta">更新时间：2026-07-15 16:05:55</div>
+      </div>
+      <div class="hint">修改数据：用本地编辑器保存，或编辑项目目录下的 <code>sites.json</code> 后重新运行 <code>python monitor.py</code></div>
+    </div>
+    <section class="summary" aria-label="summary">
+      <div class="metric"><div class="metric-label">站点数</div><div class="metric-value">0</div></div>
+      <div class="metric"><div class="metric-label">当前最低</div><div class="metric-value">-x</div></div>
+      <div class="metric"><div class="metric-label">最低站点</div><div class="metric-value">-</div></div>
+      <div class="metric"><div class="metric-label">今日待签到</div><div id="checkin-count" class="metric-value">0</div></div>
+    </section>
+  </header>
+  <main>
+    <section class="tool-panel">
+      <div class="panel-bar">
+        <div class="panel-title">外部参考</div>
+        <div class="quality-tip">公开中转站聚合与模型比价</div>
+      </div>
+      <div class="tool-content">
+        <div>
+          <div class="tool-name">RelayWatch</div>
+          <div class="tool-desc">用于查看公开中转站目录、模型覆盖、最低倍率、公告和站点状态。适合作为你手动维护本站表格时的外部参考。</div>
+        </div>
+        <a class="tool-link" href="http://relaywatch.online/" target="_blank" rel="noopener noreferrer">打开 RelayWatch</a>
+      </div>
+    </section>
+    <section class="global-search" aria-label="全局搜索">
+      <div class="global-search-row">
+        <div class="search-field">
+          <input id="report-search" class="report-search" type="search" placeholder="搜索全部站点、备注、倍率">
+          <div id="global-search-count" class="global-search-count"></div>
+        </div>
+        <div class="search-help">同时过滤收费站和公益站；默认不搜网址，输入 <code>api.</code>、<code>/keys</code>、<code>.com</code> 时才匹配网址。</div>
+        <nav class="quick-jumps" aria-label="快速跳转">
+          <button id="balance-filter" class="jump-link balance-filter" type="button">只看有余额</button>
+          <a class="jump-link" href="#paid-sites">收费站</a>
+          <a class="jump-link is-free" href="#free-sites">公益站</a>
+          <a class="jump-link" href="#quality-sites">验纯网站</a>
+        </nav>
+      </div>
+    </section>
+    
+    <section id="paid-sites" class="table-panel">
+      <div class="panel-bar">
+        <div>
+          <div class="panel-title">收费站倍率排行</div>
+          <div class="panel-subtitle" data-total-count="0">0 个站点</div>
+        </div>
+        <div class="table-tools">
+          <div class="legend"><span><i class="dot dot-low"></i>0.03x 及以下</span><span><i class="dot dot-mid"></i>0.1x 及以下</span></div>
+          <div class="search-count"></div>
+          
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>站点</th>
+            <th>最低倍率</th>
+            <th>Plus</th>
+            <th>Pro</th>
+            <th>注册送</th>
+            <th>签到送</th>
+            <th>余额</th>
+            <th>页面</th>
+            <th>邀请链接</th>
+            <th>备注</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+        </tbody>
+      </table>
+      <div class="no-results">没有找到匹配的站点</div>
+    </section>
+
+    
+    <section id="free-sites" class="table-panel">
+      <div class="panel-bar">
+        <div>
+          <div class="panel-title">公益站专区</div>
+          <div class="panel-subtitle" data-total-count="0">0 个站点</div>
+        </div>
+        <div class="table-tools">
+          <div class="legend"><span><i class="dot dot-low"></i>0.03x 及以下</span><span><i class="dot dot-mid"></i>0.1x 及以下</span></div>
+          <div class="search-count"></div>
+          <a class="top-jump" href="#top">顶部</a>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>站点</th>
+            <th>最低倍率</th>
+            <th>Plus</th>
+            <th>Pro</th>
+            <th>注册送</th>
+            <th>签到送</th>
+            <th>余额</th>
+            <th>页面</th>
+            <th>邀请链接</th>
+            <th>备注</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+        </tbody>
+      </table>
+      <div class="no-results">没有找到匹配的站点</div>
+    </section>
+
+    
+  </main>
+  <script>
+    function todayString() {
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, "0");
+      const day = String(now.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    }
+
+    function checkinStorageKey(button) {
+      return `ai-price-monitor:checkin:${todayString()}:${button.dataset.checkinKey}`;
+    }
+
+    function applyCheckinState() {
+      let remaining = 0;
+      document.querySelectorAll(".checkin-toggle").forEach((button) => {
+        const row = button.closest("tr");
+        const signed = window.localStorage.getItem(checkinStorageKey(button)) === "1";
+        row.classList.toggle("signed-today", signed);
+        button.textContent = signed ? "已签到" : "标记已签";
+        button.setAttribute("aria-pressed", signed ? "true" : "false");
+        if (!signed) remaining += 1;
+      });
+      const count = document.querySelector("#checkin-count");
+      if (count) count.textContent = String(remaining);
+    }
+
+    function applyReportSearch() {
+      const input = document.querySelector("#report-search");
+      const query = input ? input.value.trim().toLowerCase() : "";
+      const shouldSearchUrl = /[.:/]/.test(query);
+      const balanceFilter = document.querySelector("#balance-filter");
+      const balanceOnly = balanceFilter?.classList.contains("is-active") || false;
+      let totalVisible = 0;
+      let totalRows = 0;
+      let totalBalanceRows = 0;
+
+      document.querySelectorAll(".table-panel").forEach((panel) => {
+        const count = panel.querySelector(".search-count");
+        const noResults = panel.querySelector(".no-results");
+        const tbody = panel.querySelector("tbody");
+        const rows = Array.from(panel.querySelectorAll("tbody tr"));
+        const orderedRows = rows.slice().sort((a, b) => {
+          return Number(a.dataset.originalRank || 0) - Number(b.dataset.originalRank || 0);
+        });
+        let visible = 0;
+        totalRows += rows.length;
+        totalBalanceRows += rows.filter((row) => Number(row.dataset.balance || 0) > 0).length;
+
+        orderedRows.forEach((row) => {
+          if (tbody) tbody.appendChild(row);
+          const searchableCells = Array.from(row.children).filter((cell) => {
+            return !cell.querySelector(".site-url") && !cell.querySelector(".open-link") && !cell.querySelector(".invite-actions");
+          });
+          const siteName = row.querySelector(".site-name")?.textContent || "";
+          const siteUrl = row.querySelector(".site-url")?.textContent || "";
+          const searchableText = [siteName, ...searchableCells.map((cell) => cell.textContent)]
+            .join(" ")
+            .toLowerCase();
+          const urlText = shouldSearchUrl ? siteUrl.toLowerCase() : "";
+          const hasBalance = Number(row.dataset.balance || 0) > 0;
+          const matched = (!query || searchableText.includes(query) || urlText.includes(query)) && (!balanceOnly || hasBalance);
+          row.hidden = !matched;
+          if (matched) {
+            visible += 1;
+            const rank = row.querySelector(".rank");
+            if (rank) rank.textContent = String(visible);
+          }
+        });
+
+        totalVisible += visible;
+        const subtitle = panel.querySelector(".panel-subtitle");
+        if (subtitle) subtitle.textContent = `${visible} 个站点`;
+        if (count) count.textContent = `${visible} / ${rows.length}`;
+        if (noResults) noResults.classList.toggle("is-visible", visible === 0);
+      });
+
+      const globalCount = document.querySelector("#global-search-count");
+      if (globalCount) globalCount.textContent = `${totalVisible} / ${totalRows}`;
+      if (balanceFilter) {
+        balanceFilter.textContent = balanceOnly ? `显示全部 (${totalRows})` : `只看有余额 (${totalBalanceRows})`;
+      }
+    }
+
+    document.querySelector("#balance-filter")?.addEventListener("click", (event) => {
+      event.currentTarget.classList.toggle("is-active");
+      applyReportSearch();
+    });
+
+    document.addEventListener("click", async (event) => {
+      const checkinButton = event.target.closest(".checkin-toggle");
+      if (checkinButton) {
+        const key = checkinStorageKey(checkinButton);
+        const signed = window.localStorage.getItem(key) === "1";
+        if (signed) {
+          window.localStorage.removeItem(key);
+        } else {
+          window.localStorage.setItem(key, "1");
+        }
+        applyCheckinState();
+        return;
+      }
+
+      const button = event.target.closest(".copy-link");
+      if (!button) return;
+      const text = button.dataset.copy;
+      try {
+        await navigator.clipboard.writeText(text);
+        const oldText = button.textContent;
+        button.textContent = "已复制";
+        window.setTimeout(() => {
+          button.textContent = oldText;
+        }, 1200);
+      } catch (error) {
+        window.prompt("复制这个邀请链接：", text);
+      }
+    });
+    applyCheckinState();
+    applyReportSearch();
+    document.querySelector("#report-search")?.addEventListener("input", applyReportSearch);
+  </script></body>
+</html>

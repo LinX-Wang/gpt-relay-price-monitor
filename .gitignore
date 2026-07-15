@@ -1,0 +1,19 @@
+# User data and generated output
+sites.json
+quality_sites.json
+data/
+reports/
+backups/
+
+# Python and local environment
+__pycache__/
+*.pyc
+.env
+.venv/
+venv/
+
+# Editor and operating system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
