@@ -96,6 +96,18 @@
     "invite_code": "KQFDS5PAJEVS"
   },
   {
+    "name": "Uni Token",
+    "url": "https://uni-token.com/register?aff=WSHUXMWT29KN",
+    "category": "收费站",
+    "welfare_rate": 0.01,
+    "plus_rate": 0.03,
+    "pro_rate": 0.15,
+    "signup_bonus": null,
+    "daily_checkin_bonus": null,
+    "notes": "",
+    "invite_code": "WSHUXMWT29KN"
+  },
+  {
     "name": "Sun API",
     "url": "https://api.sunai.lol/sign-up?aff=26ia",
     "category": "收费站",
@@ -475,7 +487,7 @@
     "plus_rate": 0.15,
     "pro_rate": 0.2,
     "signup_bonus": 2.0,
-    "daily_checkin_bonus": null,
+    "daily_checkin_bonus": "不固定",
     "notes": "充值比1：10，故换算后倍率为0.15、0.2",
     "invite_code": "sYZ6"
   },
@@ -564,6 +576,18 @@
     "invite_code": "jsk2sgGC"
   },
   {
+    "name": "Grox",
+    "url": "https://www.mcgrox.top/register?aff=B3V56KYGP4J4",
+    "category": "收费站",
+    "welfare_rate": 0.8,
+    "plus_rate": 2.0,
+    "pro_rate": 5.0,
+    "signup_bonus": null,
+    "daily_checkin_bonus": null,
+    "notes": "邀请送100元日卡",
+    "invite_code": "B3V56KYGP4J4"
+  },
+  {
     "name": "CHH",
     "url": "https://api.chhlink.xyz/register?aff=E2UNEUR6NMQZ",
     "category": "收费站",
@@ -636,8 +660,8 @@
     "invite_code": "uCdS"
   },
   {
-    "name": "TeaCat公益站",
-    "url": "http://103.236.70.232:3000/sign-up?aff=Czti",
+    "name": "TeaCat Nachoneko AI",
+    "url": "http://103.236.70.232:3000/sign-up?aff=NTWb",
     "category": "公益站",
     "welfare_rate": null,
     "plus_rate": 1.0,
@@ -645,7 +669,7 @@
     "signup_bonus": null,
     "daily_checkin_bonus": "不固定",
     "notes": "",
-    "invite_code": "Czti"
+    "invite_code": "NTWb"
   },
   {
     "name": "百倍",

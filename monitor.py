@@ -470,6 +470,7 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
     paid_section = render_table_panel("paid-sites", "收费站倍率排行", paid_items, "搜索收费站、备注、倍率", searchable=True)
     free_section = render_table_panel("free-sites", "公益站专区", free_items, "搜索公益站、备注、倍率", show_top_button=True)
     balance_filter_button = '<button id="balance-filter" class="jump-link balance-filter" type="button">只看有余额</button>'
+    checkin_filter_button = '<button id="checkin-filter" class="jump-link checkin-filter" type="button">只看待签到</button>'
     hint_text = "修改数据：用本地编辑器保存，或编辑项目目录下的 <code>sites.json</code> 后重新运行 <code>python monitor.py</code>"
     path.write_text(
         f"""<!doctype html>
@@ -733,6 +734,15 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
       border-color: #84adff;
       background: #eaf3ff;
       color: #175cd3;
+    }}
+    .checkin-filter {{
+      cursor: pointer;
+      font: inherit;
+    }}
+    .checkin-filter.is-active {{
+      border-color: #f4b740;
+      background: #fff4d7;
+      color: #a15c00;
     }}
     .jump-link.is-free {{
       border-color: #abefc6;
@@ -1180,6 +1190,7 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
         <div class="search-help">同时过滤收费站和公益站；默认不搜网址，输入 <code>api.</code>、<code>/keys</code>、<code>.com</code> 时才匹配网址。</div>
         <nav class="quick-jumps" aria-label="快速跳转">
           {balance_filter_button}
+          {checkin_filter_button}
           <a class="jump-link" href="#paid-sites">收费站</a>
           <a class="jump-link is-free" href="#free-sites">公益站</a>
           <a class="jump-link" href="#quality-sites">验纯网站</a>
@@ -1223,9 +1234,12 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
       const shouldSearchUrl = /[.:/]/.test(query);
       const balanceFilter = document.querySelector("#balance-filter");
       const balanceOnly = balanceFilter?.classList.contains("is-active") || false;
+      const checkinFilter = document.querySelector("#checkin-filter");
+      const checkinOnly = checkinFilter?.classList.contains("is-active") || false;
       let totalVisible = 0;
       let totalRows = 0;
       let totalBalanceRows = 0;
+      let totalPendingCheckinRows = 0;
 
       document.querySelectorAll(".table-panel").forEach((panel) => {{
         const count = panel.querySelector(".search-count");
@@ -1238,6 +1252,9 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
         let visible = 0;
         totalRows += rows.length;
         totalBalanceRows += rows.filter((row) => Number(row.dataset.balance || 0) > 0).length;
+        totalPendingCheckinRows += rows.filter((row) => {{
+          return row.classList.contains("has-checkin") && !row.classList.contains("signed-today");
+        }}).length;
 
         orderedRows.forEach((row) => {{
           if (tbody) tbody.appendChild(row);
@@ -1251,7 +1268,11 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
             .toLowerCase();
           const urlText = shouldSearchUrl ? siteUrl.toLowerCase() : "";
           const hasBalance = Number(row.dataset.balance || 0) > 0;
-          const matched = (!query || searchableText.includes(query) || urlText.includes(query)) && (!balanceOnly || hasBalance);
+          const hasPendingCheckin = row.classList.contains("has-checkin") && !row.classList.contains("signed-today");
+          const matched =
+            (!query || searchableText.includes(query) || urlText.includes(query)) &&
+            (!balanceOnly || hasBalance) &&
+            (!checkinOnly || hasPendingCheckin);
           row.hidden = !matched;
           if (matched) {{
             visible += 1;
@@ -1272,9 +1293,17 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
       if (balanceFilter) {{
         balanceFilter.textContent = balanceOnly ? `显示全部 (${{totalRows}})` : `只看有余额 (${{totalBalanceRows}})`;
       }}
+      if (checkinFilter) {{
+        checkinFilter.textContent = checkinOnly ? `显示全部 (${{totalRows}})` : `只看待签到 (${{totalPendingCheckinRows}})`;
+      }}
     }}
 
     document.querySelector("#balance-filter")?.addEventListener("click", (event) => {{
+      event.currentTarget.classList.toggle("is-active");
+      applyReportSearch();
+    }});
+
+    document.querySelector("#checkin-filter")?.addEventListener("click", (event) => {{
       event.currentTarget.classList.toggle("is-active");
       applyReportSearch();
     }});
@@ -1290,6 +1319,7 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
           window.localStorage.setItem(key, "1");
         }}
         applyCheckinState();
+        applyReportSearch();
         return;
       }}
 

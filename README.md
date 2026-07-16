@@ -16,7 +16,7 @@ https://linx-wang.github.io/gpt-relay-price-monitor/
 - 收费站与公益站分类
 - 最低倍率、Plus、Pro 排序
 - 全局搜索与有余额筛选
-- 余额站点和签到站点提示
+- 余额站点、待签到筛选和编辑器签到站筛选
 - 每日签到状态记录
 - 邀请链接复制与快速打开
 - SQLite、JSON、HTML 和 CSV 同步

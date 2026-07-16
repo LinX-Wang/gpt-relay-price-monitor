@@ -240,6 +240,17 @@ EDITOR_HTML = r"""<!doctype html>
       border-color: var(--accent-dark);
       background: var(--accent-dark);
     }
+    button.checkin-filter {
+      border-color: #f4b740;
+      background: #fffaf0;
+      color: #8a5200;
+    }
+    button.checkin-filter:hover,
+    button.checkin-filter.is-active {
+      border-color: #d99a16;
+      background: var(--amber-soft);
+      color: #754600;
+    }
     button.danger {
       border-color: #fecdca;
       color: var(--danger);
@@ -466,6 +477,7 @@ EDITOR_HTML = r"""<!doctype html>
       <div class="actions">
         <span id="status" class="status">加载中...</span>
         <a id="open-report" class="button" href="/reports/latest.html" target="ai_price_monitor_report" rel="noopener">打开报告</a>
+        <button id="checkin-filter" class="checkin-filter" type="button">只看签到站</button>
         <button id="add">新增一行</button>
         <button id="save" class="primary">保存并同步</button>
       </div>
@@ -519,8 +531,10 @@ EDITOR_HTML = r"""<!doctype html>
     const metricBalance = document.querySelector("#metric-balance");
     const metricTotal = document.querySelector("#metric-total");
     const metricCheckin = document.querySelector("#metric-checkin");
+    const checkinFilter = document.querySelector("#checkin-filter");
     let rows = [];
     let query = "";
+    let checkinOnly = false;
 
     function setStatus(text, cls = "") {
       statusEl.textContent = text;
@@ -564,6 +578,7 @@ EDITOR_HTML = r"""<!doctype html>
     }
 
     function rowMatches(row) {
+      if (checkinOnly && !hasCheckin(row)) return false;
       if (!query) return true;
       const haystack = [row.name, row.category, row.url, row.invite_url, row.notes].map(fmt).join(" ").toLowerCase();
       return haystack.includes(query);
@@ -593,13 +608,16 @@ EDITOR_HTML = r"""<!doctype html>
       const rates = rows.map(lowest).filter((value) => value !== "").map(Number);
       const best = rates.length ? Math.min(...rates) : "";
       const balanceRows = rows.filter((row) => Number(row.balance || 0) > 0);
-      const checkinRows = rows.filter((row) => hasCheckin(row) && !isSignedToday(row));
+      const checkinStations = rows.filter(hasCheckin);
+      const checkinRows = checkinStations.filter((row) => !isSignedToday(row));
       const totalBalance = rows.reduce((sum, row) => sum + Number(row.balance || 0), 0);
       metricCount.textContent = String(rows.length);
       metricBest.textContent = best === "" ? "-" : `${best}x`;
       metricBalance.textContent = String(balanceRows.length);
       metricTotal.textContent = Number.isInteger(totalBalance) ? String(totalBalance) : totalBalance.toFixed(4).replace(/0+$/, "").replace(/\.$/, "");
       metricCheckin.textContent = String(checkinRows.length);
+      checkinFilter.classList.toggle("is-active", checkinOnly);
+      checkinFilter.textContent = checkinOnly ? `显示全部 (${rows.length})` : `只看签到站 (${checkinStations.length})`;
     }
 
     function rowClass(row) {
@@ -694,6 +712,7 @@ EDITOR_HTML = r"""<!doctype html>
       const row = {name: "", category: "收费站", url: "", balance: null, welfare_rate: null, plus_rate: null, pro_rate: null, signup_bonus: null, daily_checkin_bonus: null, notes: "", invite_url: ""};
       rows.push(row);
       query = "";
+      checkinOnly = false;
       searchEl.value = "";
       render();
       scrollToRow(row);
@@ -702,6 +721,11 @@ EDITOR_HTML = r"""<!doctype html>
 
     searchEl.addEventListener("input", () => {
       query = searchEl.value.trim().toLowerCase();
+      render();
+    });
+
+    checkinFilter.addEventListener("click", () => {
+      checkinOnly = !checkinOnly;
       render();
     });
 
