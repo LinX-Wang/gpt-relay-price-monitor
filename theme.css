@@ -1,0 +1,121 @@
+/* Shared light/dark theme controls for the editor, report, and calculator. */
+.theme-control { display:inline-flex; align-items:center; gap:5px; white-space:nowrap; }
+.theme-control button { display:inline-flex; align-items:center; justify-content:center; height:34px; padding:0 10px; border:1px solid #cbd5e1; border-radius:7px; background:#fff; color:#344054; font:inherit; font-size:13px; font-weight:800; cursor:pointer; transition:120ms ease; }
+.theme-control button:hover { border-color:#84adff; background:#eaf3ff; color:#175cd3; }
+.theme-control .theme-auto.is-auto { border-color:#a7d9d1; background:#e6f7f3; color:#05665c; }
+.header-theme { display:flex; align-items:center; justify-content:flex-end; gap:12px; }
+.calculator-theme { position:absolute; top:25px; right:max(24px, calc((100vw - 1180px) / 2)); }
+
+html[data-theme="dark"] { color-scheme:dark; }
+html[data-theme="dark"] body { background:#101820 !important; color:#e8eef4 !important; }
+html[data-theme="dark"] header { background:#17232d !important; border-color:#304150 !important; }
+html[data-theme="dark"] main { background:transparent !important; }
+html[data-theme="dark"] .panel,
+html[data-theme="dark"] .metric,
+html[data-theme="dark"] .table-panel,
+html[data-theme="dark"] .quality-panel,
+html[data-theme="dark"] .tool-panel,
+html[data-theme="dark"] .global-search,
+html[data-theme="dark"] .quality-card,
+html[data-theme="dark"] .result,
+html[data-theme="dark"] .guide-item,
+html[data-theme="dark"] .status { background:#17232d !important; border-color:#304150 !important; box-shadow:none !important; }
+html[data-theme="dark"] .panel-head,
+html[data-theme="dark"] .panel-bar,
+html[data-theme="dark"] .formula,
+html[data-theme="dark"] .simple-tip,
+html[data-theme="dark"] th { background:#1d2c37 !important; border-color:#304150 !important; }
+html[data-theme="dark"] .metric::before { opacity:.75; }
+html[data-theme="dark"] body,
+html[data-theme="dark"] h1,
+html[data-theme="dark"] h2,
+html[data-theme="dark"] h3,
+html[data-theme="dark"] .panel-title,
+html[data-theme="dark"] .site-name,
+html[data-theme="dark"] .tool-name,
+html[data-theme="dark"] .quality-name,
+html[data-theme="dark"] .result-value,
+html[data-theme="dark"] .guide-item strong { color:#e8eef4 !important; }
+html[data-theme="dark"] .muted,
+html[data-theme="dark"] .meta,
+html[data-theme="dark"] .hint,
+html[data-theme="dark"] .panel-hint,
+html[data-theme="dark"] .search-help,
+html[data-theme="dark"] .panel-subtitle,
+html[data-theme="dark"] .tool-desc,
+html[data-theme="dark"] .quality-note,
+html[data-theme="dark"] .quality-url,
+html[data-theme="dark"] .site-url,
+html[data-theme="dark"] .notes,
+html[data-theme="dark"] .guide-intro,
+html[data-theme="dark"] .guide-item p,
+html[data-theme="dark"] .formula,
+html[data-theme="dark"] .simple-tip,
+html[data-theme="dark"] .status { color:#aebdca !important; }
+html[data-theme="dark"] input,
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea,
+html[data-theme="dark"] button,
+html[data-theme="dark"] a.button,
+html[data-theme="dark"] .jump-link,
+html[data-theme="dark"] .open-link,
+html[data-theme="dark"] .copy-link,
+html[data-theme="dark"] .invite-open,
+html[data-theme="dark"] .top-jump { background:#13202a !important; border-color:#395064 !important; color:#d6e1eb !important; }
+html[data-theme="dark"] input::placeholder { color:#8294a5 !important; }
+html[data-theme="dark"] tbody tr,
+html[data-theme="dark"] tbody tr:nth-child(even) { background:#17232d !important; color:#dce7ef !important; }
+html[data-theme="dark"] tbody tr:hover { background:#203340 !important; outline-color:#486379 !important; }
+html[data-theme="dark"] td,
+html[data-theme="dark"] th { border-color:#304150 !important; }
+html[data-theme="dark"] tbody tr.tier-low { background:linear-gradient(90deg, rgba(8,127,114,.28), #17232d 32%) !important; }
+html[data-theme="dark"] tbody tr.tier-mid { background:linear-gradient(90deg, rgba(177,113,0,.26), #17232d 32%) !important; }
+html[data-theme="dark"] .quick-jumps { background:#13202a !important; border-color:#304150 !important; }
+html[data-theme="dark"] .hint code { background:#13202a !important; border-color:#395064 !important; color:#d6e1eb !important; }
+html[data-theme="dark"] .result.primary { background:#123c3a !important; border-color:#258d82 !important; }
+html[data-theme="dark"] .result.primary .result-value,
+html[data-theme="dark"] .eyebrow { color:#66d6c8 !important; }
+html[data-theme="dark"] .theme-control button { background:#13202a !important; border-color:#395064 !important; color:#d6e1eb !important; }
+html[data-theme="dark"] .theme-control .theme-auto.is-auto { background:#123c3a !important; border-color:#258d82 !important; color:#9be8df !important; }
+
+/* Report-specific: keep the dense data table calm and readable at night. */
+html[data-theme="dark"] .tool-content,
+html[data-theme="dark"] table,
+html[data-theme="dark"] .legend { background:#17232d !important; color:#b9c8d5 !important; }
+html[data-theme="dark"] .tool-content { border-top:1px solid #304150 !important; }
+html[data-theme="dark"] .table-panel,
+html[data-theme="dark"] .quality-panel,
+html[data-theme="dark"] .tool-panel { background:#17232d !important; border-color:#304150 !important; }
+html[data-theme="dark"] .panel-bar { background:#1c2b36 !important; }
+html[data-theme="dark"] .site-name,
+html[data-theme="dark"] .plus-rate,
+html[data-theme="dark"] .pro-rate,
+html[data-theme="dark"] .balance-cell,
+html[data-theme="dark"] .checkin-cell { color:#e1eaf1 !important; }
+html[data-theme="dark"] .rank,
+html[data-theme="dark"] .rate span,
+html[data-theme="dark"] .plus-rate span,
+html[data-theme="dark"] .pro-rate span { color:#95aabd !important; }
+html[data-theme="dark"] tbody tr.tier-low,
+html[data-theme="dark"] tbody tr.tier-mid { background:#17232d !important; }
+html[data-theme="dark"] tbody tr.tier-low .rate { color:#41c7b5 !important; }
+html[data-theme="dark"] tbody tr.tier-mid .rate { color:#f2bd5b !important; }
+html[data-theme="dark"] tbody tr.has-balance { background:linear-gradient(90deg, rgba(23,92,211,.14), #17232d 36%) !important; }
+html[data-theme="dark"] tbody tr.has-checkin { background:linear-gradient(90deg, rgba(217,154,0,.11), #17232d 36%) !important; }
+html[data-theme="dark"] tbody tr.has-balance.has-checkin { background:linear-gradient(90deg, rgba(23,92,211,.12), rgba(217,154,0,.08) 17%, #17232d 38%) !important; }
+html[data-theme="dark"] tbody tr.signed-today { background:linear-gradient(90deg, rgba(18,183,106,.10), #17232d 36%) !important; }
+html[data-theme="dark"] tbody tr:hover,
+html[data-theme="dark"] tbody tr.has-balance:hover,
+html[data-theme="dark"] tbody tr.has-checkin:hover { background:#213340 !important; }
+html[data-theme="dark"] .has-balance .site-name::after { border-color:#3c73c4 !important; background:#17375f !important; color:#a9ccff !important; }
+html[data-theme="dark"] .has-checkin .site-name::before { border-color:#896415 !important; background:#3d3012 !important; color:#f6d48c !important; }
+html[data-theme="dark"] .has-checkin.signed-today .site-name::before { border-color:#287c56 !important; background:#143b2a !important; color:#92e1b8 !important; }
+html[data-theme="dark"] .has-balance .balance-cell { color:#8fbdff !important; }
+html[data-theme="dark"] .checkin-toggle { border-color:#896415 !important; background:#3d3012 !important; color:#f6d48c !important; }
+html[data-theme="dark"] .signed-today .checkin-toggle { border-color:#287c56 !important; background:#143b2a !important; color:#92e1b8 !important; }
+html[data-theme="dark"] .global-search-count { color:#8fbdff !important; }
+html[data-theme="dark"] .search-clear { background:transparent !important; border:0 !important; color:#9fb1c1 !important; }
+html[data-theme="dark"] .search-clear:hover { background:#2a4050 !important; color:#f1f6fa !important; }
+html[data-theme="dark"] .report-search-clear { background:transparent !important; border:0 !important; color:#9fb1c1 !important; }
+html[data-theme="dark"] .report-search-clear:hover { background:#2a4050 !important; color:#f1f6fa !important; }
+@media (max-width:800px) { .calculator-theme { position:static; margin-top:14px; } .header-theme { align-items:flex-end; flex-direction:column; } }

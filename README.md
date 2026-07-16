@@ -21,6 +21,9 @@ https://linx-wang.github.io/gpt-relay-price-monitor/
 - 邀请链接复制与快速打开
 - SQLite、JSON、HTML 和 CSV 同步
 - 验纯网站区域
+- API 单次成本计算器，可读取最低、Plus 和 Pro 倍率
+- 编辑器、报告和计算器统一的自动夜间模式
+- 编辑器和报告搜索框一键清空
 
 ## 环境要求
 
@@ -35,6 +38,8 @@ https://linx-wang.github.io/gpt-relay-price-monitor/
 3. 浏览器会自动打开 http://127.0.0.1:8765/
 4. 点击“新增一行”添加自己的第一个站点。
 5. 点击“保存并同步”生成本地数据和报告。
+
+成本计算器可从编辑器或报告页打开。主题默认在电脑时间 19:00 至次日 07:00 自动切换为夜间模式，也可手动固定日间或夜间。
 
 只重新生成报告时，双击 `生成报告.cmd`。
 
@@ -61,6 +66,8 @@ python3 monitor.py
 - `data/price_monitor.sqlite3`：SQLite 数据库
 - `reports/latest.html`：本地报告页面
 - `reports/latest.csv`：本地 CSV 报告
+- `calculator.html`：API 单次成本计算器
+- `theme.css`、`theme.js`：三个本地页面共用的主题样式和切换逻辑
 
 空数据格式示例见 `sites.example.json` 和 `quality_sites.example.json`。
 

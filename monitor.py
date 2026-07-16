@@ -756,6 +756,36 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
     .report-search::placeholder {{
       color: #98a2b3;
     }}
+    .report-search::-webkit-search-cancel-button {{
+      display: none;
+    }}
+    .report-search-clear {{
+      position: absolute;
+      top: 50%;
+      right: 6px;
+      z-index: 2;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      width: 27px;
+      height: 27px;
+      padding: 0;
+      border: 0;
+      border-radius: 50%;
+      background: transparent;
+      color: #667085;
+      font: inherit;
+      font-size: 20px;
+      line-height: 1;
+      cursor: pointer;
+      transform: translateY(-50%);
+    }}
+    .report-search-clear:hover {{
+      background: #e7edf4;
+      color: #182230;
+    }}
+    .search-field.has-value .report-search-clear {{ display: inline-flex; }}
+    .search-field.has-value .global-search-count {{ right: 42px; }}
     .search-count {{
       min-width: 58px;
       color: var(--muted);
@@ -1150,6 +1180,8 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
       }}
     }}
   </style>
+  <link rel="stylesheet" href="/theme.css">
+  <script src="/theme.js"></script>
 </head>
 <body id="top">
   <header>
@@ -1158,7 +1190,7 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
         <h1>GPT 中转站倍率看板</h1>
         <div class="meta">更新时间：{html.escape(checked_at)}</div>
       </div>
-      <div class="hint">{hint_text}</div>
+      <div class="header-theme"><div class="hint">{hint_text}</div><div data-theme-control></div></div>
     </div>
     <section class="summary" aria-label="summary">
       <div class="metric"><div class="metric-label">站点数</div><div class="metric-value">{len(snapshots)}</div></div>
@@ -1186,11 +1218,13 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
         <div class="search-field">
           <input id="report-search" class="report-search" type="search" placeholder="搜索全部站点、备注、倍率">
           <div id="global-search-count" class="global-search-count"></div>
+          <button id="report-search-clear" class="report-search-clear" type="button" aria-label="清空搜索" title="清空搜索">×</button>
         </div>
         <div class="search-help">同时过滤收费站和公益站；默认不搜网址，输入 <code>api.</code>、<code>/keys</code>、<code>.com</code> 时才匹配网址。</div>
         <nav class="quick-jumps" aria-label="快速跳转">
           {balance_filter_button}
           {checkin_filter_button}
+          <a class="jump-link" href="/calculator.html" target="ai_price_monitor_calculator" rel="noopener">成本计算器</a>
           <a class="jump-link" href="#paid-sites">收费站</a>
           <a class="jump-link is-free" href="#free-sites">公益站</a>
           <a class="jump-link" href="#quality-sites">验纯网站</a>
@@ -1339,7 +1373,21 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
     }});
     applyCheckinState();
     applyReportSearch();
-    document.querySelector("#report-search")?.addEventListener("input", applyReportSearch);
+    const reportSearchInput = document.querySelector("#report-search");
+    const reportSearchField = reportSearchInput?.closest(".search-field");
+    const reportSearchClear = document.querySelector("#report-search-clear");
+
+    function handleReportSearchInput() {{
+      reportSearchField?.classList.toggle("has-value", Boolean(reportSearchInput?.value));
+      applyReportSearch();
+    }}
+
+    reportSearchInput?.addEventListener("input", handleReportSearchInput);
+    reportSearchClear?.addEventListener("click", () => {{
+      reportSearchInput.value = "";
+      handleReportSearchInput();
+      reportSearchInput.focus();
+    }});
   </script></body>
 </html>
 """,

@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>API 单次成本计算器</title>
+  <style>
+    :root { --bg:#eef3f7; --panel:#fff; --text:#182230; --muted:#667085; --line:#dbe3ec; --accent:#087f72; --accent-soft:#e6f7f3; --blue:#175cd3; --blue-soft:#eaf3ff; --amber:#9b5c00; --amber-soft:#fff4d7; }
+    * { box-sizing:border-box; }
+    body { margin:0; min-height:100vh; background:var(--bg); color:var(--text); font-family:"Microsoft YaHei", "Segoe UI", sans-serif; }
+    header { padding:28px max(24px, calc((100vw - 1180px) / 2)); background:#fff; border-bottom:1px solid var(--line); }
+    .eyebrow { color:var(--accent); font-size:13px; font-weight:800; }
+    h1 { margin:5px 0 7px; font-size:26px; line-height:1.2; }
+    .subtitle { margin:0; color:var(--muted); font-size:14px; }
+    main { max-width:1180px; margin:0 auto; padding:24px; }
+    .layout { display:grid; grid-template-columns:minmax(0, 1.2fr) minmax(330px, .8fr); gap:20px; align-items:start; }
+    .panel { background:var(--panel); border:1px solid var(--line); border-radius:8px; box-shadow:0 4px 14px rgba(16, 24, 40, .05); overflow:hidden; }
+    .panel-head { padding:16px 18px; border-bottom:1px solid var(--line); background:#fbfdff; }
+    .panel-title { margin:0; font-size:16px; }
+    .panel-hint { margin:4px 0 0; color:var(--muted); font-size:13px; line-height:1.5; }
+    .fields { padding:18px; display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:15px; }
+    .field { min-width:0; }
+    .field.wide { grid-column:1 / -1; }
+    label { display:block; margin:0 0 7px; color:#344054; font-size:13px; font-weight:800; }
+    input, select { width:100%; height:39px; padding:0 11px; border:1px solid #cbd5e1; border-radius:6px; color:var(--text); background:#fff; font:inherit; font-size:14px; outline:none; }
+    input:focus, select:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(8,127,114,.12); }
+    .rate-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .note { margin:6px 0 0; color:var(--muted); font-size:12px; line-height:1.45; }
+    .results { padding:18px; display:grid; gap:10px; }
+    .result { padding:13px 14px; border:1px solid var(--line); border-radius:7px; background:#fbfdff; }
+    .result.primary { border-color:#9adbd2; background:var(--accent-soft); }
+    .result-label { color:var(--muted); font-size:13px; font-weight:700; }
+    .result-value { margin-top:5px; color:#101828; font-size:22px; font-weight:850; font-variant-numeric:tabular-nums; }
+    .result.primary .result-value { color:#05665c; font-size:27px; }
+    .formula { margin:2px 18px 18px; padding:13px 14px; border-radius:6px; background:#f6f8fa; color:#475467; font-size:12px; line-height:1.65; }
+    .actions { display:flex; gap:8px; padding:0 18px 18px; }
+    button { height:38px; padding:0 14px; border:1px solid #cbd5e1; border-radius:6px; color:#344054; background:#fff; font:inherit; font-size:14px; font-weight:800; cursor:pointer; }
+    button:hover { border-color:#84adff; color:var(--blue); background:var(--blue-soft); }
+    .status { padding:0 18px 18px; color:var(--muted); font-size:12px; min-height:32px; }
+    .guide { margin-top:24px; padding:22px 2px 4px; border-top:1px solid #ccd9e5; }
+    .guide-title { margin:0; font-size:19px; }
+    .guide-intro { margin:7px 0 18px; color:var(--muted); font-size:14px; line-height:1.6; }
+    .guide-grid { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:14px; }
+    .guide-item { min-width:0; padding:16px; border:1px solid var(--line); border-radius:7px; background:rgba(255,255,255,.72); }
+    .guide-step { display:inline-flex; align-items:center; justify-content:center; width:25px; height:25px; border-radius:50%; background:var(--accent-soft); color:#05665c; font-size:13px; font-weight:850; }
+    .guide-item h3 { margin:9px 0 7px; font-size:15px; }
+    .guide-item p { margin:0; color:#475467; font-size:13px; line-height:1.7; }
+    .guide-item strong { color:#182230; }
+    .simple-tip { margin-top:14px; padding:13px 15px; border-left:3px solid var(--accent); background:#f5fbfa; color:#344054; font-size:13px; line-height:1.7; }
+    @media (max-width:800px) { header { padding:22px 18px; } main { padding:18px; } .layout { grid-template-columns:1fr; } }
+    @media (max-width:800px) { .guide-grid { grid-template-columns:1fr; } }
+    @media (max-width:520px) { .fields { grid-template-columns:1fr; } .rate-row { grid-template-columns:1fr; } h1 { font-size:22px; } }
+  </style>
+  <link rel="stylesheet" href="./theme.css">
+  <script src="./theme.js"></script>
+</head>
+<body>
+  <header>
+    <div class="eyebrow">GPT 中转站倍率看板</div>
+    <h1>API 单次成本计算器</h1>
+    <p class="subtitle">按你的充值兑换关系、站点倍率和模型价格，估算一段对话实际花费。</p>
+    <div data-theme-control class="calculator-theme"></div>
+  </header>
+  <main>
+    <div class="layout">
+      <section class="panel">
+        <div class="panel-head"><h2 class="panel-title">站点与兑换关系</h2><p class="panel-hint">选择已维护站点会自动读取最低、Plus 或 Pro 倍率；也可以手动输入。</p></div>
+        <div class="fields">
+          <div class="field wide"><label for="site">站点</label><select id="site"><option value="">手动填写倍率</option></select></div>
+          <div class="field"><label for="rateType">倍率类型</label><select id="rateType"><option value="lowest_rate">最低倍率</option><option value="plus_rate">Plus</option><option value="pro_rate">Pro</option></select></div>
+          <div class="field"><label for="rate">站点倍率</label><input id="rate" type="number" min="0" step="any" value="1"></div>
+          <div class="field"><label for="topup">充值金额（元）</label><input id="topup" type="number" min="0" step="any" value="10"></div>
+          <div class="field"><label for="credit">获得额度</label><input id="credit" type="number" min="0" step="any" value="10"></div>
+          <div class="field wide"><label for="inputPrice">模型输入价格（额度 / 百万 Token）</label><input id="inputPrice" type="number" min="0" step="any" value="1"></div>
+          <div class="field"><label for="inputTokens">本次输入（百万 Token）</label><input id="inputTokens" type="number" min="0" step="any" value="0.001"></div>
+          <div class="field"><label for="outputPrice">模型输出价格（额度 / 百万 Token）</label><input id="outputPrice" type="number" min="0" step="any" value="1"></div>
+          <div class="field"><label for="outputTokens">本次输出（百万 Token）</label><input id="outputTokens" type="number" min="0" step="any" value="0.001"></div>
+          <div class="field"><label for="cacheHit">输入缓存命中率（%）</label><input id="cacheHit" type="number" min="0" max="100" step="any" value="0"></div>
+          <div class="field"><label for="cacheDiscount">命中部分成本（%）</label><input id="cacheDiscount" type="number" min="0" max="100" step="any" value="10"></div>
+        </div>
+      </section>
+      <aside class="panel">
+        <div class="panel-head"><h2 class="panel-title">成本估算</h2><p class="panel-hint">所有结果按人民币显示，数值仅用于决策参考。</p></div>
+        <div class="results">
+          <div class="result"><div class="result-label">每 1 额度的原始成本</div><div id="unitCost" class="result-value">¥0.000000</div></div>
+          <div class="result"><div class="result-label">应用倍率后的实际单位成本</div><div id="realUnitCost" class="result-value">¥0.000000</div></div>
+          <div class="result"><div class="result-label">本次输入成本</div><div id="inputCost" class="result-value">¥0.000000</div></div>
+          <div class="result"><div class="result-label">本次输出成本</div><div id="outputCost" class="result-value">¥0.000000</div></div>
+          <div class="result primary"><div class="result-label">本次预计总成本</div><div id="totalCost" class="result-value">¥0.000000</div></div>
+        </div>
+        <div class="formula">输入成本会按缓存命中率折算：未命中的输入按原价计算，命中的输入按“命中部分成本”计算。输出不使用缓存折扣。</div>
+        <div class="actions"><button id="reset" type="button">恢复默认</button></div>
+        <div id="status" class="status">正在读取本地站点...</div>
+      </aside>
+    </div>
+    <section class="guide" aria-label="填写说明">
+      <h2 class="guide-title">不知道怎么填？按这三步来</h2>
+      <p class="guide-intro">这个工具要回答的是：某次调用模型，实际花了你多少人民币。先用保守数据填，结果会更可靠。</p>
+      <div class="guide-grid">
+        <article class="guide-item">
+          <span class="guide-step">1</span>
+          <h3>先选站点和倍率</h3>
+          <p>在“站点”选你准备使用的平台，再选对应的<strong>最低倍率、Plus 或 Pro</strong>，倍率会自动带入。你只用哪个分组，就选哪个；不确定时选最低倍率即可。</p>
+        </article>
+        <article class="guide-item">
+          <span class="guide-step">2</span>
+          <h3>填充值和实际到账额度</h3>
+          <p>“充值金额”是你实际付的人民币；“获得额度”是账户实际增加的额度。普通 1:1 就填 <strong>10 和 10</strong>；如果站点充值 10 元到账 100 额度，就填 <strong>10 和 100</strong>。赠送额度也算到账额度。</p>
+        </article>
+        <article class="guide-item">
+          <span class="guide-step">3</span>
+          <h3>填模型价格和本次用量</h3>
+          <p>模型价格到站点的模型广场或定价页看，输入和输出价格分别填。Token 数量可在调用返回的 usage 里看：<strong>1,000 Token = 0.001 百万 Token</strong>，12,000 Token 就填 0.012。</p>
+        </article>
+      </div>
+      <div class="simple-tip"><strong>最简单的用法：</strong>如果你没有缓存和精确用量数据，缓存命中率先填 0；把本次输入和输出 Token 按大概数量估计。这样算出来是偏保守的成本，不会把花费算低。输入、输出价格不要填站点倍率，它们是模型页面标的“额度 / 百万 Token”价格。</div>
+    </section>
+  </main>
+  <script>
+    const storageKey = "ai-price-monitor:cost-calculator";
+    const defaults = { rate:"1", topup:"10", credit:"10", inputPrice:"1", inputTokens:"0.001", outputPrice:"1", outputTokens:"0.001", cacheHit:"0", cacheDiscount:"10", rateType:"lowest_rate", site:"" };
+    const ids = Object.keys(defaults);
+    let sites = [];
+    const number = (id) => Math.max(0, Number(document.getElementById(id).value) || 0);
+    const money = (value) => `¥${Number(value || 0).toFixed(6)}`;
+    function save() { const data = {}; ids.forEach((id) => data[id] = document.getElementById(id).value); localStorage.setItem(storageKey, JSON.stringify(data)); }
+    function calculate() {
+      const unitCost = number("credit") > 0 ? number("topup") / number("credit") : 0;
+      const realUnitCost = unitCost * number("rate");
+      const hit = Math.min(100, number("cacheHit")) / 100;
+      const discount = Math.min(100, number("cacheDiscount")) / 100;
+      const inputCost = number("inputPrice") * number("inputTokens") * realUnitCost * ((1 - hit) + hit * discount);
+      const outputCost = number("outputPrice") * number("outputTokens") * realUnitCost;
+      document.getElementById("unitCost").textContent = money(unitCost);
+      document.getElementById("realUnitCost").textContent = money(realUnitCost);
+      document.getElementById("inputCost").textContent = money(inputCost);
+      document.getElementById("outputCost").textContent = money(outputCost);
+      document.getElementById("totalCost").textContent = money(inputCost + outputCost);
+      save();
+    }
+    function selectedSite() { return sites.find((site) => site.name === document.getElementById("site").value); }
+    function applyRate() { const site = selectedSite(); const type = document.getElementById("rateType").value; if (site && Number.isFinite(Number(site[type])) && site[type] !== null && site[type] !== "") document.getElementById("rate").value = site[type]; calculate(); }
+    function loadSaved() { try { const saved = JSON.parse(localStorage.getItem(storageKey) || "{}"); ids.forEach((id) => { if (saved[id] !== undefined) document.getElementById(id).value = saved[id]; }); } catch (_) {} }
+    async function loadSites() {
+      const status = document.getElementById("status");
+      try {
+        const response = await fetch("/api/sites"); if (!response.ok) throw new Error();
+        const payload = await response.json(); sites = Array.isArray(payload.sites) ? payload.sites : [];
+        const select = document.getElementById("site");
+        sites.slice().sort((a, b) => String(a.category).localeCompare(String(b.category), "zh-CN") || String(a.name).localeCompare(String(b.name), "zh-CN")).forEach((site) => { const option = document.createElement("option"); option.value = site.name; option.textContent = `${site.category || "未分类"} · ${site.name}`; select.appendChild(option); });
+        status.textContent = sites.length ? `已读取 ${sites.length} 个本地站点；选择站点和倍率类型可自动填入。` : "当前站点清单为空，可直接手动填写。";
+      } catch (_) { status.textContent = "未能读取站点数据，仍可直接手动填写。请从本地编辑器打开本页。"; }
+      applyRate(); calculate();
+    }
+    ids.forEach((id) => document.getElementById(id).addEventListener("input", calculate));
+    document.getElementById("site").addEventListener("change", applyRate);
+    document.getElementById("rateType").addEventListener("change", applyRate);
+    document.getElementById("reset").addEventListener("click", () => { localStorage.removeItem(storageKey); ids.forEach((id) => document.getElementById(id).value = defaults[id]); applyRate(); });
+    loadSaved(); loadSites(); calculate();
+  </script>
+</body>
+</html>

@@ -114,6 +114,15 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/api/sites":
             json_response(self, {"sites": current_rows()})
             return
+        if path == "/theme.css":
+            file_response(self, ROOT / "theme.css", "text/css; charset=utf-8")
+            return
+        if path == "/theme.js":
+            file_response(self, ROOT / "theme.js", "application/javascript; charset=utf-8")
+            return
+        if path == "/calculator.html":
+            file_response(self, ROOT / "calculator.html", "text/html; charset=utf-8")
+            return
         if path == "/reports/latest.html":
             file_response(self, ROOT / "reports" / "latest.html", "text/html; charset=utf-8")
             return
@@ -299,6 +308,38 @@ EDITOR_HTML = r"""<!doctype html>
       outline: none;
       transition: 120ms ease;
     }
+    .search-wrap {
+      position: relative;
+      width: 320px;
+    }
+    .search-wrap .searchbox {
+      width: 100%;
+      padding-right: 38px;
+    }
+    .search-clear {
+      position: absolute;
+      top: 50%;
+      right: 6px;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      width: 27px;
+      height: 27px;
+      padding: 0;
+      border: 0;
+      border-radius: 50%;
+      background: transparent;
+      color: #667085;
+      font-size: 20px;
+      line-height: 1;
+      transform: translateY(-50%);
+    }
+    .search-clear:hover {
+      background: #e7edf4;
+      color: #182230;
+      transform: translateY(-50%);
+    }
+    .search-wrap.has-value .search-clear { display: inline-flex; }
     .searchbox:focus {
       border-color: var(--accent);
       box-shadow: 0 0 0 3px rgba(15, 159, 143, 0.12);
@@ -464,8 +505,11 @@ EDITOR_HTML = r"""<!doctype html>
       .searchbox {
         width: 100%;
       }
+      .search-wrap { width: 100%; }
     }
   </style>
+  <link rel="stylesheet" href="/theme.css">
+  <script src="/theme.js"></script>
 </head>
 <body>
   <header>
@@ -475,8 +519,10 @@ EDITOR_HTML = r"""<!doctype html>
         <div class="muted">保存后同步更新 sites.json、SQLite、HTML 报告和 CSV。</div>
       </div>
       <div class="actions">
+        <div data-theme-control></div>
         <span id="status" class="status">加载中...</span>
         <a id="open-report" class="button" href="/reports/latest.html" target="ai_price_monitor_report" rel="noopener">打开报告</a>
+        <a id="open-calculator" class="button" href="/calculator.html" target="ai_price_monitor_calculator" rel="noopener">成本计算器</a>
         <button id="checkin-filter" class="checkin-filter" type="button">只看签到站</button>
         <button id="add">新增一行</button>
         <button id="save" class="primary">保存并同步</button>
@@ -490,7 +536,10 @@ EDITOR_HTML = r"""<!doctype html>
         <div class="metric"><div class="metric-label">余额合计</div><div id="metric-total" class="metric-value">-</div></div>
         <div class="metric"><div class="metric-label">今日待签到</div><div id="metric-checkin" class="metric-value">-</div></div>
       </div>
-      <input id="search" class="searchbox" placeholder="搜索站点、网址、备注">
+      <div id="search-wrap" class="search-wrap">
+        <input id="search" class="searchbox" placeholder="搜索站点、网址、备注">
+        <button id="clear-search" class="search-clear" type="button" aria-label="清空搜索" title="清空搜索">×</button>
+      </div>
     </div>
   </header>
   <main>
@@ -526,6 +575,8 @@ EDITOR_HTML = r"""<!doctype html>
     const tbody = document.querySelector("#tbody");
     const statusEl = document.querySelector("#status");
     const searchEl = document.querySelector("#search");
+    const searchWrap = document.querySelector("#search-wrap");
+    const clearSearch = document.querySelector("#clear-search");
     const metricCount = document.querySelector("#metric-count");
     const metricBest = document.querySelector("#metric-best");
     const metricBalance = document.querySelector("#metric-balance");
@@ -719,9 +770,17 @@ EDITOR_HTML = r"""<!doctype html>
       setStatus("有未保存修改", "dirty");
     });
 
-    searchEl.addEventListener("input", () => {
+    function applySearch() {
       query = searchEl.value.trim().toLowerCase();
+      searchWrap.classList.toggle("has-value", Boolean(searchEl.value));
       render();
+    }
+
+    searchEl.addEventListener("input", applySearch);
+    clearSearch.addEventListener("click", () => {
+      searchEl.value = "";
+      applySearch();
+      searchEl.focus();
     });
 
     checkinFilter.addEventListener("click", () => {
@@ -739,6 +798,12 @@ EDITOR_HTML = r"""<!doctype html>
       event.preventDefault();
       const reportWindow = window.open("/reports/latest.html", "ai_price_monitor_report");
       if (reportWindow) reportWindow.focus();
+    });
+
+    document.querySelector("#open-calculator").addEventListener("click", (event) => {
+      event.preventDefault();
+      const calculatorWindow = window.open("/calculator.html", "ai_price_monitor_calculator");
+      if (calculatorWindow) calculatorWindow.focus();
     });
 
     document.querySelector("#save").addEventListener("click", async () => {
