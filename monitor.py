@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 
 ROOT = Path(__file__).resolve().parent
@@ -68,6 +69,18 @@ def empty_to_none(value: Any) -> Any:
 
 def has_value(value: Any) -> bool:
     return value is not None and value != ""
+
+
+def normalize_optional_http_url(value: Any) -> str | None:
+    if value is None:
+        return None
+    text = str(value).strip()
+    if not text or text.lower() in {"none", "null", "undefined", "n/a", "na", "-", "暂无", "无", "没有"}:
+        return None
+    parsed = urlparse(text)
+    if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+        return None
+    return text
 
 
 def load_sites() -> list[dict[str, Any]]:
@@ -303,9 +316,10 @@ def format_rate(value: Any) -> str:
     return f"{format_value(value)}<span>x</span>"
 
 def invite_cell(invite_url: str | None) -> str:
-    if not invite_url:
-        return "-"
-    escaped = html.escape(invite_url, quote=True)
+    normalized_url = normalize_optional_http_url(invite_url)
+    if not normalized_url:
+        return ""
+    escaped = html.escape(normalized_url, quote=True)
     return (
         f"<div class=\"invite-actions\">"
         f"<button class=\"copy-link\" type=\"button\" data-copy=\"{escaped}\">复制</button>"
@@ -1231,9 +1245,9 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
         </nav>
       </div>
     </section>
-    {paid_section}
-    {free_section}
-    {quality_section}
+{paid_section}
+{free_section}
+{quality_section}
   </main>
   <script>
     function todayString() {{

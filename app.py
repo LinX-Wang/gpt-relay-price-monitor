@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
-from monitor import DB_FILE, build_reports, load_sites, sort_snapshots, snapshot_from_site, sync_sites_to_db, write_sites
+from monitor import DB_FILE, build_reports, load_sites, normalize_optional_http_url, sort_snapshots, snapshot_from_site, sync_sites_to_db, write_sites
 
 
 ROOT = Path(__file__).resolve().parent
@@ -43,7 +43,7 @@ def normalize_site(site: dict[str, Any]) -> dict[str, Any]:
         "signup_bonus": parse_number(site.get("signup_bonus")),
         "daily_checkin_bonus": empty_to_none(site.get("daily_checkin_bonus")),
         "notes": str(site.get("notes", "")).strip(),
-        "invite_url": (str(site.get("invite_url", "")).strip() or None),
+        "invite_url": normalize_optional_http_url(site.get("invite_url")),
     }
 
 
@@ -57,6 +57,7 @@ def current_rows() -> list[dict[str, Any]]:
         rows.append(
             {
                 **site,
+                "invite_url": normalize_optional_http_url(site.get("invite_url")),
                 "lowest_rate": snapshot.lowest_rate,
             }
         )
