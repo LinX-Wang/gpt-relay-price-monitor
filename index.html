@@ -362,6 +362,10 @@
       padding: 16px 18px 18px;
       background: linear-gradient(135deg, #ffffff, #f8fbff);
     }
+    .tool-content + .tool-content {
+      padding-top: 18px;
+      border-top: 1px solid var(--soft-line);
+    }
     .tool-name {
       font-size: 18px;
       font-weight: 850;
@@ -713,7 +717,7 @@
     <div class="header-row">
       <div>
         <h1>GPT 中转站倍率看板</h1>
-        <div class="meta">更新时间：2026-07-17 18:01:00</div>
+        <div class="meta">更新时间：2026-07-20 11:05:45</div>
       </div>
       <div class="header-theme"><div class="hint">修改数据：用本地编辑器保存，或编辑项目目录下的 <code>sites.json</code> 后重新运行 <code>python monitor.py</code></div><div data-theme-control></div></div>
     </div>
@@ -736,6 +740,13 @@
           <div class="tool-desc">用于查看公开中转站目录、模型覆盖、最低倍率、公告和站点状态。适合作为你手动维护本站表格时的外部参考。</div>
         </div>
         <a class="tool-link" href="http://relaywatch.online/" target="_blank" rel="noopener noreferrer">打开 RelayWatch</a>
+      </div>
+      <div class="tool-content">
+        <div>
+          <div class="tool-name">AI 端点监控</div>
+          <div class="tool-desc">查看公开 AI API 端点的可用状态、模型数量、响应时间和剩余额度。适合在使用免费或赞助端点前快速确认当前状态。</div>
+        </div>
+        <a class="tool-link" href="http://hk.mlorr.online:3001/" target="_blank" rel="noopener noreferrer">打开端点监控</a>
       </div>
     </section>
     <section class="global-search" aria-label="全局搜索">

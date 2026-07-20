@@ -32,7 +32,15 @@
     .result-label { color:var(--muted); font-size:13px; font-weight:700; }
     .result-value { margin-top:5px; color:#101828; font-size:22px; font-weight:850; font-variant-numeric:tabular-nums; }
     .result.primary .result-value { color:#05665c; font-size:27px; }
-    .formula { margin:2px 18px 18px; padding:13px 14px; border-radius:6px; background:#f6f8fa; color:#475467; font-size:12px; line-height:1.65; }
+    .plain-summary { margin:18px 18px 0; padding:14px 15px; border:1px solid #a7d9d1; border-radius:7px; background:#f2fbf9; color:#18534d; font-size:14px; font-weight:800; line-height:1.65; }
+    .plain-grid { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:10px; padding:12px 18px 0; }
+    .plain-card { padding:12px 13px; border:1px solid var(--line); border-radius:7px; background:#fbfdff; }
+    .plain-label { color:var(--muted); font-size:12px; font-weight:750; line-height:1.4; }
+    .plain-value { margin-top:5px; color:#182230; font-size:17px; font-weight:850; font-variant-numeric:tabular-nums; }
+    .preset-row { grid-column:1 / -1; display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:-2px; }
+    .preset-label { color:var(--muted); font-size:12px; font-weight:800; }
+    .preset-button { height:30px; padding:0 10px; font-size:12px; }
+    .formula { margin:12px 18px 18px; padding:13px 14px; border-radius:6px; background:#f6f8fa; color:#475467; font-size:12px; line-height:1.65; }
     .actions { display:flex; gap:8px; padding:0 18px 18px; }
     button { height:38px; padding:0 14px; border:1px solid #cbd5e1; border-radius:6px; color:#344054; background:#fff; font:inherit; font-size:14px; font-weight:800; cursor:pointer; }
     button:hover { border-color:#84adff; color:var(--blue); background:var(--blue-soft); }
@@ -72,9 +80,15 @@
           <div class="field"><label for="topup">充值金额（元）</label><input id="topup" type="number" min="0" step="any" value="10"></div>
           <div class="field"><label for="credit">获得额度</label><input id="credit" type="number" min="0" step="any" value="10"></div>
           <div class="field wide"><label for="inputPrice">模型输入价格（额度 / 百万 Token）</label><input id="inputPrice" type="number" min="0" step="any" value="1"></div>
-          <div class="field"><label for="inputTokens">本次输入（百万 Token）</label><input id="inputTokens" type="number" min="0" step="any" value="0.001"></div>
+          <div class="field"><label for="inputTokens">本次输入（百万 Token）</label><input id="inputTokens" type="number" min="0" step="any" value="0.001"><p class="note">这是本次对话实际发送给模型的内容量。1,000 Token 就填 0.001。</p></div>
           <div class="field"><label for="outputPrice">模型输出价格（额度 / 百万 Token）</label><input id="outputPrice" type="number" min="0" step="any" value="1"></div>
-          <div class="field"><label for="outputTokens">本次输出（百万 Token）</label><input id="outputTokens" type="number" min="0" step="any" value="0.001"></div>
+          <div class="field"><label for="outputTokens">本次输出（百万 Token）</label><input id="outputTokens" type="number" min="0" step="any" value="0.001"><p class="note">这是模型本次实际回复的内容量。没有记录时可先用下面估算。</p></div>
+          <div class="preset-row">
+            <span class="preset-label">不知道用量时先估算：</span>
+            <button class="preset-button" type="button" data-preset-input="0.001" data-preset-output="0.001">小问题</button>
+            <button class="preset-button" type="button" data-preset-input="0.003" data-preset-output="0.002">普通对话</button>
+            <button class="preset-button" type="button" data-preset-input="0.02" data-preset-output="0.004">长文档</button>
+          </div>
           <div class="field"><label for="cacheHit">输入缓存命中率（%）</label><input id="cacheHit" type="number" min="0" max="100" step="any" value="0"></div>
           <div class="field"><label for="cacheDiscount">命中部分成本（%）</label><input id="cacheDiscount" type="number" min="0" max="100" step="any" value="10"></div>
         </div>
@@ -88,7 +102,14 @@
           <div class="result"><div class="result-label">本次输出成本</div><div id="outputCost" class="result-value">¥0.000000</div></div>
           <div class="result primary"><div class="result-label">本次预计总成本</div><div id="totalCost" class="result-value">¥0.000000</div></div>
         </div>
-        <div class="formula">输入成本会按缓存命中率折算：未命中的输入按原价计算，命中的输入按“命中部分成本”计算。输出不使用缓存折扣。</div>
+        <div id="plainSummary" class="plain-summary">填写参数后，这里会用人话解释这次调用大概要花多少钱。</div>
+        <div class="plain-grid">
+          <div class="plain-card"><div class="plain-label">每百万输入 Token</div><div id="inputPerMillion" class="plain-value">¥0.000000</div></div>
+          <div class="plain-card"><div class="plain-label">每百万输出 Token</div><div id="outputPerMillion" class="plain-value">¥0.000000</div></div>
+          <div class="plain-card"><div class="plain-label">每千输入 / 输出 Token</div><div id="perThousand" class="plain-value">¥0.000000 / ¥0.000000</div></div>
+          <div class="plain-card"><div class="plain-label">1 元约等于有效额度</div><div id="effectiveCredit" class="plain-value">0</div></div>
+        </div>
+        <div class="formula">“本次输入/输出”不是定价页数据，而是某次对话实际用了多少 Token。找不到记录时，可以先使用左侧估算按钮。</div>
         <div class="actions"><button id="reset" type="button">恢复默认</button></div>
         <div id="status" class="status">正在读取本地站点...</div>
       </aside>
@@ -123,6 +144,10 @@
     let sites = [];
     const number = (id) => Math.max(0, Number(document.getElementById(id).value) || 0);
     const money = (value) => `¥${Number(value || 0).toFixed(6)}`;
+    const compactMoney = (value) => {
+      const num = Number(value || 0);
+      return num >= 0.01 ? `¥${num.toFixed(4)}` : `¥${num.toFixed(6)}`;
+    };
     function save() { const data = {}; ids.forEach((id) => data[id] = document.getElementById(id).value); localStorage.setItem(storageKey, JSON.stringify(data)); }
     function calculate() {
       const unitCost = number("credit") > 0 ? number("topup") / number("credit") : 0;
@@ -135,7 +160,17 @@
       document.getElementById("realUnitCost").textContent = money(realUnitCost);
       document.getElementById("inputCost").textContent = money(inputCost);
       document.getElementById("outputCost").textContent = money(outputCost);
-      document.getElementById("totalCost").textContent = money(inputCost + outputCost);
+      const totalCost = inputCost + outputCost;
+      const inputPerMillion = number("inputPrice") * realUnitCost * ((1 - hit) + hit * discount);
+      const outputPerMillion = number("outputPrice") * realUnitCost;
+      document.getElementById("totalCost").textContent = money(totalCost);
+      document.getElementById("inputPerMillion").textContent = money(inputPerMillion);
+      document.getElementById("outputPerMillion").textContent = money(outputPerMillion);
+      document.getElementById("perThousand").textContent = `${compactMoney(inputPerMillion / 1000)} / ${compactMoney(outputPerMillion / 1000)}`;
+      document.getElementById("effectiveCredit").textContent = realUnitCost > 0 ? `${(1 / realUnitCost).toFixed(2)} 额度` : "-";
+      const inputTokens = number("inputTokens") * 1000000;
+      const outputTokens = number("outputTokens") * 1000000;
+      document.getElementById("plainSummary").textContent = `按当前填写：输入约 ${Math.round(inputTokens).toLocaleString()} Token、输出约 ${Math.round(outputTokens).toLocaleString()} Token，本次合计约 ${money(totalCost)}。每百万输入约 ${money(inputPerMillion)}，每百万输出约 ${money(outputPerMillion)}。`;
       save();
     }
     function selectedSite() { return sites.find((site) => site.name === document.getElementById("site").value); }
@@ -155,6 +190,11 @@
     ids.forEach((id) => document.getElementById(id).addEventListener("input", calculate));
     document.getElementById("site").addEventListener("change", applyRate);
     document.getElementById("rateType").addEventListener("change", applyRate);
+    document.querySelectorAll("[data-preset-input]").forEach((button) => button.addEventListener("click", () => {
+      document.getElementById("inputTokens").value = button.dataset.presetInput;
+      document.getElementById("outputTokens").value = button.dataset.presetOutput;
+      calculate();
+    }));
     document.getElementById("reset").addEventListener("click", () => { localStorage.removeItem(storageKey); ids.forEach((id) => document.getElementById(id).value = defaults[id]); applyRate(); });
     loadSaved(); loadSites(); calculate();
   </script>

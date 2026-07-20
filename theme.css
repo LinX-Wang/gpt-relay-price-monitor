@@ -18,6 +18,7 @@ html[data-theme="dark"] .tool-panel,
 html[data-theme="dark"] .global-search,
 html[data-theme="dark"] .quality-card,
 html[data-theme="dark"] .result,
+html[data-theme="dark"] .plain-card,
 html[data-theme="dark"] .guide-item,
 html[data-theme="dark"] .status { background:#17232d !important; border-color:#304150 !important; box-shadow:none !important; }
 html[data-theme="dark"] .panel-head,
@@ -35,11 +36,13 @@ html[data-theme="dark"] .site-name,
 html[data-theme="dark"] .tool-name,
 html[data-theme="dark"] .quality-name,
 html[data-theme="dark"] .result-value,
+html[data-theme="dark"] .plain-value,
 html[data-theme="dark"] .guide-item strong { color:#e8eef4 !important; }
 html[data-theme="dark"] .muted,
 html[data-theme="dark"] .meta,
 html[data-theme="dark"] .hint,
 html[data-theme="dark"] .panel-hint,
+html[data-theme="dark"] .plain-label,
 html[data-theme="dark"] .search-help,
 html[data-theme="dark"] .panel-subtitle,
 html[data-theme="dark"] .tool-desc,
@@ -119,3 +122,5 @@ html[data-theme="dark"] .search-clear:hover { background:#2a4050 !important; col
 html[data-theme="dark"] .report-search-clear { background:transparent !important; border:0 !important; color:#9fb1c1 !important; }
 html[data-theme="dark"] .report-search-clear:hover { background:#2a4050 !important; color:#f1f6fa !important; }
 @media (max-width:800px) { .calculator-theme { position:static; margin-top:14px; } .header-theme { align-items:flex-end; flex-direction:column; } }
+
+html[data-theme="dark"] .plain-summary { background:#123c3a !important; border-color:#258d82 !important; color:#b9eee7 !important; }
