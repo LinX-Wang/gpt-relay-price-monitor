@@ -4,7 +4,7 @@
 .theme-control button:hover { border-color:#84adff; background:#eaf3ff; color:#175cd3; }
 .theme-control .theme-auto.is-auto { border-color:#a7d9d1; background:#e6f7f3; color:#05665c; }
 .header-theme { display:flex; align-items:center; justify-content:flex-end; gap:12px; }
-.calculator-theme { position:absolute; top:25px; right:max(24px, calc((100vw - 1180px) / 2)); }
+.calculator-theme { position:absolute; top:25px; right:max(24px, calc((100vw - 1480px) / 2)); }
 
 html[data-theme="dark"] { color-scheme:dark; }
 html[data-theme="dark"] body { background:#101820 !important; color:#e8eef4 !important; }

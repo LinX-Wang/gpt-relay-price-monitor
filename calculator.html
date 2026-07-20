@@ -8,46 +8,50 @@
     :root { --bg:#eef3f7; --panel:#fff; --text:#182230; --muted:#667085; --line:#dbe3ec; --accent:#087f72; --accent-soft:#e6f7f3; --blue:#175cd3; --blue-soft:#eaf3ff; --amber:#9b5c00; --amber-soft:#fff4d7; }
     * { box-sizing:border-box; }
     body { margin:0; min-height:100vh; background:var(--bg); color:var(--text); font-family:"Microsoft YaHei", "Segoe UI", sans-serif; }
-    header { padding:28px max(24px, calc((100vw - 1180px) / 2)); background:#fff; border-bottom:1px solid var(--line); }
+    header { padding:20px max(24px, calc((100vw - 1480px) / 2)); background:#fff; border-bottom:1px solid var(--line); }
     .eyebrow { color:var(--accent); font-size:13px; font-weight:800; }
     h1 { margin:5px 0 7px; font-size:26px; line-height:1.2; }
     .subtitle { margin:0; color:var(--muted); font-size:14px; }
-    main { max-width:1180px; margin:0 auto; padding:24px; }
-    .layout { display:grid; grid-template-columns:minmax(0, 1.2fr) minmax(330px, .8fr); gap:20px; align-items:start; }
+    main { max-width:1480px; margin:0 auto; padding:20px 24px 28px; }
+    .layout { display:grid; grid-template-columns:minmax(0, 1.15fr) minmax(520px, .85fr); gap:18px; align-items:start; }
     .panel { background:var(--panel); border:1px solid var(--line); border-radius:8px; box-shadow:0 4px 14px rgba(16, 24, 40, .05); overflow:hidden; }
-    .panel-head { padding:16px 18px; border-bottom:1px solid var(--line); background:#fbfdff; }
+    .panel-head { padding:13px 16px; border-bottom:1px solid var(--line); background:#fbfdff; }
     .panel-title { margin:0; font-size:16px; }
     .panel-hint { margin:4px 0 0; color:var(--muted); font-size:13px; line-height:1.5; }
-    .fields { padding:18px; display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:15px; }
+    .fields { padding:14px 16px 16px; display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:11px 12px; }
     .field { min-width:0; }
     .field.wide { grid-column:1 / -1; }
     label { display:block; margin:0 0 7px; color:#344054; font-size:13px; font-weight:800; }
-    input, select { width:100%; height:39px; padding:0 11px; border:1px solid #cbd5e1; border-radius:6px; color:var(--text); background:#fff; font:inherit; font-size:14px; outline:none; }
+    input, select { width:100%; height:36px; padding:0 10px; border:1px solid #cbd5e1; border-radius:6px; color:var(--text); background:#fff; font:inherit; font-size:14px; outline:none; }
     input:focus, select:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(8,127,114,.12); }
     .rate-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-    .note { margin:6px 0 0; color:var(--muted); font-size:12px; line-height:1.45; }
-    .results { padding:18px; display:grid; gap:10px; }
-    .result { padding:13px 14px; border:1px solid var(--line); border-radius:7px; background:#fbfdff; }
-    .result.primary { border-color:#9adbd2; background:var(--accent-soft); }
+    .note { margin:4px 0 0; color:var(--muted); font-size:11px; line-height:1.35; }
+    .results { padding:14px 16px 0; display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:9px; }
+    .result { padding:10px 12px; border:1px solid var(--line); border-radius:7px; background:#fbfdff; }
+    .result.primary { grid-column:1 / -1; border-color:#9adbd2; background:var(--accent-soft); }
     .result-label { color:var(--muted); font-size:13px; font-weight:700; }
-    .result-value { margin-top:5px; color:#101828; font-size:22px; font-weight:850; font-variant-numeric:tabular-nums; }
-    .result.primary .result-value { color:#05665c; font-size:27px; }
-    .plain-summary { margin:18px 18px 0; padding:14px 15px; border:1px solid #a7d9d1; border-radius:7px; background:#f2fbf9; color:#18534d; font-size:14px; font-weight:800; line-height:1.65; }
-    .plain-grid { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:10px; padding:12px 18px 0; }
-    .plain-card { padding:12px 13px; border:1px solid var(--line); border-radius:7px; background:#fbfdff; }
+    .result-value { margin-top:4px; color:#101828; font-size:18px; font-weight:850; font-variant-numeric:tabular-nums; }
+    .result.primary .result-value { color:#05665c; font-size:24px; }
+    .plain-summary { margin:10px 16px 0; padding:11px 13px; border:1px solid #a7d9d1; border-radius:7px; background:#f2fbf9; color:#18534d; font-size:14px; font-weight:800; line-height:1.65; }
+    .plain-grid { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:8px; padding:9px 16px 0; }
+    .plain-card { padding:9px 11px; border:1px solid var(--line); border-radius:7px; background:#fbfdff; }
     .plain-label { color:var(--muted); font-size:12px; font-weight:750; line-height:1.4; }
-    .plain-value { margin-top:5px; color:#182230; font-size:17px; font-weight:850; font-variant-numeric:tabular-nums; }
+    .plain-value { margin-top:4px; color:#182230; font-size:15px; font-weight:850; font-variant-numeric:tabular-nums; }
     .preset-row { grid-column:1 / -1; display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:-2px; }
     .preset-label { color:var(--muted); font-size:12px; font-weight:800; }
     .preset-button { height:30px; padding:0 10px; font-size:12px; }
-    .formula { margin:12px 18px 18px; padding:13px 14px; border-radius:6px; background:#f6f8fa; color:#475467; font-size:12px; line-height:1.65; }
-    .actions { display:flex; gap:8px; padding:0 18px 18px; }
+    .formula { margin:9px 16px 12px; padding:10px 12px; border-radius:6px; background:#f6f8fa; color:#475467; font-size:12px; line-height:1.65; }
+    .actions { display:flex; gap:8px; padding:0 16px 10px; }
     button { height:38px; padding:0 14px; border:1px solid #cbd5e1; border-radius:6px; color:#344054; background:#fff; font:inherit; font-size:14px; font-weight:800; cursor:pointer; }
     button:hover { border-color:#84adff; color:var(--blue); background:var(--blue-soft); }
-    .status { padding:0 18px 18px; color:var(--muted); font-size:12px; min-height:32px; }
-    .guide { margin-top:24px; padding:22px 2px 4px; border-top:1px solid #ccd9e5; }
-    .guide-title { margin:0; font-size:19px; }
-    .guide-intro { margin:7px 0 18px; color:var(--muted); font-size:14px; line-height:1.6; }
+    .status { padding:0 16px 13px; color:var(--muted); font-size:12px; min-height:26px; }
+    .guide { margin-top:14px; border:1px solid var(--line); border-radius:8px; background:rgba(255,255,255,.72); overflow:hidden; }
+    .guide-toggle { padding:13px 16px; color:#344054; font-size:14px; font-weight:850; cursor:pointer; list-style:none; }
+    .guide-toggle::-webkit-details-marker { display:none; }
+    .guide-toggle::after { content:"展开"; float:right; color:var(--accent); font-size:12px; }
+    .guide[open] .guide-toggle::after { content:"收起"; }
+    .guide-body { padding:0 16px 16px; border-top:1px solid var(--line); }
+    .guide-intro { margin:13px 0; color:var(--muted); font-size:13px; line-height:1.55; }
     .guide-grid { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:14px; }
     .guide-item { min-width:0; padding:16px; border:1px solid var(--line); border-radius:7px; background:rgba(255,255,255,.72); }
     .guide-step { display:inline-flex; align-items:center; justify-content:center; width:25px; height:25px; border-radius:50%; background:var(--accent-soft); color:#05665c; font-size:13px; font-weight:850; }
@@ -55,9 +59,9 @@
     .guide-item p { margin:0; color:#475467; font-size:13px; line-height:1.7; }
     .guide-item strong { color:#182230; }
     .simple-tip { margin-top:14px; padding:13px 15px; border-left:3px solid var(--accent); background:#f5fbfa; color:#344054; font-size:13px; line-height:1.7; }
-    @media (max-width:800px) { header { padding:22px 18px; } main { padding:18px; } .layout { grid-template-columns:1fr; } }
+    @media (max-width:1000px) { header { padding:20px 18px; } main { padding:18px; } .layout { grid-template-columns:1fr; } }
     @media (max-width:800px) { .guide-grid { grid-template-columns:1fr; } }
-    @media (max-width:520px) { .fields { grid-template-columns:1fr; } .rate-row { grid-template-columns:1fr; } h1 { font-size:22px; } }
+    @media (max-width:600px) { .fields, .results, .plain-grid { grid-template-columns:1fr; } .result.primary { grid-column:auto; } .rate-row { grid-template-columns:1fr; } h1 { font-size:22px; } }
   </style>
   <link rel="stylesheet" href="./theme.css">
   <script src="./theme.js"></script>
@@ -114,8 +118,9 @@
         <div id="status" class="status">正在读取本地站点...</div>
       </aside>
     </div>
-    <section class="guide" aria-label="填写说明">
-      <h2 class="guide-title">不知道怎么填？按这三步来</h2>
+    <details class="guide">
+      <summary class="guide-toggle">不会填？查看填写说明和示例</summary>
+      <div class="guide-body">
       <p class="guide-intro">这个工具要回答的是：某次调用模型，实际花了你多少人民币。先用保守数据填，结果会更可靠。</p>
       <div class="guide-grid">
         <article class="guide-item">
@@ -135,7 +140,8 @@
         </article>
       </div>
       <div class="simple-tip"><strong>最简单的用法：</strong>如果你没有缓存和精确用量数据，缓存命中率先填 0；把本次输入和输出 Token 按大概数量估计。这样算出来是偏保守的成本，不会把花费算低。输入、输出价格不要填站点倍率，它们是模型页面标的“额度 / 百万 Token”价格。</div>
-    </section>
+      </div>
+    </details>
   </main>
   <script>
     const storageKey = "ai-price-monitor:cost-calculator";
