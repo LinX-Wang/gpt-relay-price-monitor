@@ -1220,8 +1220,8 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
   <main>
     <section class="tool-panel">
       <div class="panel-bar">
-        <div class="panel-title">外部参考</div>
-        <div class="quality-tip">公开中转站聚合与模型比价</div>
+        <div class="panel-title">常用工具</div>
+        <div class="quality-tip">比价、端点状态与提示词优化</div>
       </div>
       <div class="tool-content">
         <div>
@@ -1236,6 +1236,13 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
           <div class="tool-desc">查看公开 AI API 端点的可用状态、模型数量、响应时间和剩余额度。适合在使用免费或赞助端点前快速确认当前状态。</div>
         </div>
         <a class="tool-link" href="http://hk.mlorr.online:3001/" target="_blank" rel="noopener noreferrer">打开端点监控</a>
+      </div>
+      <div class="tool-content">
+        <div>
+          <div class="tool-name">提示词优化器</div>
+          <div class="tool-desc">把普通需求整理成更清晰、可执行的系统提示词或用户提示词，适合写完提示词后先润色再投入 GPT / Codex 使用。</div>
+        </div>
+        <a class="tool-link" href="https://prompt.always200.com/#/basic/system" target="_blank" rel="noopener noreferrer">打开提示词优化器</a>
       </div>
     </section>
     <section class="global-search" aria-label="全局搜索">
