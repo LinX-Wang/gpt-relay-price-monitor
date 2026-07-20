@@ -1,3 +1,3 @@
 @echo off
-start "" wscript.exe "%~dp0启动价格监控编辑器.vbs"
+start "" wscript.exe "%~dp0start_editor_hidden.vbs"
 exit /b 0
