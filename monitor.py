@@ -400,6 +400,11 @@ def render_rows(items: list[SiteSnapshot]) -> str:
         balance_sort = item.balance if item.balance is not None else 0
         balance_display = format_value(item.balance)
         open_url_escaped = html.escape(item.url, quote=True)
+        open_cell = (
+            f"<a class=\"open-link\" href=\"{open_url_escaped}\" target=\"_blank\" rel=\"noopener noreferrer\">打开</a>"
+            if item.url
+            else "-"
+        )
         rows.append(
             f"<tr class=\"{row_class}\" data-original-rank=\"{rank}\" data-balance=\"{balance_sort}\">"
             f"<td class=\"rank\">{rank}</td>"
@@ -410,7 +415,7 @@ def render_rows(items: list[SiteSnapshot]) -> str:
             f"<td>{format_value(item.signup_bonus)}</td>"
             f"<td class=\"checkin-cell\">{checkin_cell(item.daily_checkin_bonus, item.url or item.name)}</td>"
             f"<td class=\"balance-cell\">{balance_display}</td>"
-            f"<td><a class=\"open-link\" href=\"{open_url_escaped}\" target=\"_blank\" rel=\"noopener noreferrer\">打开</a></td>"
+            f"<td>{open_cell}</td>"
             f"<td>{invite_cell(item.invite_url)}</td>"
             f"<td class=\"notes\">{html.escape(item.notes)}</td>"
             "</tr>"
