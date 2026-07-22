@@ -177,9 +177,16 @@ EDITOR_HTML = r"""<!doctype html>
       --shadow: 0 18px 44px rgba(16, 24, 40, 0.10);
     }
     * { box-sizing: border-box; }
+    html,
+    body {
+      height: 100%;
+    }
     body {
       margin: 0;
       min-width: 1200px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
       background:
         linear-gradient(180deg, #fbfcfe 0, var(--bg) 280px),
         var(--bg);
@@ -188,8 +195,8 @@ EDITOR_HTML = r"""<!doctype html>
       font-size: 14px;
     }
     header {
-      position: sticky;
-      top: 0;
+      position: relative;
+      flex: 0 0 auto;
       z-index: 20;
       padding: 20px 28px 16px;
       border-bottom: 1px solid rgba(217, 222, 231, 0.86);
@@ -346,9 +353,15 @@ EDITOR_HTML = r"""<!doctype html>
       box-shadow: 0 0 0 3px rgba(15, 159, 143, 0.12);
     }
     main {
+      display: flex;
+      flex: 1 1 auto;
+      min-height: 0;
       padding: 20px 28px 34px;
     }
     .panel {
+      flex: 1 1 auto;
+      min-width: 0;
+      min-height: 0;
       overflow: hidden;
       border: 1px solid var(--line);
       border-radius: 8px;
@@ -356,8 +369,13 @@ EDITOR_HTML = r"""<!doctype html>
       box-shadow: var(--shadow);
     }
     .table-wrap {
+      height: 100%;
+      min-height: 0;
       overflow: auto;
-      max-height: calc(100vh - 230px);
+      overscroll-behavior: contain;
+      scrollbar-gutter: stable;
+      touch-action: pan-x pan-y;
+      -webkit-overflow-scrolling: touch;
     }
     table {
       width: 100%;
