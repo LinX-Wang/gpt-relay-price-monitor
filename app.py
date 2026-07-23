@@ -592,6 +592,7 @@ EDITOR_HTML = r"""<!doctype html>
     const fields = ["name", "category", "welfare_rate", "plus_rate", "pro_rate", "signup_bonus", "daily_checkin_bonus", "balance", "url", "invite_url", "notes"];
     const numeric = new Set(["welfare_rate", "plus_rate", "pro_rate", "signup_bonus", "balance"]);
     const tbody = document.querySelector("#tbody");
+    const tableWrap = document.querySelector(".table-wrap");
     const statusEl = document.querySelector("#status");
     const searchEl = document.querySelector("#search");
     const searchWrap = document.querySelector("#search-wrap");
@@ -740,11 +741,38 @@ EDITOR_HTML = r"""<!doctype html>
         const index = rows.indexOf(row);
         const tr = tbody.querySelector(`tr[data-index="${index}"]`);
         if (!tr) return;
-        tr.scrollIntoView({behavior: "smooth", block: "center"});
+        const wrapRect = tableWrap.getBoundingClientRect();
+        const rowRect = tr.getBoundingClientRect();
+        const nextTop = tableWrap.scrollTop + rowRect.top - wrapRect.top - (tableWrap.clientHeight / 2) + (tr.offsetHeight / 2);
+        tableWrap.scrollTo({top: Math.max(0, nextTop), behavior: "smooth"});
         const nameInput = tr.querySelector('input[data-field="name"]');
         if (nameInput) nameInput.focus();
       });
     }
+
+    function redirectPageWheel(event) {
+      if (!tableWrap || event.defaultPrevented || event.ctrlKey) return;
+      if (Math.abs(event.deltaY) <= Math.abs(event.deltaX)) return;
+      const maxTop = tableWrap.scrollHeight - tableWrap.clientHeight;
+      if (maxTop <= 0) return;
+      const startTop = tableWrap.scrollTop;
+      const nextTop = Math.max(0, Math.min(maxTop, startTop + event.deltaY));
+      if (nextTop === startTop) return;
+
+      if (!event.target.closest(".table-wrap")) {
+        event.preventDefault();
+        tableWrap.scrollTop = nextTop;
+        return;
+      }
+
+      window.requestAnimationFrame(() => {
+        if (Math.abs(tableWrap.scrollTop - startTop) < 1) {
+          tableWrap.scrollTop = nextTop;
+        }
+      });
+    }
+
+    document.addEventListener("wheel", redirectPageWheel, {passive: false});
 
     function escapeHtml(text) {
       return String(text)
