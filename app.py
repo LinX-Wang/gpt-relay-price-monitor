@@ -36,6 +36,7 @@ def normalize_site(site: dict[str, Any]) -> dict[str, Any]:
         "name": str(site.get("name", "")).strip(),
         "url": str(site.get("url", "")).strip(),
         "category": str(site.get("category", "收费站")).strip() or "收费站",
+        "usage_status": "常用" if site.get("usage_status") == "常用" else "",
         "balance": parse_number(site.get("balance")),
         "welfare_rate": parse_number(site.get("welfare_rate")),
         "plus_rate": parse_number(site.get("plus_rate")),
@@ -472,6 +473,10 @@ EDITOR_HTML = r"""<!doctype html>
     }
     input.number { min-width: 76px; }
     select.category-input { min-width: 86px; }
+    select.usage-input { min-width: 72px; font-weight: 700; }
+    tbody tr.is-common-site { background: linear-gradient(90deg, rgba(255, 230, 143, 0.42), rgba(255, 255, 255, 0.94) 45%); outline: 1px solid rgba(217, 154, 0, 0.24); outline-offset: -1px; }
+    tbody tr.is-common-site .site-input { color: #7a4b00; font-weight: 800; }
+    tbody tr.is-common-site select.usage-input { border-color: #fdb022; background: #fffaeb; color: #93370d; }
     input.url { min-width: 260px; }
     input.notes { min-width: 280px; }
     .rank {
@@ -570,6 +575,7 @@ EDITOR_HTML = r"""<!doctype html>
               <th>#</th>
               <th>站点</th>
               <th>分类</th>
+              <th>使用</th>
               <th>最低</th>
               <th>福利/特价</th>
               <th>Plus</th>
@@ -589,7 +595,7 @@ EDITOR_HTML = r"""<!doctype html>
     </div>
   </main>
   <script>
-    const fields = ["name", "category", "welfare_rate", "plus_rate", "pro_rate", "signup_bonus", "daily_checkin_bonus", "balance", "url", "invite_url", "notes"];
+    const fields = ["name", "category", "usage_status", "welfare_rate", "plus_rate", "pro_rate", "signup_bonus", "daily_checkin_bonus", "balance", "url", "invite_url", "notes"];
     const numeric = new Set(["welfare_rate", "plus_rate", "pro_rate", "signup_bonus", "balance"]);
     const tbody = document.querySelector("#tbody");
     const tableWrap = document.querySelector(".table-wrap");
@@ -651,7 +657,7 @@ EDITOR_HTML = r"""<!doctype html>
     function rowMatches(row) {
       if (checkinOnly && !hasCheckin(row)) return false;
       if (!query) return true;
-      const haystack = [row.name, row.category, row.url, row.invite_url, row.notes].map(fmt).join(" ").toLowerCase();
+      const haystack = [row.name, row.category, row.usage_status, row.url, row.invite_url, row.notes].map(fmt).join(" ").toLowerCase();
       return haystack.includes(query);
     }
 
@@ -697,6 +703,7 @@ EDITOR_HTML = r"""<!doctype html>
       if (rate !== "" && Number(rate) <= 0.03) classes.push("tier-low");
       else if (rate !== "" && Number(rate) <= 0.1) classes.push("tier-mid");
       if (Number(row.balance || 0) > 0) classes.push("has-balance");
+      if (fmt(row.usage_status) === "常用") classes.push("is-common-site");
       if (hasCheckin(row)) classes.push("has-checkin");
       if (isSignedToday(row)) classes.push("signed-today");
       return classes.join(" ");
@@ -718,6 +725,12 @@ EDITOR_HTML = r"""<!doctype html>
             <select class="category-input" data-field="category">
               <option value="收费站"${fmt(row.category || "收费站") === "收费站" ? " selected" : ""}>收费站</option>
               <option value="公益站"${fmt(row.category || "收费站") === "公益站" ? " selected" : ""}>公益站</option>
+            </select>
+          </td>
+          <td>
+            <select class="usage-input" data-field="usage_status">
+              <option value=""${fmt(row.usage_status) === "" ? " selected" : ""}>-</option>
+              <option value="常用"${fmt(row.usage_status) === "常用" ? " selected" : ""}>常用</option>
             </select>
           </td>
           <td class="readonly">${fmt(lowest(row))}${lowest(row) === "" ? "" : "x"}</td>
@@ -807,7 +820,7 @@ EDITOR_HTML = r"""<!doctype html>
     });
 
     document.querySelector("#add").addEventListener("click", () => {
-      const row = {name: "", category: "收费站", url: "", balance: null, welfare_rate: null, plus_rate: null, pro_rate: null, signup_bonus: null, daily_checkin_bonus: null, notes: "", invite_url: ""};
+      const row = {name: "", category: "收费站", usage_status: "", url: "", balance: null, welfare_rate: null, plus_rate: null, pro_rate: null, signup_bonus: null, daily_checkin_bonus: null, notes: "", invite_url: ""};
       rows.push(row);
       query = "";
       checkinOnly = false;

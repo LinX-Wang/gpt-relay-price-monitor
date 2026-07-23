@@ -30,6 +30,7 @@ SITE_FIELDS = [
     "daily_checkin_bonus",
     "notes",
     "invite_url",
+    "usage_status",
 ]
 
 
@@ -49,6 +50,7 @@ class SiteSnapshot:
     source: str
     status: str
     notes: str
+    usage_status: str
     checked_at: str
 
 
@@ -123,6 +125,7 @@ def init_db(conn: sqlite3.Connection) -> None:
             source TEXT NOT NULL,
             status TEXT NOT NULL,
             notes TEXT,
+            usage_status TEXT NOT NULL DEFAULT '',
             checked_at TEXT NOT NULL
         )
         """
@@ -134,6 +137,8 @@ def init_db(conn: sqlite3.Connection) -> None:
         conn.execute("ALTER TABLE snapshots ADD COLUMN invite_url TEXT")
     if "pro_rate" not in columns:
         conn.execute("ALTER TABLE snapshots ADD COLUMN pro_rate REAL")
+    if "usage_status" not in columns:
+        conn.execute("ALTER TABLE snapshots ADD COLUMN usage_status TEXT NOT NULL DEFAULT ''")
     conn.commit()
 
 
@@ -152,6 +157,7 @@ def init_sites_table(conn: sqlite3.Connection) -> None:
             daily_checkin_bonus REAL,
             notes TEXT,
             invite_url TEXT,
+            usage_status TEXT NOT NULL DEFAULT '',
             sort_order INTEGER NOT NULL DEFAULT 0,
             updated_at TEXT NOT NULL
         )
@@ -164,6 +170,7 @@ def init_sites_table(conn: sqlite3.Connection) -> None:
         "pro_rate": "ALTER TABLE sites ADD COLUMN pro_rate REAL",
         "sort_order": "ALTER TABLE sites ADD COLUMN sort_order INTEGER NOT NULL DEFAULT 0",
         "updated_at": "ALTER TABLE sites ADD COLUMN updated_at TEXT NOT NULL DEFAULT ''",
+        "usage_status": "ALTER TABLE sites ADD COLUMN usage_status TEXT NOT NULL DEFAULT ''",
     }
     for column, sql in migrations.items():
         if column not in columns:
@@ -189,6 +196,7 @@ def sync_sites_to_db(conn: sqlite3.Connection, sites: list[dict[str, Any]]) -> N
                 "daily_checkin_bonus": empty_to_none(site.get("daily_checkin_bonus")),
                 "notes": site.get("notes", ""),
                 "invite_url": site.get("invite_url"),
+                "usage_status": "常用" if site.get("usage_status") == "常用" else "",
                 "sort_order": sort_order,
                 "updated_at": now,
             }
@@ -198,10 +206,10 @@ def sync_sites_to_db(conn: sqlite3.Connection, sites: list[dict[str, Any]]) -> N
         """
         INSERT INTO sites (
             name, url, category, balance, welfare_rate, plus_rate, pro_rate, signup_bonus,
-            daily_checkin_bonus, notes, invite_url, sort_order, updated_at
+            daily_checkin_bonus, notes, invite_url, usage_status, sort_order, updated_at
         ) VALUES (
             :name, :url, :category, :balance, :welfare_rate, :plus_rate, :pro_rate, :signup_bonus,
-            :daily_checkin_bonus, :notes, :invite_url, :sort_order, :updated_at
+            :daily_checkin_bonus, :notes, :invite_url, :usage_status, :sort_order, :updated_at
         )
         """,
         rows,
@@ -214,7 +222,7 @@ def load_sites_from_db(conn: sqlite3.Connection) -> list[dict[str, Any]]:
     rows = conn.execute(
         """
         SELECT name, url, category, balance, welfare_rate, plus_rate, pro_rate, signup_bonus,
-               daily_checkin_bonus, notes, invite_url
+               daily_checkin_bonus, notes, invite_url, usage_status
         FROM sites
         ORDER BY sort_order, name
         """
@@ -249,6 +257,7 @@ def snapshot_from_site(site: dict[str, Any]) -> SiteSnapshot:
         source="manual",
         status="manual_seed",
         notes=site.get("notes", ""),
+        usage_status="常用" if site.get("usage_status") == "常用" else "",
         checked_at=datetime.now().isoformat(timespec="seconds"),
     )
 
@@ -258,10 +267,10 @@ def save_snapshots(conn: sqlite3.Connection, snapshots: list[SiteSnapshot]) -> N
         """
         INSERT INTO snapshots (
             name, url, category, invite_url, welfare_rate, plus_rate, pro_rate, lowest_rate, balance,
-            signup_bonus, daily_checkin_bonus, source, status, notes, checked_at
+            signup_bonus, daily_checkin_bonus, source, status, notes, usage_status, checked_at
         ) VALUES (
             :name, :url, :category, :invite_url, :welfare_rate, :plus_rate, :pro_rate, :lowest_rate, :balance,
-            :signup_bonus, :daily_checkin_bonus, :source, :status, :notes, :checked_at
+            :signup_bonus, :daily_checkin_bonus, :source, :status, :notes, :usage_status, :checked_at
         )
         """,
         [snapshot.__dict__ for snapshot in snapshots],
@@ -271,6 +280,8 @@ def save_snapshots(conn: sqlite3.Connection, snapshots: list[SiteSnapshot]) -> N
         conn.execute("ALTER TABLE snapshots ADD COLUMN invite_url TEXT")
     if "pro_rate" not in columns:
         conn.execute("ALTER TABLE snapshots ADD COLUMN pro_rate REAL")
+    if "usage_status" not in columns:
+        conn.execute("ALTER TABLE snapshots ADD COLUMN usage_status TEXT NOT NULL DEFAULT ''")
     conn.commit()
 
 
@@ -289,6 +300,7 @@ def export_csv(snapshots: list[SiteSnapshot]) -> Path:
         "url",
         "invite_url",
         "notes",
+        "usage_status",
         "checked_at",
     ]
     with path.open("w", encoding="utf-8-sig", newline="") as f:
@@ -397,6 +409,8 @@ def render_rows(items: list[SiteSnapshot]) -> str:
             row_class = f"{row_class} has-balance".strip()
         if has_value(item.daily_checkin_bonus):
             row_class = f"{row_class} has-checkin".strip()
+        if item.usage_status == "常用":
+            row_class = f"{row_class} is-common-site".strip()
         balance_sort = item.balance if item.balance is not None else 0
         balance_display = format_value(item.balance)
         open_url_escaped = html.escape(item.url, quote=True)
@@ -405,10 +419,11 @@ def render_rows(items: list[SiteSnapshot]) -> str:
             if item.url
             else "-"
         )
+        usage_badge = '<span class="usage-badge">常用</span>' if item.usage_status == "常用" else ""
         rows.append(
             f"<tr class=\"{row_class}\" data-original-rank=\"{rank}\" data-balance=\"{balance_sort}\">"
             f"<td class=\"rank\">{rank}</td>"
-            f"<td><div class=\"site-name\">{html.escape(item.name)}</div><div class=\"site-url\">{html.escape(item.url or '-')}</div></td>"
+            f"<td><div class=\"site-name\">{html.escape(item.name)}{usage_badge}</div><div class=\"site-url\">{html.escape(item.url or '-')}</div></td>"
             f"<td class=\"rate\">{format_rate(item.lowest_rate)}</td>"
             f"<td class=\"plus-rate\">{format_rate(item.plus_rate)}</td>"
             f"<td class=\"pro-rate\">{format_rate(item.pro_rate)}</td>"
@@ -976,6 +991,28 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
     }}
     .tier-mid {{
       background: linear-gradient(90deg, rgba(255, 244, 215, 0.65), #fff 34%);
+    }}
+    .is-common-site {{
+      background: linear-gradient(90deg, rgba(255, 230, 143, 0.48), rgba(255, 255, 255, 0.92) 42%);
+      outline: 1px solid rgba(217, 154, 0, 0.26);
+      outline-offset: -1px;
+    }}
+    .is-common-site .site-name {{
+      color: #7a4b00;
+    }}
+    .usage-badge {{
+      display: inline-flex;
+      align-items: center;
+      min-height: 20px;
+      margin-left: 8px;
+      padding: 2px 7px;
+      border: 1px solid #fedf89;
+      border-radius: 999px;
+      background: #fffaeb;
+      color: #93370d;
+      font-size: 12px;
+      font-weight: 800;
+      vertical-align: 1px;
     }}
     .has-balance {{
       box-shadow: inset 4px 0 0 #175cd3;

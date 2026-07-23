@@ -10,7 +10,8 @@
     "signup_bonus": null,
     "daily_checkin_bonus": null,
     "notes": "邀请一个人可以0.00001倍率",
-    "invite_url": "https://ai.hebox.net/register?aff=yX3y"
+    "invite_url": "https://ai.hebox.net/register?aff=yX3y",
+    "usage_status": ""
   },
   {
     "name": "PRY API",
@@ -23,7 +24,22 @@
     "signup_bonus": 0.05,
     "daily_checkin_bonus": null,
     "notes": "十元起充",
-    "invite_url": "https://bearlab.ai/sign-up?aff=Qaet"
+    "invite_url": "https://bearlab.ai/sign-up?aff=Qaet",
+    "usage_status": ""
+  },
+  {
+    "name": "Ben API",
+    "url": "https://api.benzhoupo.xyz/sign-up?aff=8YKS",
+    "category": "收费站",
+    "balance": null,
+    "welfare_rate": 0.0001,
+    "plus_rate": null,
+    "pro_rate": null,
+    "signup_bonus": 0.05,
+    "daily_checkin_bonus": null,
+    "notes": "",
+    "invite_url": "https://api.benzhoupo.xyz/sign-up?aff=8YKS",
+    "usage_status": ""
   },
   {
     "name": "Sub2API-2",
@@ -36,7 +52,8 @@
     "signup_bonus": null,
     "daily_checkin_bonus": null,
     "notes": "",
-    "invite_url": "https://sub2api.ys-ai.xyz/register?aff=SNSX2XGVMTNZ"
+    "invite_url": "https://sub2api.ys-ai.xyz/register?aff=SNSX2XGVMTNZ",
+    "usage_status": ""
   },
   {
     "name": "MyDamoxing",
@@ -49,7 +66,22 @@
     "signup_bonus": 1.0,
     "daily_checkin_bonus": null,
     "notes": "",
-    "invite_url": "https://mydamoxing.cn/register?aff=fiF7"
+    "invite_url": "https://mydamoxing.cn/register?aff=fiF7",
+    "usage_status": ""
+  },
+  {
+    "name": "要和气呀",
+    "url": "https://yaoheqi.xyz/register?aff=4FPVJJZYQC6E",
+    "category": "收费站",
+    "balance": null,
+    "welfare_rate": 0.005,
+    "plus_rate": 0.06,
+    "pro_rate": 0.3,
+    "signup_bonus": null,
+    "daily_checkin_bonus": null,
+    "notes": "",
+    "invite_url": "https://yaoheqi.xyz/register?aff=4FPVJJZYQC6E",
+    "usage_status": ""
   },
   {
     "name": "真香API",
@@ -62,7 +94,8 @@
     "signup_bonus": null,
     "daily_checkin_bonus": null,
     "notes": "",
-    "invite_url": "https://zxiang.dxmcs.xin/sign-up?aff=Ig7W"
+    "invite_url": "https://zxiang.dxmcs.xin/sign-up?aff=Ig7W",
+    "usage_status": ""
   },
   {
     "name": "wahuiliyi",
@@ -75,7 +108,8 @@
     "signup_bonus": null,
     "daily_checkin_bonus": null,
     "notes": "特价分组0.008、0.015，team分组0.07",
-    "invite_url": "https://api2.wahuiliyi.cn/register?aff=TPL5APZJBDWB"
+    "invite_url": "https://api2.wahuiliyi.cn/register?aff=TPL5APZJBDWB",
+    "usage_status": ""
   },
   {
     "name": "Mikiko CC",
@@ -88,7 +122,8 @@
     "signup_bonus": 0.6,
     "daily_checkin_bonus": null,
     "notes": "美元充值（十美元（68元）起充）",
-    "invite_url": null
+    "invite_url": null,
+    "usage_status": ""
   },
   {
     "name": "二狗子",
@@ -101,7 +136,8 @@
     "signup_bonus": 0.15,
     "daily_checkin_bonus": null,
     "notes": "限时优惠组 0.015; 余额低价组 0.02; 余额稳定组 0.025",
-    "invite_url": "https://ergouzi.life/sign-up?aff=ZnNM"
+    "invite_url": "https://ergouzi.life/sign-up?aff=ZnNM",
+    "usage_status": ""
   },
   {
     "name": "HUBWAY",
@@ -114,7 +150,8 @@
     "signup_bonus": 15.0,
     "daily_checkin_bonus": null,
     "notes": "充值 1:10 折算后倍率",
-    "invite_url": "https://hubway.cc/register?aff=KQFDS5PAJEVS"
+    "invite_url": "https://hubway.cc/register?aff=KQFDS5PAJEVS",
+    "usage_status": ""
   },
   {
     "name": "Uni Token",
@@ -127,7 +164,8 @@
     "signup_bonus": null,
     "daily_checkin_bonus": null,
     "notes": "",
-    "invite_url": "https://uni-token.com/register?aff=WSHUXMWT29KN"
+    "invite_url": "https://uni-token.com/register?aff=WSHUXMWT29KN",
+    "usage_status": ""
   },
   {
     "name": "Sun API",
@@ -140,20 +178,8 @@
     "signup_bonus": 0.5,
     "daily_checkin_bonus": null,
     "notes": "",
-    "invite_url": "https://api.sunai.lol/sign-up?aff=26ia"
-  },
-  {
-    "name": "VC",
-    "url": "https://sub.vcnovb.cn/register?aff=T5QDLGL67WHR",
-    "category": "收费站",
-    "balance": null,
-    "welfare_rate": 0.01,
-    "plus_rate": 0.1,
-    "pro_rate": 0.1,
-    "signup_bonus": null,
-    "daily_checkin_bonus": null,
-    "notes": "福利分组 0.01、0.04; plus 0.1; pro 0.1、0.25",
-    "invite_url": "https://sub.vcnovb.cn/register?aff=T5QDLGL67WHR"
+    "invite_url": "https://api.sunai.lol/sign-up?aff=26ia",
+    "usage_status": ""
   },
   {
     "name": "LingFAPI",
@@ -166,7 +192,8 @@
     "signup_bonus": null,
     "daily_checkin_bonus": null,
     "notes": "",
-    "invite_url": "https://linfengx.xyz/register?aff=QSMZUEBZZ6BJ"
+    "invite_url": "https://linfengx.xyz/register?aff=QSMZUEBZZ6BJ",
+    "usage_status": ""
   },
   {
     "name": "星港AI",
@@ -179,7 +206,8 @@
     "signup_bonus": 3.0,
     "daily_checkin_bonus": null,
     "notes": "",
-    "invite_url": "https://xinggangai.com/register?aff=ouEW"
+    "invite_url": "https://xinggangai.com/register?aff=ouEW",
+    "usage_status": ""
   },
   {
     "name": "XelvAI API",
@@ -192,20 +220,8 @@
     "signup_bonus": 5.0,
     "daily_checkin_bonus": null,
     "notes": "充值比1：10",
-    "invite_url": "https://xelvai.com/register?aff=N5LZ5XHLSF34"
-  },
-  {
-    "name": "Sub2Api-1",
-    "url": "https://mdkj.lol/register?aff=H5Q3QB8J3FCR",
-    "category": "收费站",
-    "balance": null,
-    "welfare_rate": 0.015,
-    "plus_rate": 0.04,
-    "pro_rate": 0.1,
-    "signup_bonus": null,
-    "daily_checkin_bonus": null,
-    "notes": "特惠 0.03; plus 0.05; pro 0.12、0.15",
-    "invite_url": "https://mdkj.lol/register?aff=H5Q3QB8J3FCR"
+    "invite_url": "https://xelvai.com/register?aff=N5LZ5XHLSF34",
+    "usage_status": ""
   },
   {
     "name": "247看API",
@@ -218,7 +234,8 @@
     "signup_bonus": null,
     "daily_checkin_bonus": null,
     "notes": "",
-    "invite_url": "https://api.247kan.com/register?aff=XD836AN58YG6"
+    "invite_url": "https://api.247kan.com/register?aff=XD836AN58YG6",
+    "usage_status": ""
   },
   {
     "name": "牛大了2.0",
@@ -231,7 +248,22 @@
     "signup_bonus": 0.2,
     "daily_checkin_bonus": null,
     "notes": "",
-    "invite_url": "https://cow.g201.com/register?aff=GVMQ4MJY3ANT"
+    "invite_url": "https://cow.g201.com/register?aff=GVMQ4MJY3ANT",
+    "usage_status": ""
+  },
+  {
+    "name": "mdjk",
+    "url": "https://mdkj.lol/register?aff=H5Q3QB8J3FCR",
+    "category": "收费站",
+    "balance": null,
+    "welfare_rate": null,
+    "plus_rate": 0.02,
+    "pro_rate": 0.08,
+    "signup_bonus": null,
+    "daily_checkin_bonus": null,
+    "notes": "特惠 0.03; plus 0.05; pro 0.12、0.15",
+    "invite_url": "https://mdkj.lol/register?aff=H5Q3QB8J3FCR",
+    "usage_status": ""
   },
   {
     "name": "NikoAPI",
@@ -244,7 +276,8 @@
     "signup_bonus": null,
     "daily_checkin_bonus": null,
     "notes": "",
-    "invite_url": "https://nikoapi.xyz/sign-up?aff=m47a"
+    "invite_url": "https://nikoapi.xyz/sign-up?aff=m47a",
+    "usage_status": ""
   },
   {
     "name": "2Chat",
@@ -257,7 +290,8 @@
     "signup_bonus": 0.2,
     "daily_checkin_bonus": null,
     "notes": "特惠 0.02; plus 0.06; pro 0.12",
-    "invite_url": "https://2chat.cc/register?aff=3RXSDXUZKCTW"
+    "invite_url": "https://2chat.cc/register?aff=3RXSDXUZKCTW",
+    "usage_status": ""
   },
   {
     "name": "Lunora API",
@@ -270,7 +304,8 @@
     "signup_bonus": 0.2,
     "daily_checkin_bonus": null,
     "notes": "",
-    "invite_url": "https://www.uselunora.com/register?aff=LAP8JP77SPAA"
+    "invite_url": "https://www.uselunora.com/register?aff=LAP8JP77SPAA",
+    "usage_status": ""
   },
   {
     "name": "Qingflow",
@@ -283,7 +318,8 @@
     "signup_bonus": null,
     "daily_checkin_bonus": null,
     "notes": "福利分组 0.01; plus 0.08; pro 0.1",
-    "invite_url": "https://jingyuqingfeng.cn/register?aff=GLDQ4BA7QR4J"
+    "invite_url": "https://jingyuqingfeng.cn/register?aff=GLDQ4BA7QR4J",
+    "usage_status": ""
   },
   {
     "name": "TKEN",
@@ -296,7 +332,8 @@
     "signup_bonus": 0.2,
     "daily_checkin_bonus": null,
     "notes": "",
-    "invite_url": "https://www.tken.shop/register?aff=88Ll"
+    "invite_url": "https://www.tken.shop/register?aff=88Ll",
+    "usage_status": ""
   },
   {
     "name": "aimi-api",
@@ -309,7 +346,8 @@
     "signup_bonus": 0.0001,
     "daily_checkin_bonus": null,
     "notes": "",
-    "invite_url": "https://api.58aimi.cn/sign-up?aff=whwN"
+    "invite_url": "https://api.58aimi.cn/sign-up?aff=whwN",
+    "usage_status": ""
   },
   {
     "name": "牛顿AI中转站",
@@ -322,7 +360,8 @@
     "signup_bonus": 0.05,
     "daily_checkin_bonus": null,
     "notes": "邀请一个人一块钱",
-    "invite_url": "https://newtonrouter.com/sign-up?aff=CuXq"
+    "invite_url": "https://newtonrouter.com/sign-up?aff=CuXq",
+    "usage_status": ""
   },
   {
     "name": "发现AI",
@@ -335,7 +374,8 @@
     "signup_bonus": 0.1,
     "daily_checkin_bonus": null,
     "notes": "k12-0.045，特价007",
-    "invite_url": "https://www.findcg.com/register?aff=Z28HELNBLDW4"
+    "invite_url": "https://www.findcg.com/register?aff=Z28HELNBLDW4",
+    "usage_status": ""
   },
   {
     "name": "Aizzz",
@@ -348,7 +388,8 @@
     "signup_bonus": null,
     "daily_checkin_bonus": null,
     "notes": "",
-    "invite_url": "https://api.aizzz.xyz/sign-up?aff=zoBu"
+    "invite_url": "https://api.aizzz.xyz/sign-up?aff=zoBu",
+    "usage_status": ""
   },
   {
     "name": "1For",
@@ -361,7 +402,8 @@
     "signup_bonus": null,
     "daily_checkin_bonus": null,
     "notes": "",
-    "invite_url": "https://1for.cc/register?aff=5X7LN67H2KQQ"
+    "invite_url": "https://1for.cc/register?aff=5X7LN67H2KQQ",
+    "usage_status": ""
   },
   {
     "name": "WorldClawPro",
@@ -374,7 +416,8 @@
     "signup_bonus": 0.02,
     "daily_checkin_bonus": null,
     "notes": "福利分组",
-    "invite_url": "https://worldclawpro.ai/sign-up?aff=FuJ5"
+    "invite_url": "https://worldclawpro.ai/sign-up?aff=FuJ5",
+    "usage_status": ""
   },
   {
     "name": "SheApi",
@@ -387,7 +430,22 @@
     "signup_bonus": 1.0,
     "daily_checkin_bonus": "不固定",
     "notes": "",
-    "invite_url": "https://www.sheapi.top/sign-up?aff=qFnd"
+    "invite_url": "https://www.sheapi.top/sign-up?aff=qFnd",
+    "usage_status": ""
+  },
+  {
+    "name": "VC",
+    "url": "https://sub.vcnovb.cn/register?aff=T5QDLGL67WHR",
+    "category": "收费站",
+    "balance": null,
+    "welfare_rate": 0.04,
+    "plus_rate": 0.08,
+    "pro_rate": 0.1,
+    "signup_bonus": null,
+    "daily_checkin_bonus": null,
+    "notes": "福利分组 0.01、0.04; plus 0.1; pro 0.1、0.25",
+    "invite_url": "https://sub.vcnovb.cn/register?aff=T5QDLGL67WHR",
+    "usage_status": ""
   },
   {
     "name": "Pixel API",
@@ -400,7 +458,8 @@
     "signup_bonus": null,
     "daily_checkin_bonus": null,
     "notes": "k12 福利分组 0.04; plus 0.1",
-    "invite_url": "https://ai-pixel.online/register?aff=5YJV99SLPL8J"
+    "invite_url": "https://ai-pixel.online/register?aff=5YJV99SLPL8J",
+    "usage_status": ""
   },
   {
     "name": "启悟流",
@@ -413,7 +472,22 @@
     "signup_bonus": null,
     "daily_checkin_bonus": null,
     "notes": "充值比1：10后倍率",
-    "invite_url": "https://756777.xyz/register?aff=4BADNXGX59K7"
+    "invite_url": "https://756777.xyz/register?aff=4BADNXGX59K7",
+    "usage_status": ""
+  },
+  {
+    "name": "Fox API",
+    "url": "https://api.fox1x.eu.cc/sign-up?aff=eEAv",
+    "category": "收费站",
+    "balance": null,
+    "welfare_rate": 0.05,
+    "plus_rate": 0.08,
+    "pro_rate": 0.17,
+    "signup_bonus": 0.1,
+    "daily_checkin_bonus": null,
+    "notes": "",
+    "invite_url": "https://api.fox1x.eu.cc/sign-up?aff=eEAv",
+    "usage_status": ""
   },
   {
     "name": "云舟API",
@@ -426,7 +500,8 @@
     "signup_bonus": 1.0,
     "daily_checkin_bonus": null,
     "notes": "特惠 0.07; plus 0.1; pro 0.2",
-    "invite_url": "https://cli.999554.xyz/register?aff=86iU"
+    "invite_url": "https://cli.999554.xyz/register?aff=86iU",
+    "usage_status": ""
   },
   {
     "name": "API BASIS",
@@ -439,20 +514,8 @@
     "signup_bonus": null,
     "daily_checkin_bonus": null,
     "notes": "",
-    "invite_url": "https://apibasis.com/sign-up?aff=ez9B"
-  },
-  {
-    "name": "Kitty",
-    "url": "https://kittyapi.xyz/register?aff=3K4K3N85KEBA",
-    "category": "收费站",
-    "balance": null,
-    "welfare_rate": 0.055,
-    "plus_rate": 0.1,
-    "pro_rate": 0.2,
-    "signup_bonus": 4.0,
-    "daily_checkin_bonus": null,
-    "notes": "福利分组 0.06; plus 0.1",
-    "invite_url": "https://kittyapi.xyz/register?aff=3K4K3N85KEBA"
+    "invite_url": "https://apibasis.com/sign-up?aff=ez9B",
+    "usage_status": ""
   },
   {
     "name": "AI Gateway",
@@ -465,7 +528,8 @@
     "signup_bonus": 0.5,
     "daily_checkin_bonus": null,
     "notes": "",
-    "invite_url": "https://allcode.cc/register?invite=i_fZPk57S6ccJF9kvAHiQp"
+    "invite_url": "https://allcode.cc/register?invite=i_fZPk57S6ccJF9kvAHiQp",
+    "usage_status": ""
   },
   {
     "name": "jbb下游专用",
@@ -478,7 +542,8 @@
     "signup_bonus": 1.0,
     "daily_checkin_bonus": null,
     "notes": "",
-    "invite_url": "https://downstream.jbbtoken.cn/sign-up?aff=DGIb"
+    "invite_url": "https://downstream.jbbtoken.cn/sign-up?aff=DGIb",
+    "usage_status": ""
   },
   {
     "name": "发财API",
@@ -491,7 +556,36 @@
     "signup_bonus": null,
     "daily_checkin_bonus": null,
     "notes": "十元起充，充值满十元送2元，满50可签到",
-    "invite_url": "https://api.dali2897.com/register?aff=l1lI"
+    "invite_url": "https://api.dali2897.com/register?aff=l1lI",
+    "usage_status": ""
+  },
+  {
+    "name": "Kitty",
+    "url": "https://kittyapi.xyz/register?aff=3K4K3N85KEBA",
+    "category": "收费站",
+    "balance": null,
+    "welfare_rate": 0.06,
+    "plus_rate": 0.08,
+    "pro_rate": 0.15,
+    "signup_bonus": 4.0,
+    "daily_checkin_bonus": null,
+    "notes": "福利分组 0.06; plus 0.1",
+    "invite_url": "https://kittyapi.xyz/register?aff=3K4K3N85KEBA",
+    "usage_status": ""
+  },
+  {
+    "name": "PaidYun",
+    "url": "https://paidyun.cc.cd/register?aff=HV58UY8W2RRJ",
+    "category": "收费站",
+    "balance": null,
+    "welfare_rate": 0.06,
+    "plus_rate": 0.09,
+    "pro_rate": 0.1,
+    "signup_bonus": null,
+    "daily_checkin_bonus": null,
+    "notes": "五元起充",
+    "invite_url": "https://paidyun.cc.cd/register?aff=HV58UY8W2RRJ",
+    "usage_status": ""
   },
   {
     "name": "悟空API",
@@ -504,7 +598,8 @@
     "signup_bonus": 0.2,
     "daily_checkin_bonus": null,
     "notes": "",
-    "invite_url": "https://wkapi.club/sign-up?aff=KZrP"
+    "invite_url": "https://wkapi.club/sign-up?aff=KZrP",
+    "usage_status": ""
   },
   {
     "name": "词元枢阁",
@@ -517,7 +612,8 @@
     "signup_bonus": null,
     "daily_checkin_bonus": null,
     "notes": "福利分组 0.066; plus 0.08; pro 0.2",
-    "invite_url": "https://api.aisz.mom/sign-up?aff=202u"
+    "invite_url": "https://api.aisz.mom/sign-up?aff=202u",
+    "usage_status": ""
   },
   {
     "name": "鑫旺Neko API",
@@ -530,7 +626,22 @@
     "signup_bonus": 0.2,
     "daily_checkin_bonus": null,
     "notes": "可开发票",
-    "invite_url": "https://790053500.com/register?aff=7DL26837533U"
+    "invite_url": "https://790053500.com/register?aff=7DL26837533U",
+    "usage_status": ""
+  },
+  {
+    "name": "ooioo",
+    "url": "https://ooioo.work/sign-up?aff=hzXj",
+    "category": "收费站",
+    "balance": null,
+    "welfare_rate": null,
+    "plus_rate": 0.08,
+    "pro_rate": 0.2,
+    "signup_bonus": null,
+    "daily_checkin_bonus": null,
+    "notes": "",
+    "invite_url": "https://ooioo.work/sign-up?aff=hzXj",
+    "usage_status": ""
   },
   {
     "name": "mioufun",
@@ -543,7 +654,8 @@
     "signup_bonus": 1.0,
     "daily_checkin_bonus": null,
     "notes": "福利分组 0.08; plus 0.15; pro 0.3",
-    "invite_url": "https://api.mioufun.top/register?aff=bk2N"
+    "invite_url": "https://api.mioufun.top/register?aff=bk2N",
+    "usage_status": ""
   },
   {
     "name": "星枢AI",
@@ -556,7 +668,8 @@
     "signup_bonus": null,
     "daily_checkin_bonus": null,
     "notes": "特价 0.085; plus 0.13; pro 0.15",
-    "invite_url": "https://goaistore.ccwu.cc/register?aff=UF2K5NX6GVNK"
+    "invite_url": "https://goaistore.ccwu.cc/register?aff=UF2K5NX6GVNK",
+    "usage_status": ""
   },
   {
     "name": "JulyCode",
@@ -569,7 +682,8 @@
     "signup_bonus": 1.1,
     "daily_checkin_bonus": null,
     "notes": "福利分组 0.099",
-    "invite_url": "https://julyapi.com/register?aff=J5SK5DGJ3RJP"
+    "invite_url": "https://julyapi.com/register?aff=J5SK5DGJ3RJP",
+    "usage_status": ""
   },
   {
     "name": "BizDecipher",
@@ -582,7 +696,8 @@
     "signup_bonus": 0.01,
     "daily_checkin_bonus": null,
     "notes": "积分池倍率2",
-    "invite_url": "https://bizdecipher.com/register?aff=L6XSMHWTVLMY"
+    "invite_url": "https://bizdecipher.com/register?aff=L6XSMHWTVLMY",
+    "usage_status": ""
   },
   {
     "name": "TokensHub",
@@ -595,7 +710,8 @@
     "signup_bonus": null,
     "daily_checkin_bonus": null,
     "notes": "充值手续费1%，邀请一个人一块钱",
-    "invite_url": "https://api.tokenshub.site/register?aff=HYPSAM9Q658X"
+    "invite_url": "https://api.tokenshub.site/register?aff=HYPSAM9Q658X",
+    "usage_status": ""
   },
   {
     "name": "BuyCodeKeyAPI",
@@ -608,7 +724,22 @@
     "signup_bonus": null,
     "daily_checkin_bonus": null,
     "notes": "",
-    "invite_url": "https://console.buycodekey.com/sign-up?aff=Thy2"
+    "invite_url": "https://console.buycodekey.com/sign-up?aff=Thy2",
+    "usage_status": ""
+  },
+  {
+    "name": "Hiyo codex",
+    "url": "https://codex.hiyo.top/register?aff=EPABY7W2KBT4",
+    "category": "收费站",
+    "balance": null,
+    "welfare_rate": null,
+    "plus_rate": 0.1,
+    "pro_rate": 0.46,
+    "signup_bonus": 1.0,
+    "daily_checkin_bonus": null,
+    "notes": "充值比1：13后倍率",
+    "invite_url": "https://codex.hiyo.top/register?aff=EPABY7W2KBT4",
+    "usage_status": ""
   },
   {
     "name": "我的贾维斯",
@@ -621,7 +752,8 @@
     "signup_bonus": null,
     "daily_checkin_bonus": null,
     "notes": "满血pro 0.1; 十元起充",
-    "invite_url": "https://api.aijws.com/register?aff=MPUMYXPFMWSZ"
+    "invite_url": "https://api.aijws.com/register?aff=MPUMYXPFMWSZ",
+    "usage_status": ""
   },
   {
     "name": "LUNA",
@@ -634,7 +766,8 @@
     "signup_bonus": 88.0,
     "daily_checkin_bonus": null,
     "notes": "福利分组",
-    "invite_url": "https://luna-ai.shop/register?aff=NUJJKQNHVZAR"
+    "invite_url": "https://luna-ai.shop/register?aff=NUJJKQNHVZAR",
+    "usage_status": ""
   },
   {
     "name": "归离@API",
@@ -647,7 +780,8 @@
     "signup_bonus": 1.0,
     "daily_checkin_bonus": null,
     "notes": "",
-    "invite_url": "https://api3.guili.fun/register?aff=YXWGJBBJBAGW"
+    "invite_url": "https://api3.guili.fun/register?aff=YXWGJBBJBAGW",
+    "usage_status": ""
   },
   {
     "name": "小白Code",
@@ -660,7 +794,8 @@
     "signup_bonus": 1.0,
     "daily_checkin_bonus": 0.25,
     "notes": "福利分组 0.07; pro 0.19",
-    "invite_url": "https://token.dialoguedui.com/register?aff=DGRXRHBHQKDU"
+    "invite_url": "https://token.dialoguedui.com/register?aff=DGRXRHBHQKDU",
+    "usage_status": ""
   },
   {
     "name": "乾行",
@@ -673,7 +808,8 @@
     "signup_bonus": 2.0,
     "daily_checkin_bonus": null,
     "notes": "特价 0.12; 稳定 0.25",
-    "invite_url": "https://fast.qianxing.pro/sign-up?aff=18Qo"
+    "invite_url": "https://fast.qianxing.pro/sign-up?aff=18Qo",
+    "usage_status": ""
   },
   {
     "name": "Popcorn",
@@ -686,7 +822,8 @@
     "signup_bonus": null,
     "daily_checkin_bonus": 0.3,
     "notes": "k12 福利分组 0.06; plus 0.125; pro 0.25",
-    "invite_url": "https://sub2api.popcorn.wiki/register?aff=ZS777BY75ZHC"
+    "invite_url": "https://sub2api.popcorn.wiki/register?aff=ZS777BY75ZHC",
+    "usage_status": ""
   },
   {
     "name": "AIAIAI工具箱",
@@ -699,7 +836,8 @@
     "signup_bonus": 10.0,
     "daily_checkin_bonus": null,
     "notes": "",
-    "invite_url": "https://api.aiaiai001.com/sign-up?aff=GSrs"
+    "invite_url": "https://api.aiaiai001.com/sign-up?aff=GSrs",
+    "usage_status": ""
   },
   {
     "name": "JiuYouMao",
@@ -712,7 +850,8 @@
     "signup_bonus": null,
     "daily_checkin_bonus": null,
     "notes": "",
-    "invite_url": "https://www.bigmodel.tech/sign-up?aff=Ztx3"
+    "invite_url": "https://www.bigmodel.tech/sign-up?aff=Ztx3",
+    "usage_status": ""
   },
   {
     "name": "C-API.CC",
@@ -725,7 +864,22 @@
     "signup_bonus": null,
     "daily_checkin_bonus": null,
     "notes": "福利分组 0.15; pro 1; 十元起充",
-    "invite_url": "https://c-api.cc/register?aff=8HJW7L2K3EVX"
+    "invite_url": "https://c-api.cc/register?aff=8HJW7L2K3EVX",
+    "usage_status": ""
+  },
+  {
+    "name": "斑马API",
+    "url": "https://bmapi.020212.xyz/register?aff=BNGUWCJG4WPN",
+    "category": "收费站",
+    "balance": null,
+    "welfare_rate": 0.15,
+    "plus_rate": null,
+    "pro_rate": null,
+    "signup_bonus": null,
+    "daily_checkin_bonus": "不固定",
+    "notes": "",
+    "invite_url": "https://bmapi.020212.xyz/register?aff=BNGUWCJG4WPN",
+    "usage_status": ""
   },
   {
     "name": "量大管饱",
@@ -738,7 +892,8 @@
     "signup_bonus": null,
     "daily_checkin_bonus": null,
     "notes": "福利分组",
-    "invite_url": "https://www.ldgb.top/register?aff=LNDR7GQ7WQG2"
+    "invite_url": "https://www.ldgb.top/register?aff=LNDR7GQ7WQG2",
+    "usage_status": ""
   },
   {
     "name": "GMN",
@@ -751,7 +906,8 @@
     "signup_bonus": null,
     "daily_checkin_bonus": null,
     "notes": "十元起充",
-    "invite_url": null
+    "invite_url": null,
+    "usage_status": ""
   },
   {
     "name": "八秒聚合",
@@ -764,7 +920,8 @@
     "signup_bonus": 0.08,
     "daily_checkin_bonus": null,
     "notes": "特价 0.2; pro 0.6",
-    "invite_url": "https://8s.hk/sign-up?aff=tQJu"
+    "invite_url": "https://8s.hk/sign-up?aff=tQJu",
+    "usage_status": ""
   },
   {
     "name": "词元站",
@@ -777,7 +934,8 @@
     "signup_bonus": null,
     "daily_checkin_bonus": null,
     "notes": "",
-    "invite_url": "https://ai.962831.xyz/sign-up?aff=Lqg0"
+    "invite_url": "https://ai.962831.xyz/sign-up?aff=Lqg0",
+    "usage_status": ""
   },
   {
     "name": "Cpass",
@@ -790,7 +948,8 @@
     "signup_bonus": 7.0,
     "daily_checkin_bonus": null,
     "notes": "福利分组",
-    "invite_url": "https://www.cpass.cc/register?aff=bEFS"
+    "invite_url": "https://www.cpass.cc/register?aff=bEFS",
+    "usage_status": ""
   },
   {
     "name": "Unity2.Ai",
@@ -803,7 +962,8 @@
     "signup_bonus": 2.0,
     "daily_checkin_bonus": null,
     "notes": "福利分组",
-    "invite_url": "https://unity2.ai/register?ref=jsk2sgGC"
+    "invite_url": "https://unity2.ai/register?ref=jsk2sgGC",
+    "usage_status": ""
   },
   {
     "name": "Grox",
@@ -816,7 +976,8 @@
     "signup_bonus": null,
     "daily_checkin_bonus": null,
     "notes": "邀请送100元日卡",
-    "invite_url": "https://www.mcgrox.top/register?aff=B3V56KYGP4J4"
+    "invite_url": "https://www.mcgrox.top/register?aff=B3V56KYGP4J4",
+    "usage_status": ""
   },
   {
     "name": "SeekAI",
@@ -829,7 +990,8 @@
     "signup_bonus": null,
     "daily_checkin_bonus": null,
     "notes": "充值比1：30",
-    "invite_url": "https://seekai.cc/register?code=INVA401189B7462"
+    "invite_url": "https://seekai.cc/register?code=INVA401189B7462",
+    "usage_status": ""
   },
   {
     "name": "CHH",
@@ -842,7 +1004,8 @@
     "signup_bonus": 100.0,
     "daily_checkin_bonus": null,
     "notes": "",
-    "invite_url": "https://api.chhlink.xyz/register?aff=E2UNEUR6NMQZ"
+    "invite_url": "https://api.chhlink.xyz/register?aff=E2UNEUR6NMQZ",
+    "usage_status": ""
   },
   {
     "name": "AI-ROUTER",
@@ -855,7 +1018,8 @@
     "signup_bonus": 20.0,
     "daily_checkin_bonus": null,
     "notes": "注册送20，其中5为体验余额，15充值后解锁；注册24小时后可签到",
-    "invite_url": "https://ai-router.dev/register?aff=KZJQK6RBLEUL"
+    "invite_url": "https://ai-router.dev/register?aff=KZJQK6RBLEUL",
+    "usage_status": ""
   },
   {
     "name": "AI8",
@@ -868,7 +1032,8 @@
     "signup_bonus": 2.0,
     "daily_checkin_bonus": "不固定",
     "notes": "充值比1：10，故换算后倍率为0.15、0.2",
-    "invite_url": "https://ai8.my/sign-up?aff=sYZ6"
+    "invite_url": "https://ai8.my/sign-up?aff=sYZ6",
+    "usage_status": ""
   },
   {
     "name": "Haizhu API",
@@ -881,7 +1046,8 @@
     "signup_bonus": 20.0,
     "daily_checkin_bonus": null,
     "notes": "",
-    "invite_url": "https://webapi.ccwu.cc/register?aff=CQ2RWS5G94PA"
+    "invite_url": "https://webapi.ccwu.cc/register?aff=CQ2RWS5G94PA",
+    "usage_status": ""
   },
   {
     "name": "CaMeL API",
@@ -894,7 +1060,8 @@
     "signup_bonus": 3.0,
     "daily_checkin_bonus": "不固定",
     "notes": "",
-    "invite_url": "https://camel.kr777.top/register?aff=5qAa"
+    "invite_url": "https://camel.kr777.top/register?aff=5qAa",
+    "usage_status": ""
   },
   {
     "name": "QUNL API",
@@ -907,7 +1074,8 @@
     "signup_bonus": 6.0,
     "daily_checkin_bonus": "不固定",
     "notes": "",
-    "invite_url": "https://cn.chrouter.com:8443/register?aff=gLPb"
+    "invite_url": "https://cn.chrouter.com:8443/register?aff=gLPb",
+    "usage_status": ""
   },
   {
     "name": "CUN.ai",
@@ -920,20 +1088,8 @@
     "signup_bonus": 9.8,
     "daily_checkin_bonus": "不固定",
     "notes": "福利分组",
-    "invite_url": null
-  },
-  {
-    "name": "分享奇点",
-    "url": "https://api-public.proxy-gls.de5.net/sign-up?aff=HQda",
-    "category": "公益站",
-    "balance": null,
-    "welfare_rate": 0.1,
-    "plus_rate": null,
-    "pro_rate": null,
-    "signup_bonus": 30.0,
-    "daily_checkin_bonus": "不固定",
-    "notes": "",
-    "invite_url": "https://api-public.proxy-gls.de5.net/sign-up?aff=HQda"
+    "invite_url": null,
+    "usage_status": ""
   },
   {
     "name": "登仙",
@@ -946,7 +1102,22 @@
     "signup_bonus": null,
     "daily_checkin_bonus": "不固定",
     "notes": "公益站，不可充值",
-    "invite_url": "https://api.denxio.top/register?invite_code=GSFFPWPS7QXB"
+    "invite_url": "https://api.denxio.top/register?invite_code=GSFFPWPS7QXB",
+    "usage_status": ""
+  },
+  {
+    "name": "分享奇点",
+    "url": "https://api-public.proxy-gls.de5.net/sign-up?aff=HQda",
+    "category": "公益站",
+    "balance": null,
+    "welfare_rate": 0.3,
+    "plus_rate": null,
+    "pro_rate": null,
+    "signup_bonus": 30.0,
+    "daily_checkin_bonus": "不固定",
+    "notes": "",
+    "invite_url": "https://api-public.proxy-gls.de5.net/sign-up?aff=HQda",
+    "usage_status": ""
   },
   {
     "name": "简直了",
@@ -957,9 +1128,10 @@
     "plus_rate": null,
     "pro_rate": null,
     "signup_bonus": null,
-    "daily_checkin_bonus": "不固定",
+    "daily_checkin_bonus": "10",
     "notes": "福利分组",
-    "invite_url": "https://jianzhile.vip/register?aff=uCdS"
+    "invite_url": "https://jianzhile.vip/register?aff=uCdS",
+    "usage_status": ""
   },
   {
     "name": "1412‘s API",
@@ -972,7 +1144,8 @@
     "signup_bonus": 92.0,
     "daily_checkin_bonus": "不固定",
     "notes": "有订阅无充值,github登录",
-    "invite_url": "https://napi.kid1412.qzz.io/sign-up?aff=9HQY"
+    "invite_url": "https://napi.kid1412.qzz.io/sign-up?aff=9HQY",
+    "usage_status": ""
   },
   {
     "name": "Free",
@@ -985,7 +1158,8 @@
     "signup_bonus": null,
     "daily_checkin_bonus": "200",
     "notes": "",
-    "invite_url": "https://free.lyclaude.site/register?aff=fI71"
+    "invite_url": "https://free.lyclaude.site/register?aff=fI71",
+    "usage_status": ""
   },
   {
     "name": "百倍",
@@ -998,20 +1172,8 @@
     "signup_bonus": null,
     "daily_checkin_bonus": "不固定",
     "notes": "只有claude",
-    "invite_url": null
-  },
-  {
-    "name": "斑马API",
-    "url": "https://bmapi.020212.xyz/register?aff=BNGUWCJG4WPN",
-    "category": "公益站",
-    "balance": null,
-    "welfare_rate": null,
-    "plus_rate": null,
-    "pro_rate": 1.0,
-    "signup_bonus": null,
-    "daily_checkin_bonus": 100,
-    "notes": "每日签到送100，零点重置",
-    "invite_url": "https://bmapi.020212.xyz/register?aff=BNGUWCJG4WPN"
+    "invite_url": null,
+    "usage_status": ""
   },
   {
     "name": "Agent Router",
@@ -1022,9 +1184,24 @@
     "plus_rate": null,
     "pro_rate": null,
     "signup_bonus": 175.0,
-    "daily_checkin_bonus": null,
-    "notes": "GitHub登录",
-    "invite_url": "https://agentrouter.org/register?aff=G9T0"
+    "daily_checkin_bonus": "25",
+    "notes": "GitHub登录，退出重登才能签到",
+    "invite_url": "https://agentrouter.org/register?aff=G9T0",
+    "usage_status": ""
+  },
+  {
+    "name": "Beizhi",
+    "url": "https://beizhi.sylu.cc/sign-up?aff=sSJg",
+    "category": "公益站",
+    "balance": null,
+    "welfare_rate": 1.0,
+    "plus_rate": null,
+    "pro_rate": null,
+    "signup_bonus": 30.0,
+    "daily_checkin_bonus": "不固定",
+    "notes": "",
+    "invite_url": "https://beizhi.sylu.cc/sign-up?aff=sSJg",
+    "usage_status": ""
   },
   {
     "name": "熊猫API",
@@ -1037,7 +1214,8 @@
     "signup_bonus": 200.0,
     "daily_checkin_bonus": null,
     "notes": "邀请一个人100",
-    "invite_url": "https://api520.pro/register?aff=wtEc"
+    "invite_url": "https://api520.pro/register?aff=wtEc",
+    "usage_status": ""
   },
   {
     "name": "蟹蟹API",
@@ -1050,7 +1228,8 @@
     "signup_bonus": 70.0,
     "daily_checkin_bonus": "不固定",
     "notes": "",
-    "invite_url": "https://newapi.nexusvai.xyz/sign-up?aff=slfc"
+    "invite_url": "https://newapi.nexusvai.xyz/sign-up?aff=slfc",
+    "usage_status": ""
   },
   {
     "name": "七倍算力公益站",
@@ -1063,7 +1242,8 @@
     "signup_bonus": 105.0,
     "daily_checkin_bonus": "20",
     "notes": "福利分组",
-    "invite_url": "https://7x.hk/sign-up?aff=bVdm"
+    "invite_url": "https://7x.hk/sign-up?aff=bVdm",
+    "usage_status": ""
   },
   {
     "name": "维云模型开放平台",
@@ -1076,7 +1256,8 @@
     "signup_bonus": 0.45,
     "daily_checkin_bonus": "订阅",
     "notes": "2x; 每日签到可领配额，5小时重置; 订阅套餐，不可充值",
-    "invite_url": "https://vsllm.com/register?aff=p6Oj"
+    "invite_url": "https://vsllm.com/register?aff=p6Oj",
+    "usage_status": ""
   },
   {
     "name": "DoCode",
@@ -1089,7 +1270,8 @@
     "signup_bonus": 300.0,
     "daily_checkin_bonus": "不固定",
     "notes": "福利分组 8; pro 18",
-    "invite_url": "https://docode.cc/register?aff=s6fc"
+    "invite_url": "https://docode.cc/register?aff=s6fc",
+    "usage_status": ""
   },
   {
     "name": "0DAI模型站",
@@ -1102,7 +1284,8 @@
     "signup_bonus": 48.0,
     "daily_checkin_bonus": null,
     "notes": "国模公益站（mimo-v2.5、deepseek-v4-pro）",
-    "invite_url": "https://ai.0d0d.top/register?ref=u6z48lwn"
+    "invite_url": "https://ai.0d0d.top/register?ref=u6z48lwn",
+    "usage_status": ""
   },
   {
     "name": "99code",
@@ -1114,7 +1297,8 @@
     "pro_rate": null,
     "signup_bonus": 40.0,
     "daily_checkin_bonus": "50",
-    "notes": "每日50次日刷新，邀请一个人50",
-    "invite_url": "https://gpt.api456.me/?aff=rBg5"
+    "notes": "每日50算力点，次日刷新，邀请一个人50",
+    "invite_url": "https://gpt.api456.me/?aff=rBg5",
+    "usage_status": ""
   }
 ]
