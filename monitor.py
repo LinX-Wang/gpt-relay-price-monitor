@@ -1263,7 +1263,14 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
     <section class="tool-panel">
       <div class="panel-bar">
         <div class="panel-title">常用工具</div>
-        <div class="quality-tip">比价、端点状态与提示词优化</div>
+        <div class="quality-tip">账号池、比价、端点状态与提示词优化</div>
+      </div>
+      <div class="tool-content">
+        <div>
+          <div class="tool-name">皮皮工艺站</div>
+          <div class="tool-desc">托管式账号池与 API 转发工具：导入你自己的上游账号后，可统一管理并通过公网地址给其他人使用。它不提供免费模型额度，账号使用、配额和风险仍由你自己承担。</div>
+        </div>
+        <a class="tool-link" href="https://api.picpi.top/dashboard" target="_blank" rel="noopener noreferrer">打开皮皮工艺站</a>
       </div>
       <div class="tool-content">
         <div>
