@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import sqlite3
-import webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
@@ -903,7 +902,6 @@ def main() -> int:
     build_reports(load_sites())
     server = ThreadingHTTPServer((HOST, PORT), Handler)
     print(f"Editor: {url}")
-    webbrowser.open(url)
     server.serve_forever()
     return 0
 

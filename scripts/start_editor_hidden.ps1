@@ -40,3 +40,26 @@ if (Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyCon
 
 $python = (Get-Command python.exe -ErrorAction Stop).Source
 Start-Process -FilePath $python -ArgumentList @("""$appPath""") -WorkingDirectory $projectRoot -WindowStyle Hidden -RedirectStandardOutput $logFile -RedirectStandardError $errorLog
+
+$editorUrl = "http://127.0.0.1:$port/"
+for ($attempt = 0; $attempt -lt 40; $attempt++) {
+    if (Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue) { break }
+    Start-Sleep -Milliseconds 150
+}
+
+if (-not (Get-NetTCPConnection -LocalPort $port -State Listen -ErrorAction SilentlyContinue)) {
+    "$(Get-Date -Format s) Editor did not start on port $port." | Set-Content -LiteralPath $errorLog -Encoding UTF8
+    exit 1
+}
+
+$edgeCandidates = @(
+    (Join-Path $env:ProgramFiles "Microsoft\Edge\Application\msedge.exe"),
+    (Join-Path ${env:ProgramFiles(x86)} "Microsoft\Edge\Application\msedge.exe"),
+    (Join-Path $env:LocalAppData "Microsoft\Edge\Application\msedge.exe")
+)
+$edge = $edgeCandidates | Where-Object { $_ -and (Test-Path -LiteralPath $_) } | Select-Object -First 1
+if ($edge) {
+    Start-Process -FilePath $edge -ArgumentList @($editorUrl)
+} else {
+    Start-Process -FilePath $editorUrl
+}
