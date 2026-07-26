@@ -813,7 +813,10 @@ EDITOR_HTML = r"""<!doctype html>
     tbody.addEventListener("click", (event) => {
       const button = event.target.closest("button[data-delete]");
       if (!button) return;
-      rows.splice(Number(button.dataset.delete), 1);
+      const index = Number(button.dataset.delete);
+      const siteName = fmt(rows[index]?.name) || "该站点";
+      if (!window.confirm(`确定删除“${siteName}”吗？删除后需要点击“保存并同步”才会正式生效。`)) return;
+      rows.splice(index, 1);
       render();
       setStatus("有未保存修改", "dirty");
     });

@@ -532,6 +532,20 @@
     "usage_status": ""
   },
   {
+    "name": "SheApi",
+    "category": "收费站",
+    "welfare_rate": 0.04,
+    "plus_rate": 0.075,
+    "pro_rate": 0.2,
+    "signup_bonus": 1.0,
+    "daily_checkin_bonus": "不固定",
+    "notes": "",
+    "invite_url": "https://www.sheapi.top/sign-up?aff=qFnd",
+    "url": "https://www.sheapi.top/sign-up?aff=qFnd",
+    "balance": null,
+    "usage_status": ""
+  },
+  {
     "name": "VC",
     "category": "收费站",
     "welfare_rate": 0.04,
@@ -826,20 +840,6 @@
     "usage_status": ""
   },
   {
-    "name": "SheApi",
-    "category": "收费站",
-    "welfare_rate": null,
-    "plus_rate": 0.095,
-    "pro_rate": 0.2,
-    "signup_bonus": 1.0,
-    "daily_checkin_bonus": "不固定",
-    "notes": "",
-    "invite_url": "https://www.sheapi.top/sign-up?aff=qFnd",
-    "url": "https://www.sheapi.top/sign-up?aff=qFnd",
-    "balance": null,
-    "usage_status": ""
-  },
-  {
     "name": "JulyCode",
     "category": "收费站",
     "welfare_rate": 0.099,
@@ -1070,7 +1070,7 @@
     "plus_rate": null,
     "pro_rate": null,
     "signup_bonus": null,
-    "daily_checkin_bonus": "不固定",
+    "daily_checkin_bonus": "0.4",
     "notes": "",
     "invite_url": "https://bmapi.020212.xyz/register?aff=BNGUWCJG4WPN",
     "url": "https://bmapi.020212.xyz/register?aff=BNGUWCJG4WPN",
@@ -1274,6 +1274,20 @@
     "usage_status": ""
   },
   {
+    "name": "AI8",
+    "category": "收费站",
+    "welfare_rate": null,
+    "plus_rate": 1.0,
+    "pro_rate": 2.0,
+    "signup_bonus": 2.0,
+    "daily_checkin_bonus": "不固定",
+    "notes": "充值比1：10，故换算后倍率为0.15、0.2",
+    "invite_url": "https://ai8.my/sign-up?aff=sYZ6",
+    "url": "https://ai8.my/sign-up?aff=sYZ6",
+    "balance": null,
+    "usage_status": ""
+  },
+  {
     "name": "Haizhu API",
     "category": "收费站",
     "welfare_rate": null,
@@ -1284,20 +1298,6 @@
     "notes": "",
     "invite_url": "https://webapi.ccwu.cc/register?aff=CQ2RWS5G94PA",
     "url": "https://webapi.ccwu.cc/register?aff=CQ2RWS5G94PA",
-    "balance": null,
-    "usage_status": ""
-  },
-  {
-    "name": "Beizhi",
-    "category": "收费站",
-    "welfare_rate": 1.0,
-    "plus_rate": null,
-    "pro_rate": null,
-    "signup_bonus": 30.0,
-    "daily_checkin_bonus": "不固定",
-    "notes": "充值比1：50，gpt不可用，可用deepseek",
-    "invite_url": "https://beizhi.sylu.cc/sign-up?aff=sSJg",
-    "url": "https://beizhi.sylu.cc/sign-up?aff=sSJg",
     "balance": null,
     "usage_status": ""
   },
@@ -1344,16 +1344,16 @@
     "usage_status": ""
   },
   {
-    "name": "AI8",
+    "name": "Beizhi",
     "category": "收费站",
-    "welfare_rate": null,
-    "plus_rate": 1.6,
-    "pro_rate": 2.0,
-    "signup_bonus": 2.0,
+    "welfare_rate": 1.5,
+    "plus_rate": null,
+    "pro_rate": null,
+    "signup_bonus": 30.0,
     "daily_checkin_bonus": "不固定",
-    "notes": "充值比1：10，故换算后倍率为0.15、0.2",
-    "invite_url": "https://ai8.my/sign-up?aff=sYZ6",
-    "url": "https://ai8.my/sign-up?aff=sYZ6",
+    "notes": "充值比1：50，gpt不可用，可用deepseek",
+    "invite_url": "https://beizhi.sylu.cc/sign-up?aff=sSJg",
+    "url": "https://beizhi.sylu.cc/sign-up?aff=sSJg",
     "balance": null,
     "usage_status": ""
   },
@@ -1372,6 +1372,20 @@
     "usage_status": ""
   },
   {
+    "name": "分享奇点",
+    "category": "公益站",
+    "welfare_rate": 0.1,
+    "plus_rate": null,
+    "pro_rate": null,
+    "signup_bonus": 30.0,
+    "daily_checkin_bonus": "不固定",
+    "notes": "",
+    "invite_url": "https://api-public.proxy-gls.de5.net/sign-up?aff=HQda",
+    "url": "https://api-public.proxy-gls.de5.net/sign-up?aff=HQda",
+    "balance": null,
+    "usage_status": ""
+  },
+  {
     "name": "登仙",
     "category": "公益站",
     "welfare_rate": null,
@@ -1386,20 +1400,6 @@
     "usage_status": ""
   },
   {
-    "name": "分享奇点",
-    "category": "公益站",
-    "welfare_rate": 0.3,
-    "plus_rate": null,
-    "pro_rate": null,
-    "signup_bonus": 30.0,
-    "daily_checkin_bonus": "不固定",
-    "notes": "",
-    "invite_url": "https://api-public.proxy-gls.de5.net/sign-up?aff=HQda",
-    "url": "https://api-public.proxy-gls.de5.net/sign-up?aff=HQda",
-    "balance": null,
-    "usage_status": ""
-  },
-  {
     "name": "简直了",
     "category": "公益站",
     "welfare_rate": 0.6,
@@ -1410,20 +1410,6 @@
     "notes": "福利分组",
     "invite_url": "https://jianzhile.vip/register?aff=uCdS",
     "url": "https://jianzhile.vip/register?aff=uCdS",
-    "balance": null,
-    "usage_status": ""
-  },
-  {
-    "name": "1412‘s API",
-    "category": "公益站",
-    "welfare_rate": null,
-    "plus_rate": 1.0,
-    "pro_rate": null,
-    "signup_bonus": 92.0,
-    "daily_checkin_bonus": "不固定",
-    "notes": "有订阅无充值,github登录",
-    "invite_url": "https://napi.kid1412.qzz.io/sign-up?aff=9HQY",
-    "url": "https://napi.kid1412.qzz.io/sign-up?aff=9HQY",
     "balance": null,
     "usage_status": ""
   },
@@ -1470,20 +1456,6 @@
     "usage_status": ""
   },
   {
-    "name": "api中转站",
-    "category": "公益站",
-    "welfare_rate": 1.0,
-    "plus_rate": null,
-    "pro_rate": null,
-    "signup_bonus": 60.0,
-    "daily_checkin_bonus": "0.0001",
-    "notes": "",
-    "invite_url": "https://zhongzhuanzhan.yshshs.cc.cd/sign-up?aff=9Tje",
-    "url": "https://zhongzhuanzhan.yshshs.cc.cd/sign-up?aff=9Tje",
-    "balance": null,
-    "usage_status": ""
-  },
-  {
     "name": "熊猫API",
     "category": "公益站",
     "welfare_rate": 1.0,
@@ -1508,6 +1480,20 @@
     "notes": "",
     "invite_url": "https://newapi.nexusvai.xyz/sign-up?aff=slfc",
     "url": "https://newapi.nexusvai.xyz/sign-up?aff=slfc",
+    "balance": null,
+    "usage_status": ""
+  },
+  {
+    "name": "1412‘s API",
+    "category": "公益站",
+    "welfare_rate": null,
+    "plus_rate": 2.0,
+    "pro_rate": null,
+    "signup_bonus": 92.0,
+    "daily_checkin_bonus": "不固定",
+    "notes": "有订阅无充值,github登录",
+    "invite_url": "https://napi.kid1412.qzz.io/sign-up?aff=9HQY",
+    "url": "https://napi.kid1412.qzz.io/sign-up?aff=9HQY",
     "balance": null,
     "usage_status": ""
   },
