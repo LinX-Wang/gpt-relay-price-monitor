@@ -8,5 +8,17 @@
     "name": "ModelKnow",
     "url": "https://modelknow.com/",
     "notes": "模型识别 / 验纯参考"
+  },
+  {
+    "name": "IPPure",
+    "url": "https://ippure.com/",
+    "kind": "IP 纯度",
+    "notes": "检测 IP 风险、归属和纯净度"
+  },
+  {
+    "name": "Ping0 IP 检测",
+    "url": "https://ping0.cc/ip",
+    "kind": "IP 纯度",
+    "notes": "查看 IP 归属、风险与环境信息"
   }
 ]

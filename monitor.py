@@ -362,11 +362,15 @@ def render_quality_sites(items: list[dict[str, Any]]) -> str:
         name = html.escape(str(item.get("name", "")))
         url = html.escape(str(item.get("url", "")), quote=True)
         notes = html.escape(str(item.get("notes", "")))
+        kind_value = str(item.get("kind", "模型验纯"))
+        kind = html.escape(kind_value)
+        card_class = "tool-card-network" if kind_value == "IP 纯度" else "tool-card-quality"
+        safety_tip = "。建议使用低额度临时 Key 测试。" if kind_value == "模型验纯" else "。建议结合多个结果综合判断。"
         cards.append(
-            f"<article class=\"tool-card tool-card-quality\">"
-            f"<div class=\"tool-kicker\">模型验纯</div>"
+            f"<article class=\"tool-card {card_class}\">"
+            f"<div class=\"tool-kicker\">{kind}</div>"
             f"<div class=\"tool-name\">{name}</div>"
-            f"<div class=\"tool-desc\">{notes}。建议使用低额度临时 Key 测试。</div>"
+            f"<div class=\"tool-desc\">{notes}{safety_tip}</div>"
             f"<a class=\"tool-link\" href=\"{url}\" target=\"_blank\" rel=\"noopener noreferrer\">打开 {name}</a>"
             f"</article>"
         )
@@ -890,6 +894,7 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
     .tool-card-monitor {{ --tool-accent: #d68a00; }}
     .tool-card-prompt {{ --tool-accent: #7a5af8; }}
     .tool-card-quality {{ --tool-accent: #067647; }}
+    .tool-card-network {{ --tool-accent: #0e7090; }}
     .tool-kicker {{
       align-self: flex-start;
       padding: 4px 8px;
