@@ -1442,6 +1442,20 @@
     "usage_status": ""
   },
   {
+    "name": "CTAI",
+    "category": "收费站",
+    "welfare_rate": 0.01,
+    "plus_rate": null,
+    "pro_rate": 0.2,
+    "signup_bonus": 5.0,
+    "daily_checkin_bonus": null,
+    "notes": "",
+    "invite_url": "https://ai.chengtingkj.com/register?aff=JXKKW7D26JGP",
+    "url": "https://ai.chengtingkj.com/register?aff=JXKKW7D26JGP",
+    "balance": null,
+    "usage_status": ""
+  },
+  {
     "name": "13api",
     "category": "公益站",
     "welfare_rate": 0.0,
