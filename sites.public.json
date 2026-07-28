@@ -4,26 +4,12 @@
     "category": "收费站",
     "welfare_rate": 1e-05,
     "plus_rate": 0.03,
-    "pro_rate": 0.039,
+    "pro_rate": 0.023,
     "signup_bonus": null,
     "daily_checkin_bonus": null,
     "notes": "邀请一个人可以0.00001倍率",
     "invite_url": "https://ai.hebox.net/register?aff=yX3y",
     "url": "https://ai.hebox.net/register?aff=yX3y",
-    "balance": null,
-    "usage_status": ""
-  },
-  {
-    "name": "PRY API",
-    "category": "收费站",
-    "welfare_rate": 0.0001,
-    "plus_rate": 0.03,
-    "pro_rate": 0.07,
-    "signup_bonus": 0.05,
-    "daily_checkin_bonus": null,
-    "notes": "十元起充",
-    "invite_url": "https://bearlab.ai/sign-up?aff=Qaet",
-    "url": "https://bearlab.ai/sign-up?aff=Qaet",
     "balance": null,
     "usage_status": ""
   },
@@ -94,6 +80,20 @@
     "notes": "",
     "invite_url": "https://mydamoxing.cn/register?aff=fiF7",
     "url": "https://mydamoxing.cn/register?aff=fiF7",
+    "balance": null,
+    "usage_status": ""
+  },
+  {
+    "name": "BearLab AI",
+    "category": "收费站",
+    "welfare_rate": 0.003,
+    "plus_rate": 0.075,
+    "pro_rate": 0.15,
+    "signup_bonus": 0.05,
+    "daily_checkin_bonus": "不固定",
+    "notes": "十元起充",
+    "invite_url": "https://bearlab.ai/sign-up?aff=Qaet",
+    "url": "https://bearlab.ai/sign-up?aff=Qaet",
     "balance": null,
     "usage_status": ""
   },
@@ -224,6 +224,20 @@
     "usage_status": ""
   },
   {
+    "name": "奇点",
+    "category": "收费站",
+    "welfare_rate": 0.01,
+    "plus_rate": 0.075,
+    "pro_rate": 0.18,
+    "signup_bonus": null,
+    "daily_checkin_bonus": null,
+    "notes": "",
+    "invite_url": "https://sub2api.proxy-gls.de5.net/register?aff=ESL6VWN6GDRH",
+    "url": "https://sub2api.proxy-gls.de5.net/register?aff=ESL6VWN6GDRH",
+    "balance": null,
+    "usage_status": ""
+  },
+  {
     "name": "LingFAPI",
     "category": "收费站",
     "welfare_rate": 0.01,
@@ -350,6 +364,20 @@
     "usage_status": ""
   },
   {
+    "name": "AI Gateway",
+    "category": "收费站",
+    "welfare_rate": 0.02,
+    "plus_rate": 0.06,
+    "pro_rate": 0.15,
+    "signup_bonus": null,
+    "daily_checkin_bonus": null,
+    "notes": "",
+    "invite_url": null,
+    "url": "",
+    "balance": null,
+    "usage_status": ""
+  },
+  {
     "name": "Lunora API",
     "category": "收费站",
     "welfare_rate": 0.02,
@@ -420,6 +448,20 @@
     "usage_status": ""
   },
   {
+    "name": "RapidApi",
+    "category": "收费站",
+    "welfare_rate": 0.02,
+    "plus_rate": null,
+    "pro_rate": null,
+    "signup_bonus": 1.0,
+    "daily_checkin_bonus": null,
+    "notes": "",
+    "invite_url": "https://rapidapi.cc/register?aff=LWSGX9MDZ97L",
+    "url": "https://rapidapi.cc/register?aff=LWSGX9MDZ97L",
+    "balance": null,
+    "usage_status": ""
+  },
+  {
     "name": "牛顿AI中转站",
     "category": "收费站",
     "welfare_rate": 0.025,
@@ -458,6 +500,20 @@
     "notes": "github登录",
     "invite_url": "https://tokeness.io/sign-up?aff=I361",
     "url": "https://tokeness.io/sign-up?aff=I361",
+    "balance": null,
+    "usage_status": ""
+  },
+  {
+    "name": "骆驼",
+    "category": "收费站",
+    "welfare_rate": 0.03,
+    "plus_rate": 0.12,
+    "pro_rate": 0.18,
+    "signup_bonus": null,
+    "daily_checkin_bonus": null,
+    "notes": "",
+    "invite_url": "https://luotuokj.top/register?aff=DVECCKT9T6UA",
+    "url": "https://luotuokj.top/register?aff=DVECCKT9T6UA",
     "balance": null,
     "usage_status": ""
   },
@@ -518,6 +574,20 @@
     "usage_status": ""
   },
   {
+    "name": "GJX",
+    "category": "收费站",
+    "welfare_rate": null,
+    "plus_rate": 0.04,
+    "pro_rate": 0.0752,
+    "signup_bonus": 10.0,
+    "daily_checkin_bonus": null,
+    "notes": "充值比1：25后倍率",
+    "invite_url": "https://api.gjx88.com/register?aff=NHX9E82QZERM",
+    "url": "https://api.gjx88.com/register?aff=NHX9E82QZERM",
+    "balance": null,
+    "usage_status": ""
+  },
+  {
     "name": "Token API",
     "category": "收费站",
     "welfare_rate": 0.04,
@@ -539,7 +609,7 @@
     "pro_rate": 0.2,
     "signup_bonus": 1.0,
     "daily_checkin_bonus": "不固定",
-    "notes": "",
+    "notes": "有邀请返利",
     "invite_url": "https://www.sheapi.top/sign-up?aff=qFnd",
     "url": "https://www.sheapi.top/sign-up?aff=qFnd",
     "balance": null,
@@ -556,6 +626,20 @@
     "notes": "福利分组 0.01、0.04; plus 0.1; pro 0.1、0.25",
     "invite_url": "https://sub.vcnovb.cn/register?aff=T5QDLGL67WHR",
     "url": "https://sub.vcnovb.cn/register?aff=T5QDLGL67WHR",
+    "balance": null,
+    "usage_status": ""
+  },
+  {
+    "name": "星络AI",
+    "category": "收费站",
+    "welfare_rate": 0.04,
+    "plus_rate": 0.08,
+    "pro_rate": 0.18,
+    "signup_bonus": null,
+    "daily_checkin_bonus": null,
+    "notes": "",
+    "invite_url": "https://aiccxx.cn/register?aff=PKP7XUHCZVZS",
+    "url": "https://aiccxx.cn/register?aff=PKP7XUHCZVZS",
     "balance": null,
     "usage_status": ""
   },
@@ -626,20 +710,6 @@
     "notes": "体验站：https://try.apibasis.com/",
     "invite_url": "https://apibasis.com/sign-up?aff=ez9B",
     "url": "https://apibasis.com/sign-up?aff=ez9B",
-    "balance": null,
-    "usage_status": ""
-  },
-  {
-    "name": "AI Gateway",
-    "category": "收费站",
-    "welfare_rate": 0.058,
-    "plus_rate": 0.095,
-    "pro_rate": null,
-    "signup_bonus": 0.5,
-    "daily_checkin_bonus": null,
-    "notes": "",
-    "invite_url": "https://allcode.cc/register?invite=i_fZPk57S6ccJF9kvAHiQp",
-    "url": "https://allcode.cc/register?invite=i_fZPk57S6ccJF9kvAHiQp",
     "balance": null,
     "usage_status": ""
   },
@@ -762,7 +832,7 @@
     "plus_rate": 0.075,
     "pro_rate": 0.15,
     "signup_bonus": 1.0,
-    "daily_checkin_bonus": "不固定",
+    "daily_checkin_bonus": null,
     "notes": "",
     "invite_url": "https://new.tianluo.ccwu.cc/sign-up?aff=f2Qq",
     "url": "https://new.tianluo.ccwu.cc/sign-up?aff=f2Qq",
@@ -780,6 +850,20 @@
     "notes": "",
     "invite_url": "https://ooioo.work/sign-up?aff=hzXj",
     "url": "https://ooioo.work/sign-up?aff=hzXj",
+    "balance": null,
+    "usage_status": ""
+  },
+  {
+    "name": "cc",
+    "category": "收费站",
+    "welfare_rate": 0.08,
+    "plus_rate": 0.1,
+    "pro_rate": null,
+    "signup_bonus": 0.1,
+    "daily_checkin_bonus": null,
+    "notes": "",
+    "invite_url": "https://cc.3333366.xyz/sign-up?aff=QW9Q",
+    "url": "https://cc.3333366.xyz/sign-up?aff=QW9Q",
     "balance": null,
     "usage_status": ""
   },
@@ -1168,7 +1252,7 @@
     "plus_rate": 0.4,
     "pro_rate": 0.5,
     "signup_bonus": 1.0,
-    "daily_checkin_bonus": null,
+    "daily_checkin_bonus": "不固定",
     "notes": "",
     "invite_url": "https://dawcode.ai/sign-up?aff=ISIK",
     "url": "https://dawcode.ai/sign-up?aff=ISIK",
@@ -1358,20 +1442,6 @@
     "usage_status": ""
   },
   {
-    "name": "林夕",
-    "category": "公益站",
-    "welfare_rate": null,
-    "plus_rate": null,
-    "pro_rate": null,
-    "signup_bonus": null,
-    "daily_checkin_bonus": "不固定",
-    "notes": "",
-    "invite_url": null,
-    "url": "",
-    "balance": null,
-    "usage_status": ""
-  },
-  {
     "name": "13api",
     "category": "公益站",
     "welfare_rate": 0.0,
@@ -1410,6 +1480,20 @@
     "notes": "公益站，不可充值",
     "invite_url": "https://api.denxio.top/register?invite_code=GSFFPWPS7QXB",
     "url": "https://api.denxio.top/register?invite_code=GSFFPWPS7QXB",
+    "balance": null,
+    "usage_status": ""
+  },
+  {
+    "name": "Future Hub",
+    "category": "公益站",
+    "welfare_rate": 0.2,
+    "plus_rate": null,
+    "pro_rate": null,
+    "signup_bonus": null,
+    "daily_checkin_bonus": "不固定",
+    "notes": "",
+    "invite_url": "https://api.futureppo.top/register?aff=fK8K",
+    "url": "https://api.futureppo.top/register?aff=fK8K",
     "balance": null,
     "usage_status": ""
   },
@@ -1578,6 +1662,20 @@
     "notes": "每日50算力点，次日刷新，邀请一个人50",
     "invite_url": "https://gpt.api456.me/?aff=rBg5",
     "url": "https://gpt.api456.me/?aff=rBg5",
+    "balance": null,
+    "usage_status": ""
+  },
+  {
+    "name": "林夕",
+    "category": "公益站",
+    "welfare_rate": null,
+    "plus_rate": null,
+    "pro_rate": null,
+    "signup_bonus": null,
+    "daily_checkin_bonus": "不固定",
+    "notes": "",
+    "invite_url": null,
+    "url": "",
     "balance": null,
     "usage_status": ""
   }

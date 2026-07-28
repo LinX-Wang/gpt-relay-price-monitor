@@ -47,6 +47,20 @@ def normalize_site(site: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def validate_unique_site_names(sites: list[dict[str, Any]]) -> None:
+    names_by_key: dict[str, str] = {}
+    duplicates: list[str] = []
+    for site in sites:
+        name = site["name"]
+        key = name.casefold()
+        if key in names_by_key and names_by_key[key] not in duplicates:
+            duplicates.append(names_by_key[key])
+        else:
+            names_by_key[key] = name
+    if duplicates:
+        raise ValueError(f"站点名称重复：{'、'.join(duplicates)}")
+
+
 def current_rows() -> list[dict[str, Any]]:
     sites = load_sites()
     snapshots = [snapshot_from_site(site) for site in sites]
@@ -66,6 +80,7 @@ def current_rows() -> list[dict[str, Any]]:
 
 def save_rows(rows: list[dict[str, Any]]) -> None:
     sites = [normalize_site(row) for row in rows if str(row.get("name", "")).strip()]
+    validate_unique_site_names(sites)
     write_sites(sites)
     DB_FILE.parent.mkdir(exist_ok=True)
     with sqlite3.connect(DB_FILE) as conn:
@@ -146,7 +161,14 @@ class Handler(BaseHTTPRequestHandler):
             if not isinstance(rows, list):
                 json_response(self, {"error": "sites must be a list"}, status=400)
                 return
-            save_rows(rows)
+            try:
+                save_rows(rows)
+            except ValueError as error:
+                json_response(self, {"error": str(error)}, status=400)
+                return
+            except sqlite3.Error:
+                json_response(self, {"error": "数据库保存失败，请重试。"}, status=500)
+                return
             json_response(self, {"ok": True, "count": len(rows)})
             return
         json_response(self, {"error": "not found"}, status=404)
