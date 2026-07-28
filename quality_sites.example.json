@@ -1,1 +1,12 @@
-[]
+[
+  {
+    "name": "hvoy",
+    "url": "https://hvoy.ai/",
+    "notes": "模型验纯 / 中转检测"
+  },
+  {
+    "name": "ModelKnow",
+    "url": "https://modelknow.com/",
+    "notes": "模型识别 / 验纯参考"
+  }
+]

@@ -117,21 +117,13 @@
       border-color: #abefc6;
       box-shadow: 0 18px 42px rgba(6, 118, 71, 0.10);
     }
-    .quality-panel {
-      margin-top: 18px;
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      box-shadow: var(--shadow);
-      overflow: hidden;
-    }
     .tool-panel {
       margin-bottom: 18px;
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      box-shadow: var(--shadow);
-      overflow: hidden;
+    }
+    .tool-panel > .panel-bar {
+      padding: 0 2px 12px;
+      border: 0;
+      background: transparent;
     }
     .panel-bar {
       display: flex;
@@ -349,36 +341,78 @@
     .no-results.is-visible {
       display: block;
     }
-    .quality-tip {
-      color: var(--muted);
-      font-size: 13px;
-      font-weight: 650;
+    .tool-count {
+      padding: 5px 9px;
+      border: 1px solid #cdd6e1;
+      border-radius: 999px;
+      background: #ffffff;
+      color: #475467;
+      font-size: 12px;
+      font-weight: 800;
+      white-space: nowrap;
     }
-    .tool-content {
+    .tool-grid {
       display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 16px;
-      align-items: center;
-      padding: 16px 18px 18px;
-      background: linear-gradient(135deg, #ffffff, #f8fbff);
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
     }
-    .tool-content + .tool-content {
-      padding-top: 18px;
-      border-top: 1px solid var(--soft-line);
+    .tool-card {
+      --tool-accent: #175cd3;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-height: 188px;
+      padding: 18px;
+      overflow: hidden;
+      border: 1px solid #d9e1ea;
+      border-radius: 8px;
+      background: #ffffff;
+      box-shadow: 0 8px 24px rgba(16, 24, 40, 0.06);
+      transition: border-color 140ms ease, box-shadow 140ms ease, transform 140ms ease;
+    }
+    .tool-card::before {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 4px;
+      background: var(--tool-accent);
+    }
+    .tool-card:hover {
+      border-color: #b8c6d5;
+      box-shadow: 0 12px 30px rgba(16, 24, 40, 0.10);
+      transform: translateY(-2px);
+    }
+    .tool-card-relay { --tool-accent: #0f9f8f; }
+    .tool-card-reference { --tool-accent: #175cd3; }
+    .tool-card-monitor { --tool-accent: #d68a00; }
+    .tool-card-prompt { --tool-accent: #7a5af8; }
+    .tool-card-quality { --tool-accent: #067647; }
+    .tool-kicker {
+      align-self: flex-start;
+      padding: 4px 8px;
+      border-radius: 6px;
+      background: #f2f4f7;
+      color: var(--tool-accent);
+      font-size: 12px;
+      font-weight: 850;
     }
     .tool-name {
-      font-size: 18px;
+      margin: 12px 0 6px;
+      font-size: 17px;
       font-weight: 850;
-      margin-bottom: 5px;
     }
     .tool-desc {
+      flex: 1;
       color: #475467;
-      line-height: 1.6;
+      font-size: 14px;
+      line-height: 1.65;
     }
     .tool-link {
       display: inline-flex;
+      align-self: flex-start;
       align-items: center;
       justify-content: center;
+      margin-top: 16px;
       height: 34px;
       padding: 0 14px;
       border: 1px solid #b2ccff;
@@ -659,44 +693,6 @@
       white-space: normal;
       min-width: 180px;
     }
-    .quality-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 12px;
-      padding: 16px 18px 18px;
-    }
-    .quality-card {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 6px 12px;
-      align-items: center;
-      padding: 14px;
-      border: 1px solid var(--soft-line);
-      border-radius: 8px;
-      background: linear-gradient(180deg, #ffffff, #f8fafc);
-      transition: 120ms ease;
-    }
-    .quality-card:hover {
-      border-color: #cdd6e1;
-      background: #ffffff;
-      transform: translateY(-1px);
-    }
-    .quality-name {
-      font-size: 17px;
-      font-weight: 800;
-    }
-    .quality-note {
-      color: #475467;
-      line-height: 1.5;
-    }
-    .quality-url {
-      grid-column: 1 / -1;
-      color: var(--muted);
-      font-size: 12px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
     @media (max-width: 1100px) {
       body {
         min-width: 0;
@@ -717,17 +713,19 @@
       .table-panel {
         min-width: 920px;
       }
-      .quality-panel {
-        min-width: 920px;
-      }
-      .tool-panel {
-        min-width: 920px;
-      }
       .table-tools {
         justify-content: flex-start;
       }
       .global-search-row {
         grid-template-columns: 1fr;
+      }
+    }
+    @media (max-width: 760px) {
+      .tool-grid {
+        grid-template-columns: 1fr;
+      }
+      .tool-card {
+        min-height: 0;
       }
     }
   </style>
@@ -739,7 +737,7 @@
     <div class="header-row">
       <div>
         <h1>GPT 中转站倍率看板</h1>
-        <div class="meta">更新时间：2026-07-28 10:04:22</div>
+        <div class="meta">更新时间：2026-07-28 10:26:36</div>
       </div>
       <div class="header-theme"><div class="hint">修改数据：用本地编辑器保存，或编辑项目目录下的 <code>sites.json</code> 后重新运行 <code>python monitor.py</code></div><div data-theme-control></div></div>
     </div>
@@ -751,38 +749,40 @@
     </section>
   </header>
   <main>
-    <section class="tool-panel">
+    <section class="tool-panel" aria-labelledby="tools-title">
       <div class="panel-bar">
-        <div class="panel-title">常用工具</div>
-        <div class="quality-tip">账号池、比价、端点状态与提示词优化</div>
-      </div>
-      <div class="tool-content">
         <div>
-          <div class="tool-name">皮皮工艺站</div>
-          <div class="tool-desc">托管式账号池与 API 转发工具：导入你自己的上游账号后，可统一管理并通过公网地址给其他人使用。它不提供免费模型额度，账号使用、配额和风险仍由你自己承担。</div>
+          <div id="tools-title" class="panel-title">常用工具</div>
+          <div class="panel-subtitle">账号池、站点参考、端点监控、提示词与模型验纯</div>
         </div>
+        <div class="tool-count">6 个工具</div>
+      </div>
+      <div class="tool-grid">
+      <article class="tool-card tool-card-relay">
+        <div class="tool-kicker">账号池与转发</div>
+        <div class="tool-name">皮皮工艺站</div>
+        <div class="tool-desc">导入自己的上游账号后统一管理，并通过公网 API 地址提供访问。上游账号、配额和使用风险由用户自行承担。</div>
         <a class="tool-link" href="https://api.picpi.top/dashboard" target="_blank" rel="noopener noreferrer">打开皮皮工艺站</a>
-      </div>
-      <div class="tool-content">
-        <div>
-          <div class="tool-name">RelayWatch</div>
-          <div class="tool-desc">用于查看公开中转站目录、模型覆盖、最低倍率、公告和站点状态。适合作为你手动维护本站表格时的外部参考。</div>
-        </div>
+      </article>
+      <article class="tool-card tool-card-reference">
+        <div class="tool-kicker">站点参考</div>
+        <div class="tool-name">RelayWatch</div>
+        <div class="tool-desc">查看公开中转站目录、模型覆盖、最低倍率、公告和站点状态，辅助维护本站价格表。</div>
         <a class="tool-link" href="http://relaywatch.online/" target="_blank" rel="noopener noreferrer">打开 RelayWatch</a>
-      </div>
-      <div class="tool-content">
-        <div>
-          <div class="tool-name">AI 端点监控</div>
-          <div class="tool-desc">查看公开 AI API 端点的可用状态、模型数量、响应时间和剩余额度。适合在使用免费或赞助端点前快速确认当前状态。</div>
-        </div>
+      </article>
+      <article class="tool-card tool-card-monitor">
+        <div class="tool-kicker">可用性监控</div>
+        <div class="tool-name">AI 端点监控</div>
+        <div class="tool-desc">查看公开 API 端点的可用状态、模型数量、响应时间和剩余额度，使用前可快速确认状态。</div>
         <a class="tool-link" href="http://hk.mlorr.online:3001/" target="_blank" rel="noopener noreferrer">打开端点监控</a>
-      </div>
-      <div class="tool-content">
-        <div>
-          <div class="tool-name">提示词优化器</div>
-          <div class="tool-desc">把普通需求整理成更清晰、可执行的系统提示词或用户提示词，适合写完提示词后先润色再投入 GPT / Codex 使用。</div>
-        </div>
+      </article>
+      <article class="tool-card tool-card-prompt">
+        <div class="tool-kicker">提示词</div>
+        <div class="tool-name">提示词优化器</div>
+        <div class="tool-desc">把普通需求整理成更清晰、可执行的系统提示词或用户提示词，再投入 GPT 或 Codex 使用。</div>
         <a class="tool-link" href="https://prompt.always200.com/#/basic/system" target="_blank" rel="noopener noreferrer">打开提示词优化器</a>
+      </article>
+      <article class="tool-card tool-card-quality"><div class="tool-kicker">模型验纯</div><div class="tool-name">hvoy</div><div class="tool-desc">模型验纯 / 中转检测。建议使用低额度临时 Key 测试。</div><a class="tool-link" href="https://hvoy.ai/" target="_blank" rel="noopener noreferrer">打开 hvoy</a></article><article class="tool-card tool-card-quality"><div class="tool-kicker">模型验纯</div><div class="tool-name">ModelKnow</div><div class="tool-desc">模型识别 / 验纯参考。建议使用低额度临时 Key 测试。</div><a class="tool-link" href="https://modelknow.com/" target="_blank" rel="noopener noreferrer">打开 ModelKnow</a></article>
       </div>
     </section>
     <section class="global-search" aria-label="全局搜索">
@@ -799,7 +799,6 @@
           <a class="jump-link" href="/calculator.html" target="ai_price_monitor_calculator" rel="noopener">成本计算器</a>
           <a class="jump-link" href="#paid-sites">收费站</a>
           <a class="jump-link is-free" href="#free-sites">公益站</a>
-          <a class="jump-link" href="#quality-sites">验纯网站</a>
         </nav>
       </div>
     </section>
@@ -874,7 +873,6 @@
       </table>
       <div class="no-results">没有找到匹配的站点</div>
     </section>
-
 
   </main>
   <script>
