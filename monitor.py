@@ -860,16 +860,20 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
     }}
     .tool-grid {{
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
       gap: 12px;
     }}
     .tool-card {{
       --tool-accent: #175cd3;
       position: relative;
-      display: flex;
-      flex-direction: column;
-      min-height: 188px;
-      padding: 18px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      grid-template-areas:
+        "kicker action"
+        "name action"
+        "desc action";
+      column-gap: 18px;
+      padding: 14px 16px;
       overflow: hidden;
       border: 1px solid #d9e1ea;
       border-radius: 8px;
@@ -896,8 +900,10 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
     .tool-card-quality {{ --tool-accent: #067647; }}
     .tool-card-network {{ --tool-accent: #0e7090; }}
     .tool-kicker {{
-      align-self: flex-start;
-      padding: 4px 8px;
+      grid-area: kicker;
+      align-self: start;
+      justify-self: start;
+      padding: 3px 7px;
       border-radius: 6px;
       background: #f2f4f7;
       color: var(--tool-accent);
@@ -905,28 +911,32 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
       font-weight: 850;
     }}
     .tool-name {{
-      margin: 12px 0 6px;
-      font-size: 17px;
+      grid-area: name;
+      margin: 8px 0 4px;
+      font-size: 16px;
       font-weight: 850;
     }}
     .tool-desc {{
-      flex: 1;
+      grid-area: desc;
       color: #475467;
-      font-size: 14px;
-      line-height: 1.65;
+      font-size: 13px;
+      line-height: 1.55;
     }}
     .tool-link {{
+      grid-area: action;
       display: inline-flex;
-      align-self: flex-start;
+      align-self: center;
+      justify-self: end;
       align-items: center;
       justify-content: center;
-      margin-top: 16px;
-      height: 34px;
-      padding: 0 14px;
+      min-width: 142px;
+      height: 42px;
+      padding: 0 18px;
       border: 1px solid #b2ccff;
       border-radius: 8px;
       background: #eaf3ff;
       color: #175cd3;
+      font-size: 14px;
       font-weight: 800;
       text-decoration: none;
       white-space: nowrap;
@@ -1233,7 +1243,17 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
         grid-template-columns: 1fr;
       }}
       .tool-card {{
-        min-height: 0;
+        grid-template-columns: 1fr;
+        grid-template-areas:
+          "kicker"
+          "name"
+          "desc"
+          "action";
+      }}
+      .tool-link {{
+        justify-self: stretch;
+        width: 100%;
+        margin-top: 12px;
       }}
     }}
   </style>
