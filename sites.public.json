@@ -168,6 +168,20 @@
     "usage_status": ""
   },
   {
+    "name": "HHHToken",
+    "category": "收费站",
+    "welfare_rate": 0.01,
+    "plus_rate": 0.02,
+    "pro_rate": 0.09,
+    "signup_bonus": 1.0,
+    "daily_checkin_bonus": null,
+    "notes": "",
+    "invite_url": "https://sub2.hhhtoken.cc/register?aff=9768CUYCXD25",
+    "url": "https://sub2.hhhtoken.cc/register?aff=9768CUYCXD25",
+    "balance": null,
+    "usage_status": ""
+  },
+  {
     "name": "HUBWAY",
     "category": "收费站",
     "welfare_rate": 0.01,
@@ -192,6 +206,20 @@
     "notes": "",
     "invite_url": "https://uni-token.com/register?aff=WSHUXMWT29KN",
     "url": "https://uni-token.com/register?aff=WSHUXMWT29KN",
+    "balance": null,
+    "usage_status": ""
+  },
+  {
+    "name": "keiko",
+    "category": "收费站",
+    "welfare_rate": 0.01,
+    "plus_rate": 0.05,
+    "pro_rate": 0.2,
+    "signup_bonus": null,
+    "daily_checkin_bonus": null,
+    "notes": "",
+    "invite_url": "https://keiko.lol/register?aff=VEM4JJBTM5EB",
+    "url": "https://keiko.lol/register?aff=VEM4JJBTM5EB",
     "balance": null,
     "usage_status": ""
   },
@@ -276,6 +304,20 @@
     "notes": "充值比1：10",
     "invite_url": "https://xelvai.com/register?aff=N5LZ5XHLSF34",
     "url": "https://xelvai.com/register?aff=N5LZ5XHLSF34",
+    "balance": null,
+    "usage_status": ""
+  },
+  {
+    "name": "CTAI",
+    "category": "收费站",
+    "welfare_rate": 0.01,
+    "plus_rate": null,
+    "pro_rate": 0.2,
+    "signup_bonus": 5.0,
+    "daily_checkin_bonus": null,
+    "notes": "",
+    "invite_url": "https://ai.chengtingkj.com/register?aff=JXKKW7D26JGP",
+    "url": "https://ai.chengtingkj.com/register?aff=JXKKW7D26JGP",
     "balance": null,
     "usage_status": ""
   },
@@ -644,6 +686,20 @@
     "usage_status": ""
   },
   {
+    "name": "Codemax",
+    "category": "收费站",
+    "welfare_rate": 0.04,
+    "plus_rate": 0.09,
+    "pro_rate": 0.15,
+    "signup_bonus": 1.0,
+    "daily_checkin_bonus": null,
+    "notes": "",
+    "invite_url": "https://api.codemax.store/register?aff=XHFYR93AW557",
+    "url": "https://api.codemax.store/register?aff=XHFYR93AW557",
+    "balance": null,
+    "usage_status": ""
+  },
+  {
     "name": "Pixel API",
     "category": "收费站",
     "welfare_rate": 0.04,
@@ -696,6 +752,20 @@
     "notes": "特惠 0.07; plus 0.1; pro 0.2",
     "invite_url": "https://cli.999554.xyz/register?aff=86iU",
     "url": "https://cli.999554.xyz/register?aff=86iU",
+    "balance": null,
+    "usage_status": ""
+  },
+  {
+    "name": "Ctoken",
+    "category": "收费站",
+    "welfare_rate": 0.05,
+    "plus_rate": null,
+    "pro_rate": 0.15,
+    "signup_bonus": 1.0,
+    "daily_checkin_bonus": "不固定",
+    "notes": "",
+    "invite_url": "https://ctoken.top/sign-up?aff=LdDr",
+    "url": "https://ctoken.top/sign-up?aff=LdDr",
     "balance": null,
     "usage_status": ""
   },
@@ -798,6 +868,20 @@
     "usage_status": ""
   },
   {
+    "name": "君の星辰",
+    "category": "收费站",
+    "welfare_rate": 0.06,
+    "plus_rate": null,
+    "pro_rate": 0.4,
+    "signup_bonus": null,
+    "daily_checkin_bonus": null,
+    "notes": "",
+    "invite_url": "https://ai.centos.hk/register?aff=WDIj",
+    "url": "https://ai.centos.hk/register?aff=WDIj",
+    "balance": null,
+    "usage_status": ""
+  },
+  {
     "name": "词元枢阁",
     "category": "收费站",
     "welfare_rate": 0.066,
@@ -868,6 +952,20 @@
     "usage_status": ""
   },
   {
+    "name": "我要API",
+    "category": "收费站",
+    "welfare_rate": 0.08,
+    "plus_rate": 0.14,
+    "pro_rate": 0.3,
+    "signup_bonus": 0.2,
+    "daily_checkin_bonus": null,
+    "notes": "",
+    "invite_url": "https://api.wynb.top/sign-up?aff=fGoP",
+    "url": "https://api.wynb.top/sign-up?aff=fGoP",
+    "balance": null,
+    "usage_status": ""
+  },
+  {
     "name": "mioufun",
     "category": "收费站",
     "welfare_rate": 0.08,
@@ -878,20 +976,6 @@
     "notes": "福利分组 0.08; plus 0.15; pro 0.3",
     "invite_url": "https://api.mioufun.top/register?aff=bk2N",
     "url": "https://api.mioufun.top/register?aff=bk2N",
-    "balance": null,
-    "usage_status": ""
-  },
-  {
-    "name": "Ctoken",
-    "category": "收费站",
-    "welfare_rate": 0.08,
-    "plus_rate": null,
-    "pro_rate": 0.2,
-    "signup_bonus": 1.0,
-    "daily_checkin_bonus": "不固定",
-    "notes": "",
-    "invite_url": "https://ctoken.top/sign-up?aff=LdDr",
-    "url": "https://ctoken.top/sign-up?aff=LdDr",
     "balance": null,
     "usage_status": ""
   },
@@ -1120,6 +1204,20 @@
     "usage_status": ""
   },
   {
+    "name": "brobro",
+    "category": "收费站",
+    "welfare_rate": null,
+    "plus_rate": 0.15,
+    "pro_rate": 0.2,
+    "signup_bonus": 2.0,
+    "daily_checkin_bonus": null,
+    "notes": "",
+    "invite_url": "https://api.brobro.vip/register?aff=SMXE",
+    "url": "https://api.brobro.vip/register?aff=SMXE",
+    "balance": null,
+    "usage_status": ""
+  },
+  {
     "name": "JiuYouMao",
     "category": "收费站",
     "welfare_rate": null,
@@ -1204,6 +1302,20 @@
     "usage_status": ""
   },
   {
+    "name": "NexaRelay",
+    "category": "收费站",
+    "welfare_rate": null,
+    "plus_rate": 0.2,
+    "pro_rate": 0.3,
+    "signup_bonus": 3.0,
+    "daily_checkin_bonus": null,
+    "notes": "",
+    "invite_url": "https://api.nexarelay.com/register?aff=3W9KAZ47RYAG",
+    "url": "https://api.nexarelay.com/register?aff=3W9KAZ47RYAG",
+    "balance": null,
+    "usage_status": ""
+  },
+  {
     "name": "GMN",
     "category": "收费站",
     "welfare_rate": null,
@@ -1270,6 +1382,20 @@
     "notes": "",
     "invite_url": "https://api.rua.chat/sign-up?aff=rDuC",
     "url": "https://api.rua.chat/sign-up?aff=rDuC",
+    "balance": null,
+    "usage_status": ""
+  },
+  {
+    "name": "空悲切API",
+    "category": "收费站",
+    "welfare_rate": 0.4,
+    "plus_rate": 0.6,
+    "pro_rate": 1.0,
+    "signup_bonus": 1.0,
+    "daily_checkin_bonus": null,
+    "notes": "",
+    "invite_url": "https://xn--vduyey89e.com/sign-up?aff=OTPU",
+    "url": "https://xn--vduyey89e.com/sign-up?aff=OTPU",
     "balance": null,
     "usage_status": ""
   },
@@ -1420,7 +1546,7 @@
     "plus_rate": null,
     "pro_rate": null,
     "signup_bonus": 3.0,
-    "daily_checkin_bonus": "不固定",
+    "daily_checkin_bonus": null,
     "notes": "个人设置内签到",
     "invite_url": "https://camel.kr777.top/register?aff=5qAa",
     "url": "https://camel.kr777.top/register?aff=5qAa",
@@ -1442,16 +1568,16 @@
     "usage_status": ""
   },
   {
-    "name": "CTAI",
+    "name": "AI算力市场",
     "category": "收费站",
-    "welfare_rate": 0.01,
-    "plus_rate": null,
-    "pro_rate": 0.2,
-    "signup_bonus": 5.0,
-    "daily_checkin_bonus": null,
+    "welfare_rate": 0.04,
+    "plus_rate": 0.15,
+    "pro_rate": 0.25,
+    "signup_bonus": 2.0,
+    "daily_checkin_bonus": "不固定",
     "notes": "",
-    "invite_url": "https://ai.chengtingkj.com/register?aff=JXKKW7D26JGP",
-    "url": "https://ai.chengtingkj.com/register?aff=JXKKW7D26JGP",
+    "invite_url": "https://api.nxmes.cn/sign-up?aff=neqp",
+    "url": "https://api.nxmes.cn/sign-up?aff=neqp",
     "balance": null,
     "usage_status": ""
   },
@@ -1536,6 +1662,20 @@
     "notes": "",
     "invite_url": "https://free.lyclaude.site/register?aff=fI71",
     "url": "https://free.lyclaude.site/register?aff=fI71",
+    "balance": null,
+    "usage_status": ""
+  },
+  {
+    "name": "gorouter",
+    "category": "公益站",
+    "welfare_rate": null,
+    "plus_rate": 1.0,
+    "pro_rate": null,
+    "signup_bonus": null,
+    "daily_checkin_bonus": null,
+    "notes": "",
+    "invite_url": "https://gorouter.app/sign-up?aff=nl69",
+    "url": "https://gorouter.app/sign-up?aff=nl69",
     "balance": null,
     "usage_status": ""
   },
@@ -1680,6 +1820,20 @@
     "usage_status": ""
   },
   {
+    "name": "freemodel",
+    "category": "公益站",
+    "welfare_rate": null,
+    "plus_rate": null,
+    "pro_rate": null,
+    "signup_bonus": null,
+    "daily_checkin_bonus": null,
+    "notes": "5小时5，7天33",
+    "invite_url": "https://freemodel.dev/invite/FRE-c8325e53",
+    "url": "https://freemodel.dev/invite/FRE-c8325e53",
+    "balance": null,
+    "usage_status": ""
+  },
+  {
     "name": "林夕",
     "category": "公益站",
     "welfare_rate": null,
@@ -1690,6 +1844,20 @@
     "notes": "",
     "invite_url": null,
     "url": "",
+    "balance": null,
+    "usage_status": ""
+  },
+  {
+    "name": "猫猫",
+    "category": "公益站",
+    "welfare_rate": null,
+    "plus_rate": null,
+    "pro_rate": null,
+    "signup_bonus": 2000.0,
+    "daily_checkin_bonus": "不固定",
+    "notes": "GitHub登录",
+    "invite_url": "https://api.maoyulin.xyz/register?aff=f10H",
+    "url": "https://api.maoyulin.xyz/register?aff=f10H",
     "balance": null,
     "usage_status": ""
   }
