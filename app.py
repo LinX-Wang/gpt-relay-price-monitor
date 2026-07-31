@@ -302,6 +302,22 @@ EDITOR_HTML = r"""<!doctype html>
       background: #eaf3ff;
       color: #004eeb;
     }
+    button.auto-checkin-complete {
+      border-color: #84adff;
+      background: #175cd3;
+      color: #fff;
+    }
+    button.auto-checkin-complete:hover {
+      border-color: #004eeb;
+      background: #004eeb;
+    }
+    button.auto-checkin-complete:disabled {
+      border-color: #d0d5dd;
+      background: #f2f4f7;
+      color: #98a2b3;
+      cursor: not-allowed;
+      transform: none;
+    }
     button.danger {
       border-color: #fecdca;
       color: var(--danger);
@@ -581,6 +597,7 @@ EDITOR_HTML = r"""<!doctype html>
         <a id="open-report" class="button" href="/reports/latest.html" target="ai_price_monitor_report" rel="noopener">打开报告</a>
         <a id="open-calculator" class="button" href="/calculator.html" target="ai_price_monitor_calculator" rel="noopener">成本计算器</a>
         <button id="auto-checkin-filter" class="checkin-filter auto-checkin-filter" type="button">自动签到</button>
+        <button id="auto-checkin-complete" class="auto-checkin-complete" type="button">自动全部已签</button>
         <button id="manual-checkin-filter" class="checkin-filter" type="button">手动签到</button>
         <button id="add">新增一行</button>
         <button id="save" class="primary">保存并同步</button>
@@ -644,6 +661,7 @@ EDITOR_HTML = r"""<!doctype html>
     const metricTotal = document.querySelector("#metric-total");
     const metricCheckin = document.querySelector("#metric-checkin");
     const autoCheckinFilter = document.querySelector("#auto-checkin-filter");
+    const autoCheckinComplete = document.querySelector("#auto-checkin-complete");
     const manualCheckinFilter = document.querySelector("#manual-checkin-filter");
     let rows = [];
     let query = "";
@@ -738,6 +756,8 @@ EDITOR_HTML = r"""<!doctype html>
       autoCheckinFilter.classList.toggle("is-active", checkinFilterMode === "自动");
       manualCheckinFilter.classList.toggle("is-active", checkinFilterMode === "手动");
       autoCheckinFilter.textContent = `自动签到 (${autoCheckinRows.length})`;
+      autoCheckinComplete.textContent = `自动全部已签 (${autoCheckinRows.length})`;
+      autoCheckinComplete.disabled = autoCheckinRows.length === 0;
       manualCheckinFilter.textContent = `手动签到 (${manualCheckinRows.length})`;
     }
 
@@ -903,6 +923,13 @@ EDITOR_HTML = r"""<!doctype html>
 
     autoCheckinFilter.addEventListener("click", () => toggleCheckinFilter("自动"));
     manualCheckinFilter.addEventListener("click", () => toggleCheckinFilter("手动"));
+
+    autoCheckinComplete.addEventListener("click", () => {
+      rows
+        .filter((row) => hasCheckin(row) && !isSignedToday(row) && checkinMode(row) === "自动")
+        .forEach((row) => window.localStorage.setItem(checkinStorageKey(row), "1"));
+      render();
+    });
 
     window.addEventListener("storage", (event) => {
       if (event.key && event.key.startsWith("ai-price-monitor:checkin:")) {

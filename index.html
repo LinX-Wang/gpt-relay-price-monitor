@@ -271,6 +271,23 @@
       background: #eaf3ff;
       color: #004eeb;
     }
+    .auto-checkin-complete {
+      border-color: #175cd3;
+      background: #175cd3;
+      color: #fff;
+    }
+    .auto-checkin-complete:hover {
+      border-color: #004eeb;
+      background: #004eeb;
+      color: #fff;
+    }
+    .auto-checkin-complete:disabled {
+      border-color: #d0d5dd;
+      background: #f2f4f7;
+      color: #98a2b3;
+      cursor: not-allowed;
+      transform: none;
+    }
     .jump-link.is-free {
       border-color: #abefc6;
       background: #ecfdf3;
@@ -768,7 +785,7 @@
     <div class="header-row">
       <div>
         <h1>GPT 中转站倍率看板</h1>
-        <div class="meta">更新时间：2026-07-31 14:29:30</div>
+        <div class="meta">更新时间：2026-07-31 14:32:22</div>
       </div>
       <div class="header-theme"><div class="hint">修改数据：用本地编辑器保存，或编辑项目目录下的 <code>sites.json</code> 后重新运行 <code>python monitor.py</code></div><div data-theme-control></div></div>
     </div>
@@ -827,6 +844,7 @@
         <nav class="quick-jumps" aria-label="快速跳转">
           <button id="balance-filter" class="jump-link balance-filter" type="button">只看有余额</button>
           <button id="auto-checkin-filter" class="jump-link checkin-filter auto-checkin-filter" type="button">自动签到</button>
+          <button id="auto-checkin-complete" class="jump-link auto-checkin-complete" type="button">自动全部已签</button>
           <button id="manual-checkin-filter" class="jump-link checkin-filter manual-checkin-filter" type="button">手动签到</button>
           <a class="jump-link" href="/calculator.html" target="ai_price_monitor_calculator" rel="noopener">成本计算器</a>
           <a class="jump-link" href="#paid-sites">收费站</a>
@@ -1011,6 +1029,11 @@
       if (autoCheckinFilter) {
         autoCheckinFilter.textContent = `自动签到 (${totalAutoPendingCheckinRows})`;
       }
+      const autoCheckinComplete = document.querySelector("#auto-checkin-complete");
+      if (autoCheckinComplete) {
+        autoCheckinComplete.textContent = `自动全部已签 (${totalAutoPendingCheckinRows})`;
+        autoCheckinComplete.disabled = totalAutoPendingCheckinRows === 0;
+      }
       if (manualCheckinFilter) {
         manualCheckinFilter.textContent = `手动签到 (${totalManualPendingCheckinRows})`;
       }
@@ -1034,6 +1057,16 @@
 
     document.querySelector("#auto-checkin-filter")?.addEventListener("click", () => toggleCheckinFilter("自动"));
     document.querySelector("#manual-checkin-filter")?.addEventListener("click", () => toggleCheckinFilter("手动"));
+
+    document.querySelector("#auto-checkin-complete")?.addEventListener("click", () => {
+      document.querySelectorAll('tr.has-checkin[data-checkin-mode="自动"] .checkin-toggle').forEach((button) => {
+        if (window.localStorage.getItem(checkinStorageKey(button)) !== "1") {
+          window.localStorage.setItem(checkinStorageKey(button), "1");
+        }
+      });
+      applyCheckinState();
+      applyReportSearch();
+    });
 
     document.addEventListener("click", async (event) => {
       const checkinButton = event.target.closest(".checkin-toggle");

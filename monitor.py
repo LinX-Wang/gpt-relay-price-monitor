@@ -513,6 +513,7 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
     free_section = render_table_panel("free-sites", "公益站专区", free_items, "搜索公益站、备注、倍率", show_top_button=True)
     balance_filter_button = '<button id="balance-filter" class="jump-link balance-filter" type="button">只看有余额</button>'
     auto_checkin_filter_button = '<button id="auto-checkin-filter" class="jump-link checkin-filter auto-checkin-filter" type="button">自动签到</button>'
+    auto_checkin_complete_button = '<button id="auto-checkin-complete" class="jump-link auto-checkin-complete" type="button">自动全部已签</button>'
     manual_checkin_filter_button = '<button id="manual-checkin-filter" class="jump-link checkin-filter manual-checkin-filter" type="button">手动签到</button>'
     hint_text = "修改数据：用本地编辑器保存，或编辑项目目录下的 <code>sites.json</code> 后重新运行 <code>python monitor.py</code>"
     path.write_text(
@@ -788,6 +789,23 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
       border-color: #528bff;
       background: #eaf3ff;
       color: #004eeb;
+    }}
+    .auto-checkin-complete {{
+      border-color: #175cd3;
+      background: #175cd3;
+      color: #fff;
+    }}
+    .auto-checkin-complete:hover {{
+      border-color: #004eeb;
+      background: #004eeb;
+      color: #fff;
+    }}
+    .auto-checkin-complete:disabled {{
+      border-color: #d0d5dd;
+      background: #f2f4f7;
+      color: #98a2b3;
+      cursor: not-allowed;
+      transform: none;
     }}
     .jump-link.is-free {{
       border-color: #abefc6;
@@ -1345,6 +1363,7 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
         <nav class="quick-jumps" aria-label="快速跳转">
           {balance_filter_button}
           {auto_checkin_filter_button}
+          {auto_checkin_complete_button}
           {manual_checkin_filter_button}
           <a class="jump-link" href="/calculator.html" target="ai_price_monitor_calculator" rel="noopener">成本计算器</a>
           <a class="jump-link" href="#paid-sites">收费站</a>
@@ -1459,6 +1478,11 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
       if (autoCheckinFilter) {{
         autoCheckinFilter.textContent = `自动签到 (${{totalAutoPendingCheckinRows}})`;
       }}
+      const autoCheckinComplete = document.querySelector("#auto-checkin-complete");
+      if (autoCheckinComplete) {{
+        autoCheckinComplete.textContent = `自动全部已签 (${{totalAutoPendingCheckinRows}})`;
+        autoCheckinComplete.disabled = totalAutoPendingCheckinRows === 0;
+      }}
       if (manualCheckinFilter) {{
         manualCheckinFilter.textContent = `手动签到 (${{totalManualPendingCheckinRows}})`;
       }}
@@ -1482,6 +1506,16 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
 
     document.querySelector("#auto-checkin-filter")?.addEventListener("click", () => toggleCheckinFilter("自动"));
     document.querySelector("#manual-checkin-filter")?.addEventListener("click", () => toggleCheckinFilter("手动"));
+
+    document.querySelector("#auto-checkin-complete")?.addEventListener("click", () => {{
+      document.querySelectorAll('tr.has-checkin[data-checkin-mode="自动"] .checkin-toggle').forEach((button) => {{
+        if (window.localStorage.getItem(checkinStorageKey(button)) !== "1") {{
+          window.localStorage.setItem(checkinStorageKey(button), "1");
+        }}
+      }});
+      applyCheckinState();
+      applyReportSearch();
+    }});
 
     document.addEventListener("click", async (event) => {{
       const checkinButton = event.target.closest(".checkin-toggle");
