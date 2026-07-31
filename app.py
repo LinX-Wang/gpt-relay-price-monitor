@@ -1,11 +1,14 @@
 from __future__ import annotations
 
 import json
+import os
 import sqlite3
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
+from urllib.error import HTTPError, URLError
+from urllib.request import Request, urlopen
 
 from monitor import DB_FILE, build_reports, load_sites, normalize_optional_http_url, sort_snapshots, snapshot_from_site, sync_sites_to_db, write_sites
 
@@ -13,6 +16,12 @@ from monitor import DB_FILE, build_reports, load_sites, normalize_optional_http_
 ROOT = Path(__file__).resolve().parent
 HOST = "127.0.0.1"
 PORT = 8765
+METAPI_ENV_FILE = Path(os.environ.get("METAPI_ENV_FILE", r"D:\SOFTWARE\Metapi\docker\.env"))
+METAPI_ACCOUNTS_URL = os.environ.get("METAPI_ACCOUNTS_URL", "http://127.0.0.1:4000/api/accounts")
+METAPI_SITE_ALIASES = {
+    "bearlabai": "bearlab",
+    "七倍算力公益站": "七倍算力",
+}
 
 
 def parse_number(value: Any) -> float | None:
@@ -87,6 +96,85 @@ def save_rows(rows: list[dict[str, Any]]) -> None:
     with sqlite3.connect(DB_FILE) as conn:
         sync_sites_to_db(conn, sites)
     build_reports(sites)
+
+
+class MetapiSyncError(RuntimeError):
+    pass
+
+
+def normalized_site_name(value: Any) -> str:
+    normalized = "".join(char for char in str(value or "").casefold() if char.isalnum())
+    return METAPI_SITE_ALIASES.get(normalized, normalized)
+
+
+def read_metapi_auth_token() -> str:
+    if not METAPI_ENV_FILE.exists():
+        raise MetapiSyncError("未找到 Metapi 本地配置，请先启动并完成 Metapi 部署。")
+    for line in METAPI_ENV_FILE.read_text(encoding="utf-8").splitlines():
+        if line.startswith("AUTH_TOKEN="):
+            token = line.split("=", 1)[1].strip().strip('"').strip("'")
+            if token:
+                return token
+    raise MetapiSyncError("Metapi 配置中缺少 AUTH_TOKEN。")
+
+
+def fetch_metapi_account_balances() -> tuple[dict[str, float], int]:
+    request = Request(
+        METAPI_ACCOUNTS_URL,
+        headers={"Authorization": f"Bearer {read_metapi_auth_token()}"},
+    )
+    try:
+        with urlopen(request, timeout=20) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+    except HTTPError as error:
+        raise MetapiSyncError(f"Metapi 返回 HTTP {error.code}，请检查管理员令牌和服务状态。") from error
+    except URLError as error:
+        raise MetapiSyncError("无法连接 Metapi，请先确认 Metapi 已启动。") from error
+    except (OSError, json.JSONDecodeError) as error:
+        raise MetapiSyncError("读取 Metapi 余额失败，请稍后重试。") from error
+
+    accounts = payload.get("accounts") if isinstance(payload, dict) else payload
+    if not isinstance(accounts, list):
+        raise MetapiSyncError("Metapi 账户数据格式异常。")
+
+    balances: dict[str, float] = {}
+    active_accounts = 0
+    for account in accounts:
+        if not isinstance(account, dict) or account.get("status") != "active":
+            continue
+        site = account.get("site")
+        site_name = site.get("name") if isinstance(site, dict) else ""
+        key = normalized_site_name(site_name)
+        balance = parse_number(account.get("balance"))
+        if not key or balance is None:
+            continue
+        balances[key] = balances.get(key, 0.0) + balance
+        active_accounts += 1
+    return balances, active_accounts
+
+
+def sync_metapi_balances() -> dict[str, Any]:
+    balances, account_count = fetch_metapi_account_balances()
+    sites = load_sites()
+    updated_names: list[str] = []
+
+    for site in sites:
+        if site.get("checkin_mode") == "手动" or not empty_to_none(site.get("daily_checkin_bonus")):
+            continue
+        balance = balances.get(normalized_site_name(site.get("name")))
+        if balance is None:
+            continue
+        site["balance"] = balance
+        updated_names.append(str(site.get("name", "")))
+
+    if updated_names:
+        save_rows(sites)
+
+    return {
+        "updated": len(updated_names),
+        "accounts": account_count,
+        "sites": updated_names,
+    }
 
 
 def json_response(handler: BaseHTTPRequestHandler, payload: Any, status: int = 200) -> None:
@@ -171,6 +259,17 @@ class Handler(BaseHTTPRequestHandler):
                 json_response(self, {"error": "数据库保存失败，请重试。"}, status=500)
                 return
             json_response(self, {"ok": True, "count": len(rows)})
+            return
+        if path == "/api/metapi/balances":
+            try:
+                result = sync_metapi_balances()
+            except MetapiSyncError as error:
+                json_response(self, {"error": str(error)}, status=503)
+                return
+            except (OSError, sqlite3.Error, ValueError):
+                json_response(self, {"error": "同步余额失败，请稍后重试。"}, status=500)
+                return
+            json_response(self, {"ok": True, **result})
             return
         json_response(self, {"error": "not found"}, status=404)
 
@@ -316,6 +415,23 @@ EDITOR_HTML = r"""<!doctype html>
       background: #f2f4f7;
       color: #98a2b3;
       cursor: not-allowed;
+      transform: none;
+    }
+    button.metapi-balance-sync {
+      border-color: #0f9f8f;
+      background: #e3f7f4;
+      color: #087f73;
+    }
+    button.metapi-balance-sync:hover {
+      border-color: #087f73;
+      background: #c7efe9;
+      color: #05665d;
+    }
+    button.metapi-balance-sync:disabled {
+      border-color: #d0d5dd;
+      background: #f2f4f7;
+      color: #98a2b3;
+      cursor: wait;
       transform: none;
     }
     button.danger {
@@ -597,6 +713,7 @@ EDITOR_HTML = r"""<!doctype html>
         <a id="open-report" class="button" href="/reports/latest.html" target="ai_price_monitor_report" rel="noopener">打开报告</a>
         <a id="open-calculator" class="button" href="/calculator.html" target="ai_price_monitor_calculator" rel="noopener">成本计算器</a>
         <button id="auto-checkin-filter" class="checkin-filter auto-checkin-filter" type="button">自动签到</button>
+        <button id="metapi-balance-sync" class="metapi-balance-sync" type="button">同步 Metapi 余额</button>
         <button id="auto-checkin-complete" class="auto-checkin-complete" type="button">自动全部已签</button>
         <button id="manual-checkin-filter" class="checkin-filter" type="button">手动签到</button>
         <button id="add">新增一行</button>
@@ -661,6 +778,7 @@ EDITOR_HTML = r"""<!doctype html>
     const metricTotal = document.querySelector("#metric-total");
     const metricCheckin = document.querySelector("#metric-checkin");
     const autoCheckinFilter = document.querySelector("#auto-checkin-filter");
+    const metapiBalanceSync = document.querySelector("#metapi-balance-sync");
     const autoCheckinComplete = document.querySelector("#auto-checkin-complete");
     const manualCheckinFilter = document.querySelector("#manual-checkin-filter");
     let rows = [];
@@ -924,6 +1042,25 @@ EDITOR_HTML = r"""<!doctype html>
 
     autoCheckinFilter.addEventListener("click", () => toggleCheckinFilter("自动"));
     manualCheckinFilter.addEventListener("click", () => toggleCheckinFilter("手动"));
+
+    metapiBalanceSync.addEventListener("click", async () => {
+      const originalText = metapiBalanceSync.textContent;
+      metapiBalanceSync.disabled = true;
+      metapiBalanceSync.textContent = "同步中...";
+      setStatus("正在读取 Metapi 余额...");
+      try {
+        const response = await fetch("/api/metapi/balances", { method: "POST" });
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.error || "同步失败");
+        await load();
+        setStatus(`已同步更新 ${payload.updated} 个站点`, "ok");
+      } catch (error) {
+        setStatus(error.message || "同步 Metapi 余额失败", "error");
+      } finally {
+        metapiBalanceSync.textContent = originalText;
+        metapiBalanceSync.disabled = false;
+      }
+    });
 
     autoCheckinComplete.addEventListener("click", () => {
       rows
