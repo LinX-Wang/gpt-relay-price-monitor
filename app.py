@@ -42,6 +42,7 @@ def normalize_site(site: dict[str, Any]) -> dict[str, Any]:
         "pro_rate": parse_number(site.get("pro_rate")),
         "signup_bonus": parse_number(site.get("signup_bonus")),
         "daily_checkin_bonus": empty_to_none(site.get("daily_checkin_bonus")),
+        "checkin_mode": "手动" if site.get("checkin_mode") == "手动" else "自动",
         "notes": str(site.get("notes", "")).strip(),
         "invite_url": normalize_optional_http_url(site.get("invite_url")),
     }
@@ -289,6 +290,17 @@ EDITOR_HTML = r"""<!doctype html>
       border-color: #d99a16;
       background: var(--amber-soft);
       color: #754600;
+    }
+    button.auto-checkin-filter {
+      border-color: #b2ccff;
+      background: #f5f9ff;
+      color: #175cd3;
+    }
+    button.auto-checkin-filter:hover,
+    button.auto-checkin-filter.is-active {
+      border-color: #528bff;
+      background: #eaf3ff;
+      color: #004eeb;
     }
     button.danger {
       border-color: #fecdca;
@@ -568,7 +580,8 @@ EDITOR_HTML = r"""<!doctype html>
         <span id="status" class="status">加载中...</span>
         <a id="open-report" class="button" href="/reports/latest.html" target="ai_price_monitor_report" rel="noopener">打开报告</a>
         <a id="open-calculator" class="button" href="/calculator.html" target="ai_price_monitor_calculator" rel="noopener">成本计算器</a>
-        <button id="checkin-filter" class="checkin-filter" type="button">只看签到站</button>
+        <button id="auto-checkin-filter" class="checkin-filter auto-checkin-filter" type="button">自动签到</button>
+        <button id="manual-checkin-filter" class="checkin-filter" type="button">手动签到</button>
         <button id="add">新增一行</button>
         <button id="save" class="primary">保存并同步</button>
       </div>
@@ -603,6 +616,7 @@ EDITOR_HTML = r"""<!doctype html>
               <th>Pro</th>
               <th>注册送</th>
               <th>签到送</th>
+              <th>签到类型</th>
               <th>余额</th>
               <th>页面</th>
               <th>邀请链接</th>
@@ -616,7 +630,7 @@ EDITOR_HTML = r"""<!doctype html>
     </div>
   </main>
   <script>
-    const fields = ["name", "category", "usage_status", "welfare_rate", "plus_rate", "pro_rate", "signup_bonus", "daily_checkin_bonus", "balance", "url", "invite_url", "notes"];
+    const fields = ["name", "category", "usage_status", "welfare_rate", "plus_rate", "pro_rate", "signup_bonus", "daily_checkin_bonus", "checkin_mode", "balance", "url", "invite_url", "notes"];
     const numeric = new Set(["welfare_rate", "plus_rate", "pro_rate", "signup_bonus", "balance"]);
     const tbody = document.querySelector("#tbody");
     const tableWrap = document.querySelector(".table-wrap");
@@ -629,10 +643,11 @@ EDITOR_HTML = r"""<!doctype html>
     const metricBalance = document.querySelector("#metric-balance");
     const metricTotal = document.querySelector("#metric-total");
     const metricCheckin = document.querySelector("#metric-checkin");
-    const checkinFilter = document.querySelector("#checkin-filter");
+    const autoCheckinFilter = document.querySelector("#auto-checkin-filter");
+    const manualCheckinFilter = document.querySelector("#manual-checkin-filter");
     let rows = [];
     let query = "";
-    let checkinOnly = false;
+    let checkinFilterMode = "";
 
     function setStatus(text, cls = "") {
       statusEl.textContent = text;
@@ -676,7 +691,7 @@ EDITOR_HTML = r"""<!doctype html>
     }
 
     function rowMatches(row) {
-      if (checkinOnly && !hasCheckin(row)) return false;
+      if (checkinFilterMode && (!hasCheckin(row) || isSignedToday(row) || checkinMode(row) !== checkinFilterMode)) return false;
       if (!query) return true;
       const haystack = [row.name, row.category, row.usage_status, row.url, row.invite_url, row.notes].map(fmt).join(" ").toLowerCase();
       return haystack.includes(query);
@@ -698,6 +713,10 @@ EDITOR_HTML = r"""<!doctype html>
       return fmt(row.daily_checkin_bonus) !== "";
     }
 
+    function checkinMode(row) {
+      return fmt(row.checkin_mode) === "手动" ? "手动" : "自动";
+    }
+
     function isSignedToday(row) {
       return hasCheckin(row) && window.localStorage.getItem(checkinStorageKey(row)) === "1";
     }
@@ -708,14 +727,18 @@ EDITOR_HTML = r"""<!doctype html>
       const balanceRows = rows.filter((row) => Number(row.balance || 0) > 0);
       const checkinStations = rows.filter(hasCheckin);
       const checkinRows = checkinStations.filter((row) => !isSignedToday(row));
+      const autoCheckinRows = checkinRows.filter((row) => checkinMode(row) === "自动");
+      const manualCheckinRows = checkinRows.filter((row) => checkinMode(row) === "手动");
       const totalBalance = rows.reduce((sum, row) => sum + Number(row.balance || 0), 0);
       metricCount.textContent = String(rows.length);
       metricBest.textContent = best === "" ? "-" : `${best}x`;
       metricBalance.textContent = String(balanceRows.length);
       metricTotal.textContent = Number.isInteger(totalBalance) ? String(totalBalance) : totalBalance.toFixed(4).replace(/0+$/, "").replace(/\.$/, "");
       metricCheckin.textContent = String(checkinRows.length);
-      checkinFilter.classList.toggle("is-active", checkinOnly);
-      checkinFilter.textContent = checkinOnly ? `显示全部 (${rows.length})` : `只看签到站 (${checkinStations.length})`;
+      autoCheckinFilter.classList.toggle("is-active", checkinFilterMode === "自动");
+      manualCheckinFilter.classList.toggle("is-active", checkinFilterMode === "手动");
+      autoCheckinFilter.textContent = `自动签到 (${autoCheckinRows.length})`;
+      manualCheckinFilter.textContent = `手动签到 (${manualCheckinRows.length})`;
     }
 
     function rowClass(row) {
@@ -760,6 +783,12 @@ EDITOR_HTML = r"""<!doctype html>
           <td><input class="number" data-field="pro_rate" value="${escapeHtml(fmt(row.pro_rate))}"></td>
           <td><input class="number" data-field="signup_bonus" value="${escapeHtml(fmt(row.signup_bonus))}"></td>
           <td><input class="checkin-input" data-field="daily_checkin_bonus" value="${escapeHtml(fmt(row.daily_checkin_bonus))}"></td>
+          <td>
+            <select class="category-input" data-field="checkin_mode">
+              <option value="自动"${checkinMode(row) === "自动" ? " selected" : ""}>自动签到</option>
+              <option value="手动"${checkinMode(row) === "手动" ? " selected" : ""}>手动签到</option>
+            </select>
+          </td>
           <td><input class="number" data-field="balance" value="${escapeHtml(fmt(row.balance))}"></td>
           <td><input class="url" data-field="url" value="${escapeHtml(fmt(row.url))}"></td>
           <td><input class="url" data-field="invite_url" value="${escapeHtml(fmt(row.invite_url))}"></td>
@@ -844,10 +873,10 @@ EDITOR_HTML = r"""<!doctype html>
     });
 
     document.querySelector("#add").addEventListener("click", () => {
-      const row = {name: "", category: "收费站", usage_status: "", url: "", balance: null, welfare_rate: null, plus_rate: null, pro_rate: null, signup_bonus: null, daily_checkin_bonus: null, notes: "", invite_url: ""};
+      const row = {name: "", category: "收费站", usage_status: "", url: "", balance: null, welfare_rate: null, plus_rate: null, pro_rate: null, signup_bonus: null, daily_checkin_bonus: null, checkin_mode: "自动", notes: "", invite_url: ""};
       rows.push(row);
       query = "";
-      checkinOnly = false;
+      checkinFilterMode = "";
       searchEl.value = "";
       render();
       scrollToRow(row);
@@ -867,10 +896,13 @@ EDITOR_HTML = r"""<!doctype html>
       searchEl.focus();
     });
 
-    checkinFilter.addEventListener("click", () => {
-      checkinOnly = !checkinOnly;
+    function toggleCheckinFilter(mode) {
+      checkinFilterMode = checkinFilterMode === mode ? "" : mode;
       render();
-    });
+    }
+
+    autoCheckinFilter.addEventListener("click", () => toggleCheckinFilter("自动"));
+    manualCheckinFilter.addEventListener("click", () => toggleCheckinFilter("手动"));
 
     window.addEventListener("storage", (event) => {
       if (event.key && event.key.startsWith("ai-price-monitor:checkin:")) {
@@ -924,7 +956,6 @@ EDITOR_HTML = r"""<!doctype html>
 
 def main() -> int:
     url = f"http://{HOST}:{PORT}/"
-    build_reports(load_sites())
     server = ThreadingHTTPServer((HOST, PORT), Handler)
     print(f"Editor: {url}")
     server.serve_forever()

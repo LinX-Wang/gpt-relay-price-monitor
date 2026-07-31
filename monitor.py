@@ -28,6 +28,7 @@ SITE_FIELDS = [
     "pro_rate",
     "signup_bonus",
     "daily_checkin_bonus",
+    "checkin_mode",
     "notes",
     "invite_url",
     "usage_status",
@@ -47,6 +48,7 @@ class SiteSnapshot:
     balance: float | None
     signup_bonus: float | None
     daily_checkin_bonus: Any
+    checkin_mode: str
     source: str
     status: str
     notes: str
@@ -86,8 +88,6 @@ def normalize_optional_http_url(value: Any) -> str | None:
 
 
 def load_sites() -> list[dict[str, Any]]:
-    if not SITES_FILE.exists():
-        return []
     with SITES_FILE.open("r", encoding="utf-8") as f:
         return json.load(f)
 
@@ -122,6 +122,7 @@ def init_db(conn: sqlite3.Connection) -> None:
             balance REAL,
             signup_bonus REAL,
             daily_checkin_bonus REAL,
+            checkin_mode TEXT NOT NULL DEFAULT '自动',
             source TEXT NOT NULL,
             status TEXT NOT NULL,
             notes TEXT,
@@ -139,6 +140,8 @@ def init_db(conn: sqlite3.Connection) -> None:
         conn.execute("ALTER TABLE snapshots ADD COLUMN pro_rate REAL")
     if "usage_status" not in columns:
         conn.execute("ALTER TABLE snapshots ADD COLUMN usage_status TEXT NOT NULL DEFAULT ''")
+    if "checkin_mode" not in columns:
+        conn.execute("ALTER TABLE snapshots ADD COLUMN checkin_mode TEXT NOT NULL DEFAULT '自动'")
     conn.commit()
 
 
@@ -155,6 +158,7 @@ def init_sites_table(conn: sqlite3.Connection) -> None:
             pro_rate REAL,
             signup_bonus REAL,
             daily_checkin_bonus REAL,
+            checkin_mode TEXT NOT NULL DEFAULT '自动',
             notes TEXT,
             invite_url TEXT,
             usage_status TEXT NOT NULL DEFAULT '',
@@ -171,6 +175,7 @@ def init_sites_table(conn: sqlite3.Connection) -> None:
         "sort_order": "ALTER TABLE sites ADD COLUMN sort_order INTEGER NOT NULL DEFAULT 0",
         "updated_at": "ALTER TABLE sites ADD COLUMN updated_at TEXT NOT NULL DEFAULT ''",
         "usage_status": "ALTER TABLE sites ADD COLUMN usage_status TEXT NOT NULL DEFAULT ''",
+        "checkin_mode": "ALTER TABLE sites ADD COLUMN checkin_mode TEXT NOT NULL DEFAULT '自动'",
     }
     for column, sql in migrations.items():
         if column not in columns:
@@ -194,6 +199,7 @@ def sync_sites_to_db(conn: sqlite3.Connection, sites: list[dict[str, Any]]) -> N
                 "pro_rate": as_float(site.get("pro_rate")),
                 "signup_bonus": as_float(site.get("signup_bonus")),
                 "daily_checkin_bonus": empty_to_none(site.get("daily_checkin_bonus")),
+                "checkin_mode": "手动" if site.get("checkin_mode") == "手动" else "自动",
                 "notes": site.get("notes", ""),
                 "invite_url": site.get("invite_url"),
                 "usage_status": "常用" if site.get("usage_status") == "常用" else "",
@@ -206,10 +212,10 @@ def sync_sites_to_db(conn: sqlite3.Connection, sites: list[dict[str, Any]]) -> N
         """
         INSERT INTO sites (
             name, url, category, balance, welfare_rate, plus_rate, pro_rate, signup_bonus,
-            daily_checkin_bonus, notes, invite_url, usage_status, sort_order, updated_at
+            daily_checkin_bonus, checkin_mode, notes, invite_url, usage_status, sort_order, updated_at
         ) VALUES (
             :name, :url, :category, :balance, :welfare_rate, :plus_rate, :pro_rate, :signup_bonus,
-            :daily_checkin_bonus, :notes, :invite_url, :usage_status, :sort_order, :updated_at
+            :daily_checkin_bonus, :checkin_mode, :notes, :invite_url, :usage_status, :sort_order, :updated_at
         )
         """,
         rows,
@@ -222,7 +228,7 @@ def load_sites_from_db(conn: sqlite3.Connection) -> list[dict[str, Any]]:
     rows = conn.execute(
         """
         SELECT name, url, category, balance, welfare_rate, plus_rate, pro_rate, signup_bonus,
-               daily_checkin_bonus, notes, invite_url, usage_status
+               daily_checkin_bonus, checkin_mode, notes, invite_url, usage_status
         FROM sites
         ORDER BY sort_order, name
         """
@@ -254,6 +260,7 @@ def snapshot_from_site(site: dict[str, Any]) -> SiteSnapshot:
         balance=balance,
         signup_bonus=as_float(site.get("signup_bonus")),
         daily_checkin_bonus=empty_to_none(site.get("daily_checkin_bonus")),
+        checkin_mode="手动" if site.get("checkin_mode") == "手动" else "自动",
         source="manual",
         status="manual_seed",
         notes=site.get("notes", ""),
@@ -267,10 +274,10 @@ def save_snapshots(conn: sqlite3.Connection, snapshots: list[SiteSnapshot]) -> N
         """
         INSERT INTO snapshots (
             name, url, category, invite_url, welfare_rate, plus_rate, pro_rate, lowest_rate, balance,
-            signup_bonus, daily_checkin_bonus, source, status, notes, usage_status, checked_at
+            signup_bonus, daily_checkin_bonus, checkin_mode, source, status, notes, usage_status, checked_at
         ) VALUES (
             :name, :url, :category, :invite_url, :welfare_rate, :plus_rate, :pro_rate, :lowest_rate, :balance,
-            :signup_bonus, :daily_checkin_bonus, :source, :status, :notes, :usage_status, :checked_at
+            :signup_bonus, :daily_checkin_bonus, :checkin_mode, :source, :status, :notes, :usage_status, :checked_at
         )
         """,
         [snapshot.__dict__ for snapshot in snapshots],
@@ -282,6 +289,8 @@ def save_snapshots(conn: sqlite3.Connection, snapshots: list[SiteSnapshot]) -> N
         conn.execute("ALTER TABLE snapshots ADD COLUMN pro_rate REAL")
     if "usage_status" not in columns:
         conn.execute("ALTER TABLE snapshots ADD COLUMN usage_status TEXT NOT NULL DEFAULT ''")
+    if "checkin_mode" not in columns:
+        conn.execute("ALTER TABLE snapshots ADD COLUMN checkin_mode TEXT NOT NULL DEFAULT '自动'")
     conn.commit()
 
 
@@ -296,6 +305,7 @@ def export_csv(snapshots: list[SiteSnapshot]) -> Path:
         "pro_rate",
         "signup_bonus",
         "daily_checkin_bonus",
+        "checkin_mode",
         "balance",
         "url",
         "invite_url",
@@ -419,7 +429,7 @@ def render_rows(items: list[SiteSnapshot]) -> str:
         )
         usage_badge = '<span class="usage-badge">常用</span>' if item.usage_status == "常用" else ""
         rows.append(
-            f"<tr class=\"{row_class}\" data-original-rank=\"{rank}\" data-balance=\"{balance_sort}\">"
+            f"<tr class=\"{row_class}\" data-original-rank=\"{rank}\" data-balance=\"{balance_sort}\" data-checkin-mode=\"{html.escape(item.checkin_mode, quote=True)}\">"
             f"<td class=\"rank\">{rank}</td>"
             f"<td><div class=\"site-name\">{html.escape(item.name)}{usage_badge}</div><div class=\"site-url\">{html.escape(item.url or '-')}</div></td>"
             f"<td class=\"rate\">{format_rate(item.lowest_rate)}</td>"
@@ -502,7 +512,8 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
     paid_section = render_table_panel("paid-sites", "收费站倍率排行", paid_items, "搜索收费站、备注、倍率", searchable=True)
     free_section = render_table_panel("free-sites", "公益站专区", free_items, "搜索公益站、备注、倍率", show_top_button=True)
     balance_filter_button = '<button id="balance-filter" class="jump-link balance-filter" type="button">只看有余额</button>'
-    checkin_filter_button = '<button id="checkin-filter" class="jump-link checkin-filter" type="button">只看待签到</button>'
+    auto_checkin_filter_button = '<button id="auto-checkin-filter" class="jump-link checkin-filter auto-checkin-filter" type="button">自动签到</button>'
+    manual_checkin_filter_button = '<button id="manual-checkin-filter" class="jump-link checkin-filter manual-checkin-filter" type="button">手动签到</button>'
     hint_text = "修改数据：用本地编辑器保存，或编辑项目目录下的 <code>sites.json</code> 后重新运行 <code>python monitor.py</code>"
     path.write_text(
         f"""<!doctype html>
@@ -767,6 +778,16 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
       border-color: #f4b740;
       background: #fff4d7;
       color: #a15c00;
+    }}
+    .auto-checkin-filter {{
+      border-color: #b2ccff;
+      background: #f5f9ff;
+      color: #175cd3;
+    }}
+    .auto-checkin-filter.is-active {{
+      border-color: #528bff;
+      background: #eaf3ff;
+      color: #004eeb;
     }}
     .jump-link.is-free {{
       border-color: #abefc6;
@@ -1281,7 +1302,7 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
       <div class="panel-bar">
         <div>
           <div id="tools-title" class="panel-title">常用工具</div>
-          <div class="panel-subtitle">账号池、站点参考、端点监控、提示词与模型验纯</div>
+          <div class="panel-subtitle">账号池、免费额度、站点参考、端点监控、提示词与检测工具</div>
         </div>
         <div class="tool-count">{4 + len(quality_sites)} 个工具</div>
       </div>
@@ -1323,7 +1344,8 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
         <div class="search-help">同时过滤收费站和公益站；默认不搜网址，输入 <code>api.</code>、<code>/keys</code>、<code>.com</code> 时才匹配网址。</div>
         <nav class="quick-jumps" aria-label="快速跳转">
           {balance_filter_button}
-          {checkin_filter_button}
+          {auto_checkin_filter_button}
+          {manual_checkin_filter_button}
           <a class="jump-link" href="/calculator.html" target="ai_price_monitor_calculator" rel="noopener">成本计算器</a>
           <a class="jump-link" href="#paid-sites">收费站</a>
           <a class="jump-link is-free" href="#free-sites">公益站</a>
@@ -1366,12 +1388,18 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
       const shouldSearchUrl = /[.:/]/.test(query);
       const balanceFilter = document.querySelector("#balance-filter");
       const balanceOnly = balanceFilter?.classList.contains("is-active") || false;
-      const checkinFilter = document.querySelector("#checkin-filter");
-      const checkinOnly = checkinFilter?.classList.contains("is-active") || false;
+      const autoCheckinFilter = document.querySelector("#auto-checkin-filter");
+      const manualCheckinFilter = document.querySelector("#manual-checkin-filter");
+      const checkinMode = autoCheckinFilter?.classList.contains("is-active")
+        ? "自动"
+        : manualCheckinFilter?.classList.contains("is-active")
+          ? "手动"
+          : "";
       let totalVisible = 0;
       let totalRows = 0;
       let totalBalanceRows = 0;
-      let totalPendingCheckinRows = 0;
+      let totalAutoPendingCheckinRows = 0;
+      let totalManualPendingCheckinRows = 0;
 
       document.querySelectorAll(".table-panel").forEach((panel) => {{
         const count = panel.querySelector(".search-count");
@@ -1384,9 +1412,11 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
         let visible = 0;
         totalRows += rows.length;
         totalBalanceRows += rows.filter((row) => Number(row.dataset.balance || 0) > 0).length;
-        totalPendingCheckinRows += rows.filter((row) => {{
-          return row.classList.contains("has-checkin") && !row.classList.contains("signed-today");
-        }}).length;
+        rows.forEach((row) => {{
+          if (!row.classList.contains("has-checkin") || row.classList.contains("signed-today")) return;
+          if (row.dataset.checkinMode === "手动") totalManualPendingCheckinRows += 1;
+          else totalAutoPendingCheckinRows += 1;
+        }});
 
         orderedRows.forEach((row) => {{
           if (tbody) tbody.appendChild(row);
@@ -1401,10 +1431,11 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
           const urlText = shouldSearchUrl ? siteUrl.toLowerCase() : "";
           const hasBalance = Number(row.dataset.balance || 0) > 0;
           const hasPendingCheckin = row.classList.contains("has-checkin") && !row.classList.contains("signed-today");
+          const matchesCheckinMode = !checkinMode || row.dataset.checkinMode === checkinMode;
           const matched =
             (!query || searchableText.includes(query) || urlText.includes(query)) &&
             (!balanceOnly || hasBalance) &&
-            (!checkinOnly || hasPendingCheckin);
+            (!checkinMode || (hasPendingCheckin && matchesCheckinMode));
           row.hidden = !matched;
           if (matched) {{
             visible += 1;
@@ -1425,8 +1456,11 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
       if (balanceFilter) {{
         balanceFilter.textContent = balanceOnly ? `显示全部 (${{totalRows}})` : `只看有余额 (${{totalBalanceRows}})`;
       }}
-      if (checkinFilter) {{
-        checkinFilter.textContent = checkinOnly ? `显示全部 (${{totalRows}})` : `只看待签到 (${{totalPendingCheckinRows}})`;
+      if (autoCheckinFilter) {{
+        autoCheckinFilter.textContent = `自动签到 (${{totalAutoPendingCheckinRows}})`;
+      }}
+      if (manualCheckinFilter) {{
+        manualCheckinFilter.textContent = `手动签到 (${{totalManualPendingCheckinRows}})`;
       }}
     }}
 
@@ -1435,10 +1469,19 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
       applyReportSearch();
     }});
 
-    document.querySelector("#checkin-filter")?.addEventListener("click", (event) => {{
-      event.currentTarget.classList.toggle("is-active");
+    function toggleCheckinFilter(mode) {{
+      const autoCheckinFilter = document.querySelector("#auto-checkin-filter");
+      const manualCheckinFilter = document.querySelector("#manual-checkin-filter");
+      const target = mode === "自动" ? autoCheckinFilter : manualCheckinFilter;
+      const wasActive = target?.classList.contains("is-active");
+      autoCheckinFilter?.classList.remove("is-active");
+      manualCheckinFilter?.classList.remove("is-active");
+      if (!wasActive) target?.classList.add("is-active");
       applyReportSearch();
-    }});
+    }}
+
+    document.querySelector("#auto-checkin-filter")?.addEventListener("click", () => toggleCheckinFilter("自动"));
+    document.querySelector("#manual-checkin-filter")?.addEventListener("click", () => toggleCheckinFilter("手动"));
 
     document.addEventListener("click", async (event) => {{
       const checkinButton = event.target.closest(".checkin-toggle");

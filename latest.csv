@@ -1,134 +1,136 @@
-﻿name,category,lowest_rate,plus_rate,pro_rate,signup_bonus,daily_checkin_bonus,balance,url,invite_url,notes,usage_status,checked_at
-13api,公益站,0.0,0.8,,5.0,不固定,,https://13api.cn/sign-up?aff=4rV7,https://13api.cn/sign-up?aff=4rV7,,,2026-07-29T17:23:51
-HE BOX,收费站,1e-05,0.03,0.023,,,,https://ai.hebox.net/register?aff=yX3y,https://ai.hebox.net/register?aff=yX3y,邀请一个人可以0.00001倍率,,2026-07-29T17:23:51
-Ben API,收费站,0.0001,,,0.05,,,https://api.benzhoupo.xyz/sign-up?aff=8YKS,https://api.benzhoupo.xyz/sign-up?aff=8YKS,,,2026-07-29T17:23:51
-Sub2API-2,收费站,0.001,0.01,0.3,,,,https://sub2api.ys-ai.xyz/register?aff=SNSX2XGVMTNZ,https://sub2api.ys-ai.xyz/register?aff=SNSX2XGVMTNZ,,,2026-07-29T17:23:51
-S3AI API,收费站,0.001,0.1,0.15,0.01,,,https://ai.furry.vg/sign-up?aff=FUao,https://ai.furry.vg/sign-up?aff=FUao,,,2026-07-29T17:23:51
-UGF-API,收费站,0.001,0.1,0.2,,,,https://ai.ugf.cc/register?aff=LEBDLARCS99K,https://ai.ugf.cc/register?aff=LEBDLARCS99K,,,2026-07-29T17:23:51
-MyDamoxing,收费站,0.001,0.15,0.6,1.0,,,https://mydamoxing.cn/register?aff=fiF7,https://mydamoxing.cn/register?aff=fiF7,,,2026-07-29T17:23:51
-BearLab AI,收费站,0.003,0.075,0.15,0.05,不固定,,https://bearlab.ai/sign-up?aff=Qaet,https://bearlab.ai/sign-up?aff=Qaet,十元起充,,2026-07-29T17:23:51
-要和气呀,收费站,0.005,0.06,0.3,,,,https://yaoheqi.xyz/register?aff=4FPVJJZYQC6E,https://yaoheqi.xyz/register?aff=4FPVJJZYQC6E,,,2026-07-29T17:23:51
-真香API,收费站,0.005,0.07,,,,,https://zxiang.dxmcs.xin/sign-up?aff=Ig7W,https://zxiang.dxmcs.xin/sign-up?aff=Ig7W,,,2026-07-29T17:23:51
-wahuiliyi,收费站,0.008,,0.19,,,,https://api2.wahuiliyi.cn/register?aff=TPL5APZJBDWB,https://api2.wahuiliyi.cn/register?aff=TPL5APZJBDWB,特价分组0.008、0.015，team分组0.07,,2026-07-29T17:23:51
-Mikiko CC,收费站,0.01,0.015,0.022,0.6,,,,,美元充值（十美元（68元）起充）,,2026-07-29T17:23:51
-二狗子,收费站,0.01,0.02,0.025,0.15,,,https://ergouzi.life/sign-up?aff=ZnNM,https://ergouzi.life/sign-up?aff=ZnNM,限时优惠组 0.015; 余额低价组 0.02; 余额稳定组 0.025,,2026-07-29T17:23:51
-HHHToken,收费站,0.01,0.02,0.09,1.0,,,https://sub2.hhhtoken.cc/register?aff=9768CUYCXD25,https://sub2.hhhtoken.cc/register?aff=9768CUYCXD25,,,2026-07-29T17:23:51
-HUBWAY,收费站,0.01,0.03,0.1,15.0,,,https://hubway.cc/register?aff=KQFDS5PAJEVS,https://hubway.cc/register?aff=KQFDS5PAJEVS,充值 1:10 折算后倍率,,2026-07-29T17:23:51
-Uni Token,收费站,0.01,0.03,0.15,,,,https://uni-token.com/register?aff=WSHUXMWT29KN,https://uni-token.com/register?aff=WSHUXMWT29KN,,,2026-07-29T17:23:51
-keiko,收费站,0.01,0.05,0.2,,,,https://keiko.lol/register?aff=VEM4JJBTM5EB,https://keiko.lol/register?aff=VEM4JJBTM5EB,,,2026-07-29T17:23:51
-Sun API,收费站,0.01,0.055,0.18,0.5,,,https://api.sunai.lol/sign-up?aff=26ia,https://api.sunai.lol/sign-up?aff=26ia,,,2026-07-29T17:23:51
-AIHub,收费站,0.01,0.06,0.1,,,,https://aihub.top/register?aff=E82QMQTQKNGU,https://aihub.top/register?aff=E82QMQTQKNGU,,,2026-07-29T17:23:51
-奇点,收费站,0.01,0.075,0.18,,,,https://sub2api.proxy-gls.de5.net/register?aff=ESL6VWN6GDRH,https://sub2api.proxy-gls.de5.net/register?aff=ESL6VWN6GDRH,,,2026-07-29T17:23:51
-LingFAPI,收费站,0.01,0.1,0.22,,,,https://linfengx.xyz/register?aff=QSMZUEBZZ6BJ,https://linfengx.xyz/register?aff=QSMZUEBZZ6BJ,,,2026-07-29T17:23:51
-星港AI,收费站,0.01,0.3,,3.0,,,https://xinggangai.com/register?aff=ouEW,https://xinggangai.com/register?aff=ouEW,,,2026-07-29T17:23:51
-XelvAI API,收费站,0.01,1.0,,5.0,,,https://xelvai.com/register?aff=N5LZ5XHLSF34,https://xelvai.com/register?aff=N5LZ5XHLSF34,充值比1：10,,2026-07-29T17:23:51
-CTAI,收费站,0.01,,0.2,5.0,,,https://ai.chengtingkj.com/register?aff=JXKKW7D26JGP,https://ai.chengtingkj.com/register?aff=JXKKW7D26JGP,,,2026-07-29T17:23:51
-Dokng,收费站,0.01,,,0.5,,,https://dokng.com/sign-up?aff=duOf,https://dokng.com/sign-up?aff=duOf,,,2026-07-29T17:23:51
-247看API,收费站,0.015,0.05,0.12,,,,https://api.247kan.com/register?aff=XD836AN58YG6,https://api.247kan.com/register?aff=XD836AN58YG6,,,2026-07-29T17:23:51
-牛大了2.0,收费站,0.015,0.075,0.18,0.2,,,https://cow.g201.com/register?aff=GVMQ4MJY3ANT,https://cow.g201.com/register?aff=GVMQ4MJY3ANT,,,2026-07-29T17:23:51
-mdjk,收费站,0.02,0.02,0.08,,,,https://mdkj.lol/register?aff=H5Q3QB8J3FCR,https://mdkj.lol/register?aff=H5Q3QB8J3FCR,特惠 0.03; plus 0.05; pro 0.12、0.15,,2026-07-29T17:23:51
-NikoAPI,收费站,0.02,0.05,0.12,,,,https://nikoapi.xyz/sign-up?aff=m47a,https://nikoapi.xyz/sign-up?aff=m47a,,,2026-07-29T17:23:51
-2Chat,收费站,0.02,0.06,0.12,0.2,,,https://2chat.cc/register?aff=3RXSDXUZKCTW,https://2chat.cc/register?aff=3RXSDXUZKCTW,特惠 0.02; plus 0.06; pro 0.12,,2026-07-29T17:23:51
-AI Gateway,收费站,0.02,0.06,0.15,,,,,,,,2026-07-29T17:23:51
-Lunora API,收费站,0.02,0.07,0.12,0.2,,,https://www.uselunora.com/register?aff=LAP8JP77SPAA,https://www.uselunora.com/register?aff=LAP8JP77SPAA,,,2026-07-29T17:23:51
-Qingflow,收费站,0.02,0.08,0.1,,,,https://jingyuqingfeng.cn/register?aff=GLDQ4BA7QR4J,https://jingyuqingfeng.cn/register?aff=GLDQ4BA7QR4J,福利分组 0.01; plus 0.08; pro 0.1,,2026-07-29T17:23:51
-TKEN,收费站,0.02,0.08,0.16,0.2,,,https://www.tken.shop/register?aff=88Ll,https://www.tken.shop/register?aff=88Ll,,,2026-07-29T17:23:51
-aimi-api,收费站,0.02,0.08,0.2,0.0001,,,https://api.58aimi.cn/sign-up?aff=whwN,https://api.58aimi.cn/sign-up?aff=whwN,,,2026-07-29T17:23:51
-Walk AI Coding,收费站,0.02,0.1,0.15,,,,https://walkcoding.top/register?aff=D9ZPTGW5WJZ8,https://walkcoding.top/register?aff=D9ZPTGW5WJZ8,,,2026-07-29T17:23:51
-RapidApi,收费站,0.02,,,1.0,,,https://rapidapi.cc/register?aff=LWSGX9MDZ97L,https://rapidapi.cc/register?aff=LWSGX9MDZ97L,,,2026-07-29T17:23:51
-牛顿AI中转站,收费站,0.025,0.1,0.25,0.05,,,https://newtonrouter.com/sign-up?aff=CuXq,https://newtonrouter.com/sign-up?aff=CuXq,邀请一个人一块钱,,2026-07-29T17:23:51
-发现AI,收费站,0.028,0.15,0.25,0.1,,,https://www.findcg.com/register?aff=Z28HELNBLDW4,https://www.findcg.com/register?aff=Z28HELNBLDW4,k12-0.045，特价007,,2026-07-29T17:23:51
-Tokeness,收费站,0.03,0.03,0.075,0.252,不固定,,https://tokeness.io/sign-up?aff=I361,https://tokeness.io/sign-up?aff=I361,github登录,,2026-07-29T17:23:51
-骆驼,收费站,0.03,0.12,0.18,,,,https://luotuokj.top/register?aff=DVECCKT9T6UA,https://luotuokj.top/register?aff=DVECCKT9T6UA,,,2026-07-29T17:23:51
-Aizzz,收费站,0.03,0.15,0.15,,,,https://api.aizzz.xyz/sign-up?aff=zoBu,https://api.aizzz.xyz/sign-up?aff=zoBu,,,2026-07-29T17:23:51
-1For,收费站,0.03,,,,,,https://1for.cc/register?aff=5X7LN67H2KQQ,https://1for.cc/register?aff=5X7LN67H2KQQ,,,2026-07-29T17:23:51
-WorldClawPro,收费站,0.03,,,0.02,,,https://worldclawpro.ai/sign-up?aff=FuJ5,https://worldclawpro.ai/sign-up?aff=FuJ5,福利分组,,2026-07-29T17:23:51
-JuCodex.com,收费站,0.04,0.04,0.075,1.0,,,https://jucodex.com/register?aff=UDC5,https://jucodex.com/register?aff=UDC5,github登录，邀请一个人2,,2026-07-29T17:23:51
-GJX,收费站,0.04,0.04,0.0752,10.0,,,https://api.gjx88.com/register?aff=NHX9E82QZERM,https://api.gjx88.com/register?aff=NHX9E82QZERM,充值比1：25后倍率,,2026-07-29T17:23:51
-Token API,收费站,0.04,0.045,0.1,0.2,,,https://token.xn--cjz.space/register?aff=K8MX2HLYJH6K,https://token.xn--cjz.space/register?aff=K8MX2HLYJH6K,,,2026-07-29T17:23:51
-SheApi,收费站,0.04,0.075,0.2,1.0,不固定,,https://www.sheapi.top/sign-up?aff=qFnd,https://www.sheapi.top/sign-up?aff=qFnd,有邀请返利,,2026-07-29T17:23:51
-VC,收费站,0.04,0.08,0.1,,,,https://sub.vcnovb.cn/register?aff=T5QDLGL67WHR,https://sub.vcnovb.cn/register?aff=T5QDLGL67WHR,福利分组 0.01、0.04; plus 0.1; pro 0.1、0.25,,2026-07-29T17:23:51
-星络AI,收费站,0.04,0.08,0.18,,,,https://aiccxx.cn/register?aff=PKP7XUHCZVZS,https://aiccxx.cn/register?aff=PKP7XUHCZVZS,,,2026-07-29T17:23:51
-Codemax,收费站,0.04,0.09,0.15,1.0,,,https://api.codemax.store/register?aff=XHFYR93AW557,https://api.codemax.store/register?aff=XHFYR93AW557,,,2026-07-29T17:23:51
-Pixel API,收费站,0.04,0.1,,,,,https://ai-pixel.online/register?aff=5YJV99SLPL8J,https://ai-pixel.online/register?aff=5YJV99SLPL8J,k12 福利分组 0.04; plus 0.1,,2026-07-29T17:23:51
-AI算力市场,收费站,0.04,0.15,0.25,2.0,不固定,,https://api.nxmes.cn/sign-up?aff=neqp,https://api.nxmes.cn/sign-up?aff=neqp,,,2026-07-29T17:23:51
-启悟流,收费站,0.049,0.098,,,,,https://756777.xyz/register?aff=4BADNXGX59K7,https://756777.xyz/register?aff=4BADNXGX59K7,充值比1：10后倍率,,2026-07-29T17:23:51
-Fox API,收费站,0.05,0.08,0.17,0.1,,,https://api.fox1x.eu.cc/sign-up?aff=eEAv,https://api.fox1x.eu.cc/sign-up?aff=eEAv,,,2026-07-29T17:23:51
-云舟API,收费站,0.05,0.1,0.2,1.0,,,https://cli.999554.xyz/register?aff=86iU,https://cli.999554.xyz/register?aff=86iU,特惠 0.07; plus 0.1; pro 0.2,,2026-07-29T17:23:51
-Ctoken,收费站,0.05,,0.15,1.0,不固定,,https://ctoken.top/sign-up?aff=LdDr,https://ctoken.top/sign-up?aff=LdDr,,,2026-07-29T17:23:51
-API BASIS,收费站,0.05,,0.2,,,,https://apibasis.com/sign-up?aff=ez9B,https://apibasis.com/sign-up?aff=ez9B,体验站：https://try.apibasis.com/,,2026-07-29T17:23:51
-jbb下游专用,收费站,0.06,0.06,0.08,1.0,,,https://downstream.jbbtoken.cn/sign-up?aff=DGIb,https://downstream.jbbtoken.cn/sign-up?aff=DGIb,,,2026-07-29T17:23:51
-发财API,收费站,0.06,0.06,0.15,,,,https://api.dali2897.com/register?aff=l1lI,https://api.dali2897.com/register?aff=l1lI,十元起充，充值满十元送2元，满50可签到,,2026-07-29T17:23:51
-Kitty,收费站,0.06,0.08,0.15,4.0,,,https://kittyapi.xyz/register?aff=3K4K3N85KEBA,https://kittyapi.xyz/register?aff=3K4K3N85KEBA,福利分组 0.06; plus 0.1,,2026-07-29T17:23:51
-PaidYun,收费站,0.06,0.09,0.1,,,,https://paidyun.cc.cd/register?aff=HV58UY8W2RRJ,https://paidyun.cc.cd/register?aff=HV58UY8W2RRJ,五元起充,,2026-07-29T17:23:51
-极刻,收费站,0.06,0.1,0.2,1.0,,,https://api.zeekai.cc/register?aff=FVWSY2TEB9NL,https://api.zeekai.cc/register?aff=FVWSY2TEB9NL,,,2026-07-29T17:23:51
-悟空API,收费站,0.06,0.1,0.22,0.2,,,https://wkapi.club/sign-up?aff=KZrP,https://wkapi.club/sign-up?aff=KZrP,,,2026-07-29T17:23:51
-君の星辰,收费站,0.06,,0.4,,,,https://ai.centos.hk/register?aff=WDIj,https://ai.centos.hk/register?aff=WDIj,,,2026-07-29T17:23:51
-词元枢阁,收费站,0.066,0.08,0.2,,,,https://api.aisz.mom/sign-up?aff=202u,https://api.aisz.mom/sign-up?aff=202u,福利分组 0.066; plus 0.08; pro 0.2,,2026-07-29T17:23:51
-鑫旺Neko API,收费站,0.07,,0.07,0.2,,,https://790053500.com/register?aff=7DL26837533U,https://790053500.com/register?aff=7DL26837533U,可开发票,,2026-07-29T17:23:51
-全村的API,收费站,0.075,0.075,0.15,1.0,,,https://new.tianluo.ccwu.cc/sign-up?aff=f2Qq,https://new.tianluo.ccwu.cc/sign-up?aff=f2Qq,,,2026-07-29T17:23:51
-ooioo,收费站,0.08,0.08,0.2,,,,https://ooioo.work/sign-up?aff=hzXj,https://ooioo.work/sign-up?aff=hzXj,,,2026-07-29T17:23:51
-cc,收费站,0.08,0.1,,0.1,,,https://cc.3333366.xyz/sign-up?aff=QW9Q,https://cc.3333366.xyz/sign-up?aff=QW9Q,,,2026-07-29T17:23:51
-我要API,收费站,0.08,0.14,0.3,0.2,,,https://api.wynb.top/sign-up?aff=fGoP,https://api.wynb.top/sign-up?aff=fGoP,,,2026-07-29T17:23:51
-mioufun,收费站,0.08,0.15,0.3,1.0,,,https://api.mioufun.top/register?aff=bk2N,https://api.mioufun.top/register?aff=bk2N,福利分组 0.08; plus 0.15; pro 0.3,,2026-07-29T17:23:51
-RouterTeam,收费站,0.08,,,0.0,,,https://ai.router.team/register?invite=RNAER46A,https://ai.router.team/register?invite=RNAER46A,充值比1：12.5后倍率,,2026-07-29T17:23:51
-星枢AI,收费站,0.085,0.13,0.15,,,,https://goaistore.ccwu.cc/register?aff=UF2K5NX6GVNK,https://goaistore.ccwu.cc/register?aff=UF2K5NX6GVNK,特价 0.085; plus 0.13; pro 0.15,,2026-07-29T17:23:51
-JulyCode,收费站,0.099,,,1.1,,,https://julyapi.com/register?aff=J5SK5DGJ3RJP,https://julyapi.com/register?aff=J5SK5DGJ3RJP,福利分组 0.099,,2026-07-29T17:23:51
-BizDecipher,收费站,0.1,0.1,0.14,0.01,,,https://bizdecipher.com/register?aff=L6XSMHWTVLMY,https://bizdecipher.com/register?aff=L6XSMHWTVLMY,积分池倍率2,,2026-07-29T17:23:51
-TokensHub,收费站,0.1,0.1,0.16,,,,https://api.tokenshub.site/register?aff=HYPSAM9Q658X,https://api.tokenshub.site/register?aff=HYPSAM9Q658X,充值手续费1%，邀请一个人一块钱,,2026-07-29T17:23:51
-BuyCodeKeyAPI,收费站,0.1,0.1,0.2,,,,https://console.buycodekey.com/sign-up?aff=Thy2,https://console.buycodekey.com/sign-up?aff=Thy2,,,2026-07-29T17:23:51
-Geili API,收费站,0.1,0.1,0.2,,,,https://sub.geiliapi.com/register?aff=YZE4BPZVNSSG,https://sub.geiliapi.com/register?aff=YZE4BPZVNSSG,,,2026-07-29T17:23:51
-Hiyo codex,收费站,0.1,0.1,0.46,1.0,,,https://codex.hiyo.top/register?aff=EPABY7W2KBT4,https://codex.hiyo.top/register?aff=EPABY7W2KBT4,充值比1：13后倍率,,2026-07-29T17:23:51
-我的贾维斯,收费站,0.1,0.1,,,,,https://api.aijws.com/register?aff=MPUMYXPFMWSZ,https://api.aijws.com/register?aff=MPUMYXPFMWSZ,满血pro 0.1; 十元起充,,2026-07-29T17:23:51
-Guyscode,收费站,0.1,0.12,0.16,,不固定,,https://www.guyscode.com/register?aff=2CRQ2QLL3SXD,https://www.guyscode.com/register?aff=2CRQ2QLL3SXD,,,2026-07-29T17:23:51
-LUNA,收费站,0.1,,,88.0,,,https://luna-ai.shop/register?aff=NUJJKQNHVZAR,https://luna-ai.shop/register?aff=NUJJKQNHVZAR,福利分组,,2026-07-29T17:23:51
-YiAPI,收费站,0.1,,,,,,https://yiapi.ai/register?aff=C9W2XN9D5FZE,https://yiapi.ai/register?aff=C9W2XN9D5FZE,,,2026-07-29T17:23:51
-分享奇点,公益站,0.1,,,30.0,不固定,,https://api-public.proxy-gls.de5.net/sign-up?aff=HQda,https://api-public.proxy-gls.de5.net/sign-up?aff=HQda,,,2026-07-29T17:23:51
-归离@API,收费站,0.1,,,1.0,,,https://api3.guili.fun/register?aff=YXWGJBBJBAGW,https://api3.guili.fun/register?aff=YXWGJBBJBAGW,,,2026-07-29T17:23:51
-小白Code,收费站,0.11,0.11,0.19,1.0,0.25,,https://token.dialoguedui.com/register?aff=DGRXRHBHQKDU,https://token.dialoguedui.com/register?aff=DGRXRHBHQKDU,福利分组 0.07; pro 0.19,,2026-07-29T17:23:51
-乾行,收费站,0.12,,,2.0,,,https://fast.qianxing.pro/sign-up?aff=18Qo,https://fast.qianxing.pro/sign-up?aff=18Qo,特价 0.12; 稳定 0.25,,2026-07-29T17:23:51
-AIAIAI工具箱,收费站,0.14,0.14,0.25,10.0,,,https://api.aiaiai001.com/sign-up?aff=GSrs,https://api.aiaiai001.com/sign-up?aff=GSrs,,,2026-07-29T17:23:51
-brobro,收费站,0.15,0.15,0.2,2.0,,,https://api.brobro.vip/register?aff=SMXE,https://api.brobro.vip/register?aff=SMXE,,,2026-07-29T17:23:51
-JiuYouMao,收费站,0.15,0.15,0.35,,,,https://www.bigmodel.tech/sign-up?aff=Ztx3,https://www.bigmodel.tech/sign-up?aff=Ztx3,,,2026-07-29T17:23:51
-C-API.CC,收费站,0.15,1.0,,,,,https://c-api.cc/register?aff=8HJW7L2K3EVX,https://c-api.cc/register?aff=8HJW7L2K3EVX,福利分组 0.15; pro 1; 十元起充,,2026-07-29T17:23:51
-斑马API,收费站,0.15,,,,0.4,,https://bmapi.020212.xyz/register?aff=BNGUWCJG4WPN,https://bmapi.020212.xyz/register?aff=BNGUWCJG4WPN,,,2026-07-29T17:23:51
-Popcorn,收费站,0.18,0.18,0.25,,0.3,,https://sub2api.popcorn.wiki/register?aff=ZS777BY75ZHC,https://sub2api.popcorn.wiki/register?aff=ZS777BY75ZHC,k12 福利分组 0.06; plus 0.125; pro 0.25,,2026-07-29T17:23:51
-漫小白,收费站,0.18,,,,,,https://api.manxiaobai.online/register?aff=pnpQ,https://api.manxiaobai.online/register?aff=pnpQ,,,2026-07-29T17:23:51
-量大管饱,收费站,0.18,,,,,,https://www.ldgb.top/register?aff=LNDR7GQ7WQG2,https://www.ldgb.top/register?aff=LNDR7GQ7WQG2,福利分组,,2026-07-29T17:23:51
-NexaRelay,收费站,0.2,0.2,0.3,3.0,,,https://api.nexarelay.com/register?aff=3W9KAZ47RYAG,https://api.nexarelay.com/register?aff=3W9KAZ47RYAG,,,2026-07-29T17:23:51
-GMN,收费站,0.2,0.2,0.4,,,,,,十元起充,,2026-07-29T17:23:51
-登仙,公益站,0.2,0.2,,,不固定,,https://api.denxio.top/register?invite_code=GSFFPWPS7QXB,https://api.denxio.top/register?invite_code=GSFFPWPS7QXB,公益站，不可充值,,2026-07-29T17:23:51
-八秒聚合,收费站,0.2,,0.6,0.08,,,https://8s.hk/sign-up?aff=tQJu,https://8s.hk/sign-up?aff=tQJu,特价 0.2; pro 0.6,,2026-07-29T17:23:51
-Future Hub,公益站,0.2,,,,不固定,,https://api.futureppo.top/register?aff=fK8K,https://api.futureppo.top/register?aff=fK8K,,,2026-07-29T17:23:51
-词元站,收费站,0.25,0.25,,,,,https://ai.962831.xyz/sign-up?aff=Lqg0,https://ai.962831.xyz/sign-up?aff=Lqg0,,,2026-07-29T17:23:51
-DawCode,收费站,0.3,0.4,0.5,1.0,不固定,,https://dawcode.ai/sign-up?aff=ISIK,https://dawcode.ai/sign-up?aff=ISIK,,,2026-07-29T17:23:51
-rua.chat,收费站,0.3,,,,不固定,,https://api.rua.chat/sign-up?aff=rDuC,https://api.rua.chat/sign-up?aff=rDuC,,,2026-07-29T17:23:51
-空悲切API,收费站,0.4,0.6,1.0,1.0,,,https://xn--vduyey89e.com/sign-up?aff=OTPU,https://xn--vduyey89e.com/sign-up?aff=OTPU,,,2026-07-29T17:23:51
-Cpass,收费站,0.4,,,7.0,,,https://www.cpass.cc/register?aff=bEFS,https://www.cpass.cc/register?aff=bEFS,福利分组,,2026-07-29T17:23:51
-Unity2.Ai,收费站,0.4,,,2.0,,,https://unity2.ai/register?ref=jsk2sgGC,https://unity2.ai/register?ref=jsk2sgGC,福利分组,,2026-07-29T17:23:51
-简直了,公益站,0.6,,,,10,,https://jianzhile.vip/register?aff=uCdS,https://jianzhile.vip/register?aff=uCdS,福利分组,,2026-07-29T17:23:51
-Grox,收费站,0.8,2.0,5.0,,,,https://www.mcgrox.top/register?aff=B3V56KYGP4J4,https://www.mcgrox.top/register?aff=B3V56KYGP4J4,邀请送100元日卡,,2026-07-29T17:23:51
-SeekAI,收费站,0.8,,,,,,https://seekai.cc/register?code=INVA401189B7462,https://seekai.cc/register?code=INVA401189B7462,充值比1：30,,2026-07-29T17:23:51
-CHH,收费站,0.9,0.9,1.5,100.0,,,https://api.chhlink.xyz/register?aff=E2UNEUR6NMQZ,https://api.chhlink.xyz/register?aff=E2UNEUR6NMQZ,,,2026-07-29T17:23:51
-AI-ROUTER,收费站,1.0,1.0,1.8,20.0,,,https://ai-router.dev/register?aff=KZJQK6RBLEUL,https://ai-router.dev/register?aff=KZJQK6RBLEUL,注册送20，其中5为体验余额，15充值后解锁；注册24小时后可签到,,2026-07-29T17:23:51
-AI8,收费站,1.0,1.0,2.0,2.0,不固定,,https://ai8.my/sign-up?aff=sYZ6,https://ai8.my/sign-up?aff=sYZ6,充值比1：10，故换算后倍率为0.15、0.2,,2026-07-29T17:23:51
-Free,公益站,1.0,1.0,,,200,,https://free.lyclaude.site/register?aff=fI71,https://free.lyclaude.site/register?aff=fI71,,,2026-07-29T17:23:51
-Haizhu API,收费站,1.0,1.0,,20.0,,,https://webapi.ccwu.cc/register?aff=CQ2RWS5G94PA,https://webapi.ccwu.cc/register?aff=CQ2RWS5G94PA,,,2026-07-29T17:23:51
-gorouter,公益站,1.0,1.0,,,,,https://gorouter.app/sign-up?aff=nl69,https://gorouter.app/sign-up?aff=nl69,,,2026-07-29T17:23:51
-百倍,公益站,1.0,1.0,,,不固定,,,,只有claude，每日领注册码：https://cod.linxigzs.top/,,2026-07-29T17:23:51
-Agent Router,公益站,1.0,,,175.0,25,,https://agentrouter.org/register?aff=G9T0,https://agentrouter.org/register?aff=G9T0,GitHub登录，退出重登才能签到,,2026-07-29T17:23:51
-熊猫API,公益站,1.0,,,200.0,,,https://api520.pro/register?aff=wtEc,https://api520.pro/register?aff=wtEc,邀请一个人100,,2026-07-29T17:23:51
-蟹蟹API,公益站,1.0,,,70.0,不固定,,https://newapi.nexusvai.xyz/sign-up?aff=slfc,https://newapi.nexusvai.xyz/sign-up?aff=slfc,,,2026-07-29T17:23:51
-QUNL API,收费站,1.2,,,6.0,不固定,,https://cn.chrouter.com:8443/register?aff=gLPb,https://cn.chrouter.com:8443/register?aff=gLPb,,,2026-07-29T17:23:51
-CUN.ai,收费站,1.25,,,9.8,不固定,,,,福利分组,,2026-07-29T17:23:51
-CaMeL API,收费站,1.4,,,3.0,,,https://camel.kr777.top/register?aff=5qAa,https://camel.kr777.top/register?aff=5qAa,个人设置内签到,,2026-07-29T17:23:51
-Beizhi,收费站,1.5,,,30.0,不固定,,https://beizhi.sylu.cc/sign-up?aff=sSJg,https://beizhi.sylu.cc/sign-up?aff=sSJg,充值比1：50，gpt不可用，可用deepseek,,2026-07-29T17:23:51
-1412‘s API,公益站,2.0,2.0,,92.0,不固定,,https://napi.kid1412.qzz.io/sign-up?aff=9HQY,https://napi.kid1412.qzz.io/sign-up?aff=9HQY,"有订阅无充值,github登录",,2026-07-29T17:23:51
-七倍算力公益站,公益站,2.0,,,105.0,20,,https://7x.hk/sign-up?aff=bVdm,https://7x.hk/sign-up?aff=bVdm,福利分组,,2026-07-29T17:23:51
-维云模型开放平台,公益站,2.0,,,0.45,订阅,,https://vsllm.com/register?aff=p6Oj,https://vsllm.com/register?aff=p6Oj,2x; 每日签到可领配额，5小时重置; 订阅套餐，不可充值,,2026-07-29T17:23:51
-DoCode,公益站,8.0,18.0,,300.0,不固定,,https://docode.cc/register?aff=s6fc,https://docode.cc/register?aff=s6fc,福利分组 8; pro 18,,2026-07-29T17:23:51
-0DAI模型站,公益站,,,,48.0,,,https://ai.0d0d.top/register?ref=u6z48lwn,https://ai.0d0d.top/register?ref=u6z48lwn,国模公益站（mimo-v2.5、deepseek-v4-pro）,,2026-07-29T17:23:51
-99code,公益站,,,,40.0,50,,https://gpt.api456.me/?aff=rBg5,https://gpt.api456.me/?aff=rBg5,每日50算力点，次日刷新，邀请一个人50,,2026-07-29T17:23:51
-freemodel,公益站,,,,,,,https://freemodel.dev/invite/FRE-c8325e53,https://freemodel.dev/invite/FRE-c8325e53,5小时5，7天33,,2026-07-29T17:23:51
-林夕,公益站,,,,,不固定,,,,,,2026-07-29T17:23:51
-猫猫,公益站,,,,2000.0,不固定,,https://api.maoyulin.xyz/register?aff=f10H,https://api.maoyulin.xyz/register?aff=f10H,GitHub登录,,2026-07-29T17:23:51
+﻿name,category,lowest_rate,plus_rate,pro_rate,signup_bonus,daily_checkin_bonus,checkin_mode,balance,url,invite_url,notes,usage_status,checked_at
+HE BOX,收费站,1e-05,0.03,0.023,,,自动,,https://ai.hebox.net/register?aff=yX3y,https://ai.hebox.net/register?aff=yX3y,邀请一个人可以0.00001倍率,,2026-07-31T14:29:30
+Ben API,收费站,0.0001,,,0.05,,自动,,https://api.benzhoupo.xyz/sign-up?aff=8YKS,https://api.benzhoupo.xyz/sign-up?aff=8YKS,,,2026-07-31T14:29:30
+Sub2API-2,收费站,0.001,0.01,0.3,,,自动,,https://sub2api.ys-ai.xyz/register?aff=SNSX2XGVMTNZ,https://sub2api.ys-ai.xyz/register?aff=SNSX2XGVMTNZ,,,2026-07-31T14:29:30
+S3AI API,收费站,0.001,0.1,0.15,0.01,,自动,,https://ai.furry.vg/sign-up?aff=FUao,https://ai.furry.vg/sign-up?aff=FUao,,,2026-07-31T14:29:30
+UGF-API,收费站,0.001,0.1,0.2,,,自动,,https://ai.ugf.cc/register?aff=LEBDLARCS99K,https://ai.ugf.cc/register?aff=LEBDLARCS99K,,,2026-07-31T14:29:30
+MyDamoxing,收费站,0.001,0.15,0.6,1.0,,自动,,https://mydamoxing.cn/register?aff=fiF7,https://mydamoxing.cn/register?aff=fiF7,,,2026-07-31T14:29:30
+BearLab AI,收费站,0.003,0.075,0.15,0.05,不固定,自动,,https://bearlab.ai/sign-up?aff=Qaet,https://bearlab.ai/sign-up?aff=Qaet,十元起充,,2026-07-31T14:29:30
+要和气呀,收费站,0.005,0.06,0.3,,,自动,,https://yaoheqi.xyz/register?aff=4FPVJJZYQC6E,https://yaoheqi.xyz/register?aff=4FPVJJZYQC6E,,,2026-07-31T14:29:30
+真香API,收费站,0.005,0.07,,,,自动,,https://zxiang.dxmcs.xin/sign-up?aff=Ig7W,https://zxiang.dxmcs.xin/sign-up?aff=Ig7W,,,2026-07-31T14:29:30
+wahuiliyi,收费站,0.008,,0.19,,,自动,,https://api2.wahuiliyi.cn/register?aff=TPL5APZJBDWB,https://api2.wahuiliyi.cn/register?aff=TPL5APZJBDWB,特价分组0.008、0.015，team分组0.07,,2026-07-31T14:29:30
+Mikiko CC,收费站,0.01,0.015,0.022,0.6,,自动,,,,美元充值（十美元（68元）起充）,,2026-07-31T14:29:30
+二狗子,收费站,0.01,0.02,0.025,0.15,,自动,,https://ergouzi.life/sign-up?aff=ZnNM,https://ergouzi.life/sign-up?aff=ZnNM,限时优惠组 0.015; 余额低价组 0.02; 余额稳定组 0.025,,2026-07-31T14:29:30
+HHHToken,收费站,0.01,0.02,0.09,1.0,,自动,,https://sub2.hhhtoken.cc/register?aff=9768CUYCXD25,https://sub2.hhhtoken.cc/register?aff=9768CUYCXD25,,,2026-07-31T14:29:30
+HUBWAY,收费站,0.01,0.03,0.1,15.0,,自动,,https://hubway.cc/register?aff=KQFDS5PAJEVS,https://hubway.cc/register?aff=KQFDS5PAJEVS,充值 1:10 折算后倍率,,2026-07-31T14:29:30
+Uni Token,收费站,0.01,0.03,0.15,,,自动,,https://uni-token.com/register?aff=WSHUXMWT29KN,https://uni-token.com/register?aff=WSHUXMWT29KN,,,2026-07-31T14:29:30
+keiko,收费站,0.01,0.05,0.2,,,自动,,https://keiko.lol/register?aff=VEM4JJBTM5EB,https://keiko.lol/register?aff=VEM4JJBTM5EB,,,2026-07-31T14:29:30
+Sun API,收费站,0.01,0.055,0.18,0.5,,自动,,https://api.sunai.lol/sign-up?aff=26ia,https://api.sunai.lol/sign-up?aff=26ia,,,2026-07-31T14:29:30
+AIHub,收费站,0.01,0.06,0.1,,,自动,,https://aihub.top/register?aff=E82QMQTQKNGU,https://aihub.top/register?aff=E82QMQTQKNGU,,,2026-07-31T14:29:30
+奇点,收费站,0.01,0.075,0.18,,,自动,,https://sub2api.proxy-gls.de5.net/register?aff=ESL6VWN6GDRH,https://sub2api.proxy-gls.de5.net/register?aff=ESL6VWN6GDRH,,,2026-07-31T14:29:30
+LingFAPI,收费站,0.01,0.1,0.22,,,自动,,https://linfengx.xyz/register?aff=QSMZUEBZZ6BJ,https://linfengx.xyz/register?aff=QSMZUEBZZ6BJ,,,2026-07-31T14:29:30
+星港AI,收费站,0.01,0.3,,3.0,,自动,,https://xinggangai.com/register?aff=ouEW,https://xinggangai.com/register?aff=ouEW,,,2026-07-31T14:29:30
+XelvAI API,收费站,0.01,1.0,,5.0,,自动,,https://xelvai.com/register?aff=N5LZ5XHLSF34,https://xelvai.com/register?aff=N5LZ5XHLSF34,充值比1：10,,2026-07-31T14:29:30
+CTAI,收费站,0.01,,0.2,5.0,,自动,,https://ai.chengtingkj.com/register?aff=JXKKW7D26JGP,https://ai.chengtingkj.com/register?aff=JXKKW7D26JGP,,,2026-07-31T14:29:30
+Dokng,收费站,0.01,,,0.5,,自动,,https://dokng.com/sign-up?aff=duOf,https://dokng.com/sign-up?aff=duOf,,,2026-07-31T14:29:30
+247看API,收费站,0.015,0.05,0.12,,,自动,,https://api.247kan.com/register?aff=XD836AN58YG6,https://api.247kan.com/register?aff=XD836AN58YG6,,,2026-07-31T14:29:30
+牛大了2.0,收费站,0.015,0.075,0.18,0.2,,自动,,https://cow.g201.com/register?aff=GVMQ4MJY3ANT,https://cow.g201.com/register?aff=GVMQ4MJY3ANT,,,2026-07-31T14:29:30
+mdjk,收费站,0.02,0.02,0.08,,,自动,,https://mdkj.lol/register?aff=H5Q3QB8J3FCR,https://mdkj.lol/register?aff=H5Q3QB8J3FCR,特惠 0.03; plus 0.05; pro 0.12、0.15,,2026-07-31T14:29:30
+NikoAPI,收费站,0.02,0.05,0.12,,,自动,,https://nikoapi.xyz/sign-up?aff=m47a,https://nikoapi.xyz/sign-up?aff=m47a,,,2026-07-31T14:29:30
+2Chat,收费站,0.02,0.06,0.12,0.2,,自动,,https://2chat.cc/register?aff=3RXSDXUZKCTW,https://2chat.cc/register?aff=3RXSDXUZKCTW,特惠 0.02; plus 0.06; pro 0.12,,2026-07-31T14:29:30
+AI Gateway,收费站,0.02,0.06,0.15,,,自动,,,,,,2026-07-31T14:29:30
+Lunora API,收费站,0.02,0.07,0.12,0.2,,自动,,https://www.uselunora.com/register?aff=LAP8JP77SPAA,https://www.uselunora.com/register?aff=LAP8JP77SPAA,,,2026-07-31T14:29:30
+Qingflow,收费站,0.02,0.08,0.1,,,自动,,https://jingyuqingfeng.cn/register?aff=GLDQ4BA7QR4J,https://jingyuqingfeng.cn/register?aff=GLDQ4BA7QR4J,福利分组 0.01; plus 0.08; pro 0.1,,2026-07-31T14:29:30
+TKEN,收费站,0.02,0.08,0.16,0.2,,自动,,https://www.tken.shop/register?aff=88Ll,https://www.tken.shop/register?aff=88Ll,,,2026-07-31T14:29:30
+aimi-api,收费站,0.02,0.08,0.2,0.0001,,自动,,https://api.58aimi.cn/sign-up?aff=whwN,https://api.58aimi.cn/sign-up?aff=whwN,,,2026-07-31T14:29:30
+Walk AI Coding,收费站,0.02,0.1,0.15,,,自动,,https://walkcoding.top/register?aff=D9ZPTGW5WJZ8,https://walkcoding.top/register?aff=D9ZPTGW5WJZ8,,,2026-07-31T14:29:30
+RapidApi,收费站,0.02,,,1.0,,自动,,https://rapidapi.cc/register?aff=LWSGX9MDZ97L,https://rapidapi.cc/register?aff=LWSGX9MDZ97L,,,2026-07-31T14:29:30
+牛顿AI中转站,收费站,0.025,0.1,0.25,0.05,,自动,,https://newtonrouter.com/sign-up?aff=CuXq,https://newtonrouter.com/sign-up?aff=CuXq,邀请一个人一块钱,,2026-07-31T14:29:30
+发现AI,收费站,0.028,0.15,0.25,0.1,,自动,,https://www.findcg.com/register?aff=Z28HELNBLDW4,https://www.findcg.com/register?aff=Z28HELNBLDW4,k12-0.045，特价007,,2026-07-31T14:29:30
+Tokeness,收费站,0.03,0.03,0.075,0.252,不固定,手动,,https://tokeness.io/sign-up?aff=I361,https://tokeness.io/sign-up?aff=I361,github登录,,2026-07-31T14:29:30
+骆驼,收费站,0.03,0.12,0.18,,,自动,,https://luotuokj.top/register?aff=DVECCKT9T6UA,https://luotuokj.top/register?aff=DVECCKT9T6UA,,,2026-07-31T14:29:30
+Aizzz,收费站,0.03,0.15,0.15,,,自动,,https://api.aizzz.xyz/sign-up?aff=zoBu,https://api.aizzz.xyz/sign-up?aff=zoBu,,,2026-07-31T14:29:30
+1For,收费站,0.03,,,,,自动,,https://1for.cc/register?aff=5X7LN67H2KQQ,https://1for.cc/register?aff=5X7LN67H2KQQ,,,2026-07-31T14:29:30
+WorldClawPro,收费站,0.03,,,0.02,,自动,,https://worldclawpro.ai/sign-up?aff=FuJ5,https://worldclawpro.ai/sign-up?aff=FuJ5,福利分组,,2026-07-31T14:29:30
+JuCodex.com,收费站,0.04,0.04,0.075,1.0,,自动,,https://jucodex.com/register?aff=UDC5,https://jucodex.com/register?aff=UDC5,github登录，邀请一个人2,,2026-07-31T14:29:30
+GJX,收费站,0.04,0.04,0.0752,10.0,,自动,,https://api.gjx88.com/register?aff=NHX9E82QZERM,https://api.gjx88.com/register?aff=NHX9E82QZERM,充值比1：25后倍率,,2026-07-31T14:29:30
+Token API,收费站,0.04,0.045,0.1,0.2,,自动,,https://token.xn--cjz.space/register?aff=K8MX2HLYJH6K,https://token.xn--cjz.space/register?aff=K8MX2HLYJH6K,,,2026-07-31T14:29:30
+SheApi,收费站,0.04,0.075,0.2,1.0,不固定,自动,,https://www.sheapi.top/sign-up?aff=qFnd,https://www.sheapi.top/sign-up?aff=qFnd,有邀请返利,,2026-07-31T14:29:30
+VC,收费站,0.04,0.08,0.1,,,自动,,https://sub.vcnovb.cn/register?aff=T5QDLGL67WHR,https://sub.vcnovb.cn/register?aff=T5QDLGL67WHR,福利分组 0.01、0.04; plus 0.1; pro 0.1、0.25,,2026-07-31T14:29:30
+星络AI,收费站,0.04,0.08,0.18,,,自动,,https://aiccxx.cn/register?aff=PKP7XUHCZVZS,https://aiccxx.cn/register?aff=PKP7XUHCZVZS,,,2026-07-31T14:29:30
+Codemax,收费站,0.04,0.09,0.15,1.0,,自动,,https://api.codemax.store/register?aff=XHFYR93AW557,https://api.codemax.store/register?aff=XHFYR93AW557,,,2026-07-31T14:29:30
+Pixel API,收费站,0.04,0.1,,,,自动,,https://ai-pixel.online/register?aff=5YJV99SLPL8J,https://ai-pixel.online/register?aff=5YJV99SLPL8J,k12 福利分组 0.04; plus 0.1,,2026-07-31T14:29:30
+启悟流,收费站,0.049,0.098,,,,自动,,https://756777.xyz/register?aff=4BADNXGX59K7,https://756777.xyz/register?aff=4BADNXGX59K7,充值比1：10后倍率,,2026-07-31T14:29:30
+Fox API,收费站,0.05,0.08,0.17,0.1,,自动,,https://api.fox1x.eu.cc/sign-up?aff=eEAv,https://api.fox1x.eu.cc/sign-up?aff=eEAv,,,2026-07-31T14:29:30
+云舟API,收费站,0.05,0.1,0.2,1.0,,自动,,https://cli.999554.xyz/register?aff=86iU,https://cli.999554.xyz/register?aff=86iU,特惠 0.07; plus 0.1; pro 0.2,,2026-07-31T14:29:30
+Ctoken,收费站,0.05,,0.15,1.0,不固定,手动,,https://ctoken.top/sign-up?aff=LdDr,https://ctoken.top/sign-up?aff=LdDr,,,2026-07-31T14:29:30
+API BASIS,收费站,0.05,,0.2,,,自动,,https://apibasis.com/sign-up?aff=ez9B,https://apibasis.com/sign-up?aff=ez9B,体验站：https://try.apibasis.com/,,2026-07-31T14:29:30
+jbb下游专用,收费站,0.06,0.06,0.08,1.0,,自动,,https://downstream.jbbtoken.cn/sign-up?aff=DGIb,https://downstream.jbbtoken.cn/sign-up?aff=DGIb,,,2026-07-31T14:29:30
+发财API,收费站,0.06,0.06,0.15,,,自动,,https://api.dali2897.com/register?aff=l1lI,https://api.dali2897.com/register?aff=l1lI,十元起充，充值满十元送2元，满50可签到,,2026-07-31T14:29:30
+Kitty,收费站,0.06,0.08,0.15,4.0,,自动,,https://kittyapi.xyz/register?aff=3K4K3N85KEBA,https://kittyapi.xyz/register?aff=3K4K3N85KEBA,福利分组 0.06; plus 0.1,,2026-07-31T14:29:30
+极刻,收费站,0.06,0.08,0.15,1.0,,自动,,https://api.zeekai.cc/register?aff=FVWSY2TEB9NL,https://api.zeekai.cc/register?aff=FVWSY2TEB9NL,,,2026-07-31T14:29:30
+PaidYun,收费站,0.06,0.09,0.1,,,自动,,https://paidyun.cc.cd/register?aff=HV58UY8W2RRJ,https://paidyun.cc.cd/register?aff=HV58UY8W2RRJ,五元起充,,2026-07-31T14:29:30
+悟空API,收费站,0.06,0.1,0.22,0.2,,自动,,https://wkapi.club/sign-up?aff=KZrP,https://wkapi.club/sign-up?aff=KZrP,,,2026-07-31T14:29:30
+AI算力市场,收费站,0.06,0.15,0.25,2.0,不固定,自动,,https://api.nxmes.cn/sign-up?aff=neqp,https://api.nxmes.cn/sign-up?aff=neqp,,,2026-07-31T14:29:30
+GPTEAM,收费站,0.06,,0.06,,,自动,,https://portal.gpteamservices.com/portal/register?invite_code=BBJFNHVTH2RJ,https://portal.gpteamservices.com/portal/register?invite_code=BBJFNHVTH2RJ,,,2026-07-31T14:29:30
+君の星辰,收费站,0.06,,0.4,,,自动,,https://ai.centos.hk/register?aff=WDIj,https://ai.centos.hk/register?aff=WDIj,,,2026-07-31T14:29:30
+词元枢阁,收费站,0.066,0.08,0.2,,,自动,,https://api.aisz.mom/sign-up?aff=202u,https://api.aisz.mom/sign-up?aff=202u,福利分组 0.066; plus 0.08; pro 0.2,,2026-07-31T14:29:30
+鑫旺Neko API,收费站,0.07,,0.07,0.2,,自动,,https://790053500.com/register?aff=7DL26837533U,https://790053500.com/register?aff=7DL26837533U,可开发票,,2026-07-31T14:29:30
+全村的API,收费站,0.075,0.075,0.15,1.0,,自动,,https://new.tianluo.ccwu.cc/sign-up?aff=f2Qq,https://new.tianluo.ccwu.cc/sign-up?aff=f2Qq,,,2026-07-31T14:29:30
+ooioo,收费站,0.08,0.08,0.2,,,自动,,https://ooioo.work/sign-up?aff=hzXj,https://ooioo.work/sign-up?aff=hzXj,,,2026-07-31T14:29:30
+cc,收费站,0.08,0.1,,0.1,,自动,,https://cc.3333366.xyz/sign-up?aff=QW9Q,https://cc.3333366.xyz/sign-up?aff=QW9Q,,,2026-07-31T14:29:30
+我要API,收费站,0.08,0.14,0.3,0.2,,自动,,https://api.wynb.top/sign-up?aff=fGoP,https://api.wynb.top/sign-up?aff=fGoP,,,2026-07-31T14:29:30
+mioufun,收费站,0.08,0.15,0.3,1.0,,自动,,https://api.mioufun.top/register?aff=bk2N,https://api.mioufun.top/register?aff=bk2N,福利分组 0.08; plus 0.15; pro 0.3,,2026-07-31T14:29:30
+RouterTeam,收费站,0.08,,,0.0,,自动,,https://ai.router.team/register?invite=RNAER46A,https://ai.router.team/register?invite=RNAER46A,充值比1：12.5后倍率,,2026-07-31T14:29:30
+星枢AI,收费站,0.085,0.13,0.15,,,自动,,https://goaistore.ccwu.cc/register?aff=UF2K5NX6GVNK,https://goaistore.ccwu.cc/register?aff=UF2K5NX6GVNK,特价 0.085; plus 0.13; pro 0.15,,2026-07-31T14:29:30
+JulyCode,收费站,0.099,,,1.1,,自动,,https://julyapi.com/register?aff=J5SK5DGJ3RJP,https://julyapi.com/register?aff=J5SK5DGJ3RJP,福利分组 0.099,,2026-07-31T14:29:30
+BizDecipher,收费站,0.1,0.1,0.14,0.01,,自动,,https://bizdecipher.com/register?aff=L6XSMHWTVLMY,https://bizdecipher.com/register?aff=L6XSMHWTVLMY,积分池倍率2,,2026-07-31T14:29:30
+ModelPort,收费站,0.1,0.1,0.16,1.0,,自动,,https://modelport.link/register?aff=HYPSAM9Q658X,https://modelport.link/register?aff=HYPSAM9Q658X,,,2026-07-31T14:29:30
+BuyCodeKeyAPI,收费站,0.1,0.1,0.2,,,自动,,https://console.buycodekey.com/sign-up?aff=Thy2,https://console.buycodekey.com/sign-up?aff=Thy2,,,2026-07-31T14:29:30
+Geili API,收费站,0.1,0.1,0.2,,,自动,,https://sub.geiliapi.com/register?aff=YZE4BPZVNSSG,https://sub.geiliapi.com/register?aff=YZE4BPZVNSSG,,,2026-07-31T14:29:30
+Hiyo codex,收费站,0.1,0.1,0.46,1.0,,自动,,https://codex.hiyo.top/register?aff=EPABY7W2KBT4,https://codex.hiyo.top/register?aff=EPABY7W2KBT4,充值比1：13后倍率,,2026-07-31T14:29:30
+我的贾维斯,收费站,0.1,0.1,,,,自动,,https://api.aijws.com/register?aff=MPUMYXPFMWSZ,https://api.aijws.com/register?aff=MPUMYXPFMWSZ,满血pro 0.1; 十元起充,,2026-07-31T14:29:30
+Guyscode,收费站,0.1,0.12,0.16,,不固定,手动,,https://www.guyscode.com/register?aff=2CRQ2QLL3SXD,https://www.guyscode.com/register?aff=2CRQ2QLL3SXD,,,2026-07-31T14:29:30
+LUNA,收费站,0.1,,,88.0,,自动,,https://luna-ai.shop/register?aff=NUJJKQNHVZAR,https://luna-ai.shop/register?aff=NUJJKQNHVZAR,福利分组,,2026-07-31T14:29:30
+YiAPI,收费站,0.1,,,,,自动,,https://yiapi.ai/register?aff=C9W2XN9D5FZE,https://yiapi.ai/register?aff=C9W2XN9D5FZE,,,2026-07-31T14:29:30
+分享奇点,公益站,0.1,,,30.0,不固定,手动,,https://api-public.proxy-gls.de5.net/sign-up?aff=HQda,https://api-public.proxy-gls.de5.net/sign-up?aff=HQda,,,2026-07-31T14:29:30
+归离@API,收费站,0.1,,,1.0,,自动,,https://api3.guili.fun/register?aff=YXWGJBBJBAGW,https://api3.guili.fun/register?aff=YXWGJBBJBAGW,,,2026-07-31T14:29:30
+小白Code,收费站,0.11,0.11,0.19,1.0,0.25,手动,,https://token.dialoguedui.com/register?aff=DGRXRHBHQKDU,https://token.dialoguedui.com/register?aff=DGRXRHBHQKDU,福利分组 0.07; pro 0.19,,2026-07-31T14:29:30
+乾行,收费站,0.12,,,2.0,,自动,,https://fast.qianxing.pro/sign-up?aff=18Qo,https://fast.qianxing.pro/sign-up?aff=18Qo,特价 0.12; 稳定 0.25,,2026-07-31T14:29:30
+AIAIAI工具箱,收费站,0.14,0.14,0.25,10.0,,自动,,https://api.aiaiai001.com/sign-up?aff=GSrs,https://api.aiaiai001.com/sign-up?aff=GSrs,,,2026-07-31T14:29:30
+brobro,收费站,0.15,0.15,0.2,2.0,,自动,,https://api.brobro.vip/register?aff=SMXE,https://api.brobro.vip/register?aff=SMXE,,,2026-07-31T14:29:30
+JiuYouMao,收费站,0.15,0.15,0.35,,,自动,,https://www.bigmodel.tech/sign-up?aff=Ztx3,https://www.bigmodel.tech/sign-up?aff=Ztx3,,,2026-07-31T14:29:30
+C-API.CC,收费站,0.15,1.0,,,,自动,,https://c-api.cc/register?aff=8HJW7L2K3EVX,https://c-api.cc/register?aff=8HJW7L2K3EVX,福利分组 0.15; pro 1; 十元起充,,2026-07-31T14:29:30
+斑马API,收费站,0.15,,,,0.4,手动,,https://bmapi.020212.xyz/register?aff=BNGUWCJG4WPN,https://bmapi.020212.xyz/register?aff=BNGUWCJG4WPN,,,2026-07-31T14:29:30
+Popcorn,收费站,0.18,0.18,0.25,,0.3,手动,,https://sub2api.popcorn.wiki/register?aff=ZS777BY75ZHC,https://sub2api.popcorn.wiki/register?aff=ZS777BY75ZHC,k12 福利分组 0.06; plus 0.125; pro 0.25,,2026-07-31T14:29:30
+漫小白,收费站,0.18,,,,,自动,,https://api.manxiaobai.online/register?aff=pnpQ,https://api.manxiaobai.online/register?aff=pnpQ,,,2026-07-31T14:29:30
+量大管饱,收费站,0.18,,,,,自动,,https://www.ldgb.top/register?aff=LNDR7GQ7WQG2,https://www.ldgb.top/register?aff=LNDR7GQ7WQG2,福利分组,,2026-07-31T14:29:30
+NexaRelay,收费站,0.2,0.2,0.3,3.0,,自动,,https://api.nexarelay.com/register?aff=3W9KAZ47RYAG,https://api.nexarelay.com/register?aff=3W9KAZ47RYAG,,,2026-07-31T14:29:30
+GMN,收费站,0.2,0.2,0.4,,,自动,,,,十元起充,,2026-07-31T14:29:30
+登仙,公益站,0.2,0.2,,,不固定,手动,,https://api.denxio.top/register?invite_code=GSFFPWPS7QXB,https://api.denxio.top/register?invite_code=GSFFPWPS7QXB,公益站，不可充值,,2026-07-31T14:29:30
+八秒聚合,收费站,0.2,,0.6,0.08,,自动,,https://8s.hk/sign-up?aff=tQJu,https://8s.hk/sign-up?aff=tQJu,特价 0.2; pro 0.6,,2026-07-31T14:29:30
+Future Hub,公益站,0.2,,,,不固定,手动,,https://api.futureppo.top/register?aff=fK8K,https://api.futureppo.top/register?aff=fK8K,,,2026-07-31T14:29:30
+词元站,收费站,0.25,0.25,,,,自动,,https://ai.962831.xyz/sign-up?aff=Lqg0,https://ai.962831.xyz/sign-up?aff=Lqg0,,,2026-07-31T14:29:30
+DawCode,收费站,0.3,0.4,0.5,1.0,不固定,自动,,https://dawcode.ai/sign-up?aff=ISIK,https://dawcode.ai/sign-up?aff=ISIK,,,2026-07-31T14:29:30
+rua.chat,收费站,0.3,,,,不固定,手动,,https://api.rua.chat/sign-up?aff=rDuC,https://api.rua.chat/sign-up?aff=rDuC,,,2026-07-31T14:29:30
+空悲切API,收费站,0.4,0.6,1.0,1.0,,自动,,https://xn--vduyey89e.com/sign-up?aff=OTPU,https://xn--vduyey89e.com/sign-up?aff=OTPU,,,2026-07-31T14:29:30
+Cpass,收费站,0.4,,,7.0,,自动,,https://www.cpass.cc/register?aff=bEFS,https://www.cpass.cc/register?aff=bEFS,福利分组,,2026-07-31T14:29:30
+Unity2.Ai,收费站,0.4,,,2.0,,自动,,https://unity2.ai/register?ref=jsk2sgGC,https://unity2.ai/register?ref=jsk2sgGC,福利分组,,2026-07-31T14:29:30
+简直了,公益站,0.6,,,,10,手动,,https://jianzhile.vip/register?aff=uCdS,https://jianzhile.vip/register?aff=uCdS,福利分组,,2026-07-31T14:29:30
+Grox,收费站,0.8,2.0,5.0,,,自动,,https://www.mcgrox.top/register?aff=B3V56KYGP4J4,https://www.mcgrox.top/register?aff=B3V56KYGP4J4,邀请送100元日卡,,2026-07-31T14:29:30
+CHH,收费站,0.9,0.9,1.5,100.0,,自动,,https://api.chhlink.xyz/register?aff=E2UNEUR6NMQZ,https://api.chhlink.xyz/register?aff=E2UNEUR6NMQZ,,,2026-07-31T14:29:30
+AI-ROUTER,收费站,1.0,1.0,1.8,20.0,,自动,,https://ai-router.dev/register?aff=KZJQK6RBLEUL,https://ai-router.dev/register?aff=KZJQK6RBLEUL,注册送20，其中5为体验余额，15充值后解锁；注册24小时后可签到,,2026-07-31T14:29:30
+AI8,收费站,1.0,1.0,2.0,2.0,不固定,自动,,https://ai8.my/sign-up?aff=sYZ6,https://ai8.my/sign-up?aff=sYZ6,充值比1：10，故换算后倍率为0.15、0.2,,2026-07-31T14:29:30
+Free,公益站,1.0,1.0,,,200,自动,,https://free.lyclaude.site/register?aff=fI71,https://free.lyclaude.site/register?aff=fI71,,,2026-07-31T14:29:30
+Haizhu API,收费站,1.0,1.0,,20.0,,自动,,https://webapi.ccwu.cc/register?aff=CQ2RWS5G94PA,https://webapi.ccwu.cc/register?aff=CQ2RWS5G94PA,,,2026-07-31T14:29:30
+gorouter,公益站,1.0,1.0,,,,自动,,https://gorouter.app/sign-up?aff=nl69,https://gorouter.app/sign-up?aff=nl69,,,2026-07-31T14:29:30
+百倍,公益站,1.0,1.0,,,不固定,手动,,,,只有claude，每日领注册码：https://cod.linxigzs.top/,,2026-07-31T14:29:30
+Agent Router,公益站,1.0,,,175.0,25,手动,,https://agentrouter.org/register?aff=G9T0,https://agentrouter.org/register?aff=G9T0,GitHub登录，退出重登才能签到,,2026-07-31T14:29:30
+SeekAI,公益站,1.0,,,200.0,,自动,,https://seekai.cc/sign-up?aff=jcIY,https://seekai.cc/sign-up?aff=jcIY,GitHub登录,,2026-07-31T14:29:30
+熊猫API,公益站,1.0,,,200.0,,自动,,https://api520.pro/register?aff=wtEc,https://api520.pro/register?aff=wtEc,邀请一个人100,,2026-07-31T14:29:30
+蟹蟹API,公益站,1.0,,,70.0,不固定,手动,,https://newapi.nexusvai.xyz/sign-up?aff=slfc,https://newapi.nexusvai.xyz/sign-up?aff=slfc,,,2026-07-31T14:29:30
+辉哥,公益站,1.0,,,100.0,不固定,手动,,https://lzhiyu.ccwu.cc/register?ref=REF-A9DFBBD98D,https://lzhiyu.ccwu.cc/register?ref=REF-A9DFBBD98D,cc方式,,2026-07-31T14:29:30
+QUNL API,收费站,1.2,,,6.0,不固定,自动,,https://cn.chrouter.com:8443/register?aff=gLPb,https://cn.chrouter.com:8443/register?aff=gLPb,,,2026-07-31T14:29:30
+CUN.ai,收费站,1.25,,,9.8,不固定,自动,,,,福利分组,,2026-07-31T14:29:30
+CaMeL API,收费站,1.4,,,3.0,,自动,,https://camel.kr777.top/register?aff=5qAa,https://camel.kr777.top/register?aff=5qAa,个人设置内签到,,2026-07-31T14:29:30
+Beizhi,收费站,1.5,,,30.0,不固定,自动,,https://beizhi.sylu.cc/sign-up?aff=sSJg,https://beizhi.sylu.cc/sign-up?aff=sSJg,充值比1：50，gpt不可用，可用deepseek,,2026-07-31T14:29:30
+1412‘s API,公益站,2.0,2.0,,92.0,不固定,手动,,https://napi.kid1412.qzz.io/sign-up?aff=9HQY,https://napi.kid1412.qzz.io/sign-up?aff=9HQY,"有订阅无充值,github登录",,2026-07-31T14:29:30
+七倍算力公益站,公益站,2.0,,,105.0,20,自动,,https://7x.hk/sign-up?aff=bVdm,https://7x.hk/sign-up?aff=bVdm,福利分组,,2026-07-31T14:29:30
+维云模型开放平台,公益站,2.0,,,0.45,订阅,手动,,https://vsllm.com/register?aff=p6Oj,https://vsllm.com/register?aff=p6Oj,2x; 每日签到可领配额，5小时重置; 订阅套餐，不可充值,,2026-07-31T14:29:30
+DoCode,公益站,8.0,18.0,,300.0,不固定,手动,,https://docode.cc/register?aff=s6fc,https://docode.cc/register?aff=s6fc,福利分组 8; pro 18,,2026-07-31T14:29:30
+0DAI模型站,公益站,,,,48.0,,自动,,https://ai.0d0d.top/register?ref=u6z48lwn,https://ai.0d0d.top/register?ref=u6z48lwn,国模公益站（mimo-v2.5、deepseek-v4-pro）,,2026-07-31T14:29:30
+99code,公益站,,,,40.0,50,手动,,https://gpt.api456.me/?aff=rBg5,https://gpt.api456.me/?aff=rBg5,每日50算力点，次日刷新，邀请一个人50,,2026-07-31T14:29:30
+freemodel,公益站,,,,,,自动,,https://freemodel.dev/invite/FRE-c8325e53,https://freemodel.dev/invite/FRE-c8325e53,5小时5，7天33,,2026-07-31T14:29:30
+基元律动,收费站,,,,68.0,,自动,,https://tokenrhythm.studio/i/rf_tr_P0ffKA_JxhtbAYn_FuEDQlvn,https://tokenrhythm.studio/i/rf_tr_P0ffKA_JxhtbAYn_FuEDQlvn,纯国模,,2026-07-31T14:29:30
+林夕,公益站,,,,,不固定,手动,,,,,,2026-07-31T14:29:30
+猫猫,公益站,,,,2000.0,不固定,手动,,https://api.maoyulin.xyz/register?aff=f10H,https://api.maoyulin.xyz/register?aff=f10H,GitHub登录,,2026-07-31T14:29:30
