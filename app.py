@@ -709,7 +709,7 @@ EDITOR_HTML = r"""<!doctype html>
     }
 
     function rowMatches(row) {
-      if (checkinFilterMode && (!hasCheckin(row) || isSignedToday(row) || checkinMode(row) !== checkinFilterMode)) return false;
+      if (checkinFilterMode && (!hasCheckin(row) || checkinMode(row) !== checkinFilterMode)) return false;
       if (!query) return true;
       const haystack = [row.name, row.category, row.usage_status, row.url, row.invite_url, row.notes].map(fmt).join(" ").toLowerCase();
       return haystack.includes(query);
@@ -745,8 +745,9 @@ EDITOR_HTML = r"""<!doctype html>
       const balanceRows = rows.filter((row) => Number(row.balance || 0) > 0);
       const checkinStations = rows.filter(hasCheckin);
       const checkinRows = checkinStations.filter((row) => !isSignedToday(row));
-      const autoCheckinRows = checkinRows.filter((row) => checkinMode(row) === "自动");
-      const manualCheckinRows = checkinRows.filter((row) => checkinMode(row) === "手动");
+      const autoCheckinStations = checkinStations.filter((row) => checkinMode(row) === "自动");
+      const manualCheckinStations = checkinStations.filter((row) => checkinMode(row) === "手动");
+      const autoPendingCheckinRows = checkinRows.filter((row) => checkinMode(row) === "自动");
       const totalBalance = rows.reduce((sum, row) => sum + Number(row.balance || 0), 0);
       metricCount.textContent = String(rows.length);
       metricBest.textContent = best === "" ? "-" : `${best}x`;
@@ -755,10 +756,10 @@ EDITOR_HTML = r"""<!doctype html>
       metricCheckin.textContent = String(checkinRows.length);
       autoCheckinFilter.classList.toggle("is-active", checkinFilterMode === "自动");
       manualCheckinFilter.classList.toggle("is-active", checkinFilterMode === "手动");
-      autoCheckinFilter.textContent = `自动签到 (${autoCheckinRows.length})`;
-      autoCheckinComplete.textContent = `自动全部已签 (${autoCheckinRows.length})`;
-      autoCheckinComplete.disabled = autoCheckinRows.length === 0;
-      manualCheckinFilter.textContent = `手动签到 (${manualCheckinRows.length})`;
+      autoCheckinFilter.textContent = `自动签到 (${autoCheckinStations.length})`;
+      autoCheckinComplete.textContent = `自动全部已签 (${autoPendingCheckinRows.length})`;
+      autoCheckinComplete.disabled = autoPendingCheckinRows.length === 0;
+      manualCheckinFilter.textContent = `手动签到 (${manualCheckinStations.length})`;
     }
 
     function rowClass(row) {
