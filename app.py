@@ -159,12 +159,13 @@ def sync_metapi_balances() -> dict[str, Any]:
     updated_names: list[str] = []
 
     for site in sites:
-        if site.get("checkin_mode") == "手动" or not empty_to_none(site.get("daily_checkin_bonus")):
+        if site.get("checkin_mode") == "手动" or empty_to_none(site.get("daily_checkin_bonus")) is None:
             continue
         balance = balances.get(normalized_site_name(site.get("name")))
         if balance is None:
             continue
-        site["balance"] = balance
+        # Metapi balances are shown and stored as currency-like values.
+        site["balance"] = round(balance, 2)
         updated_names.append(str(site.get("name", "")))
 
     if updated_names:
@@ -687,6 +688,27 @@ EDITOR_HTML = r"""<!doctype html>
       background: var(--amber-soft);
       color: #93370d;
     }
+    .toast {
+      position: fixed;
+      z-index: 1000;
+      right: 24px;
+      bottom: 24px;
+      max-width: min(400px, calc(100vw - 32px));
+      padding: 12px 15px;
+      border: 1px solid #b8ddd8;
+      border-radius: 8px;
+      background: #f0fbf9;
+      color: #05665d;
+      font-size: 14px;
+      font-weight: 750;
+      box-shadow: 0 14px 32px rgba(16, 24, 40, 0.16);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(10px);
+      transition: opacity 160ms ease, transform 160ms ease;
+    }
+    .toast.is-visible { opacity: 1; transform: translateY(0); }
+    .toast.error { border-color: #fecdca; background: #fff4f2; color: var(--danger); }
     @media (max-width: 1280px) {
       .workspace {
         grid-template-columns: 1fr;
@@ -763,12 +785,14 @@ EDITOR_HTML = r"""<!doctype html>
       </div>
     </div>
   </main>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
   <script>
     const fields = ["name", "category", "usage_status", "welfare_rate", "plus_rate", "pro_rate", "signup_bonus", "daily_checkin_bonus", "checkin_mode", "balance", "url", "invite_url", "notes"];
     const numeric = new Set(["welfare_rate", "plus_rate", "pro_rate", "signup_bonus", "balance"]);
     const tbody = document.querySelector("#tbody");
     const tableWrap = document.querySelector(".table-wrap");
     const statusEl = document.querySelector("#status");
+    const toastEl = document.querySelector("#toast");
     const searchEl = document.querySelector("#search");
     const searchWrap = document.querySelector("#search-wrap");
     const clearSearch = document.querySelector("#clear-search");
@@ -784,10 +808,20 @@ EDITOR_HTML = r"""<!doctype html>
     let rows = [];
     let query = "";
     let checkinFilterMode = "";
+    let toastTimer;
 
     function setStatus(text, cls = "") {
       statusEl.textContent = text;
       statusEl.className = `status ${cls}`;
+    }
+
+    function showToast(text, cls = "") {
+      window.clearTimeout(toastTimer);
+      toastEl.textContent = text;
+      toastEl.className = `toast ${cls} is-visible`;
+      toastTimer = window.setTimeout(() => {
+        toastEl.className = `toast ${cls}`;
+      }, 4200);
     }
 
     function fmt(value) {
@@ -1053,9 +1087,13 @@ EDITOR_HTML = r"""<!doctype html>
         const payload = await response.json();
         if (!response.ok) throw new Error(payload.error || "同步失败");
         await load();
-        setStatus(`已同步更新 ${payload.updated} 个站点`, "ok");
+        const message = `Metapi 余额已同步：更新 ${payload.updated} 个站点`;
+        setStatus(message, "ok");
+        showToast(message);
       } catch (error) {
-        setStatus(error.message || "同步 Metapi 余额失败", "error");
+        const message = error.message || "同步 Metapi 余额失败";
+        setStatus(message, "error");
+        showToast(message, "error");
       } finally {
         metapiBalanceSync.textContent = originalText;
         metapiBalanceSync.disabled = false;
