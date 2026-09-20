@@ -1,0 +1,59 @@
+/* Shared design tokens for the editor and report pages. */
+:root {
+  color-scheme: light;
+  --bg: #eef3f7;
+  --panel: #ffffff;
+  --text: #182230;
+  --muted: #667085;
+  --line: #d9dee7;
+  --soft-line: #edf0f5;
+  --accent: #0f9f8f;
+  --accent-dark: #087f73;
+  --accent-soft: #e3f7f4;
+  --blue: #175cd3;
+  --blue-dark: #004eeb;
+  --blue-soft: #eaf3ff;
+  --warn: #d99a16;
+  --warn-soft: #fff4d7;
+  --ok: #12b76a;
+  --ok-dark: #067647;
+  --ok-soft: #ecfdf3;
+  --gold: #f2bd5b;
+  --gold-soft: #fffaeb;
+  --alert: #d97706;
+  --danger: #b42318;
+  --danger-soft: #fff1f0;
+  --radius-s: 7px;
+  --radius-m: 10px;
+  --radius-l: 14px;
+  --shadow-card: 0 10px 26px rgba(16, 24, 40, 0.07);
+  --shadow-panel: 0 18px 44px rgba(16, 24, 40, 0.10);
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #101820;
+  --panel: #17232d;
+  --text: #e8eef4;
+  --muted: #aebdca;
+  --line: #304150;
+  --soft-line: #27394a;
+  --accent: #2bb3a3;
+  --accent-dark: #66d6c8;
+  --accent-soft: #123c3a;
+  --blue: #84adff;
+  --blue-dark: #a7c3ff;
+  --blue-soft: #16283f;
+  --warn: #f0b13e;
+  --warn-soft: #3d3012;
+  --ok: #34c98a;
+  --ok-dark: #92e1b8;
+  --ok-soft: #143b2a;
+  --gold: #f2bd5b;
+  --gold-soft: #46351a;
+  --alert: #f2a33c;
+  --danger: #f97066;
+  --danger-soft: #3c1d1a;
+  --shadow-card: none;
+  --shadow-panel: none;
+}

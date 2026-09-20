@@ -93,6 +93,86 @@ html[data-theme="dark"] .tool-panel { background:transparent !important; border:
 html[data-theme="dark"] .tool-panel > .panel-bar { background:transparent !important; border:0 !important; }
 html[data-theme="dark"] .tool-card { background:#17232d !important; border-color:#304150 !important; box-shadow:none !important; }
 html[data-theme="dark"] .tool-card:hover { background:#1b2a35 !important; border-color:#486379 !important; }
+html[data-theme="dark"] .tool-card-checkin {
+  border-color:#9a6b22 !important;
+  background:linear-gradient(135deg,#302718,#17232d 72%) !important;
+  box-shadow:0 10px 26px rgba(214,145,27,.16) !important;
+}
+html[data-theme="dark"] .tool-card-checkin .tool-kicker {
+  background:#4a3510 !important;
+  color:#ffe08a !important;
+}
+html[data-theme="dark"] .tool-card-checkin .tool-name { color:#ffd978 !important; }
+html[data-theme="dark"] .tool-card-checkin .tool-desc { color:#d8c69e !important; }
+html[data-theme="dark"] .tool-card-checkin .tool-link {
+  border-color:#b6842d !important;
+  background:#3b301b !important;
+  color:#ffe08a !important;
+}
+html[data-theme="dark"] .manual-open-control {
+  border-color:#395064 !important;
+  background:#13202a !important;
+}
+html[data-theme="dark"] .manual-checkin-open {
+  border-color:#52738a !important;
+  background:#203746 !important;
+  color:#c6d9e6 !important;
+}
+html[data-theme="dark"] .manual-checkin-complete {
+  border-color:#527f98 !important;
+  background:#527f98 !important;
+  color:#f1f6fa !important;
+}
+html[data-theme="dark"] .group-link.is-current {
+  border-color:#527f98 !important;
+  background:#274556 !important;
+  color:#d4e8f3 !important;
+  box-shadow:inset 0 0 0 1px rgba(137,190,218,.22) !important;
+}
+html[data-theme="dark"] .actions .auto-checkin-filter.is-active {
+  border-color:#6f9fd0 !important;
+  background:#27445d !important;
+  color:#c9e2ff !important;
+  box-shadow:inset 0 0 0 1px rgba(150,199,239,.22) !important;
+}
+html[data-theme="dark"] .actions .manual-checkin-filter.is-active {
+  border-color:#b18a45 !important;
+  background:#4a391e !important;
+  color:#ffe0a0 !important;
+  box-shadow:inset 0 0 0 1px rgba(242,189,91,.2) !important;
+}
+html[data-theme="dark"] .checkin-filter.is-active {
+  box-shadow:0 0 0 2px rgba(242,189,91,.24), inset 0 0 0 1px rgba(255,255,255,.08) !important;
+  font-weight:900 !important;
+}
+html[data-theme="dark"] .balance-filter.is-active {
+  border-color:#6ea9d8 !important;
+  background:#244d6b !important;
+  color:#d5edff !important;
+  box-shadow:0 0 0 2px rgba(110,169,216,.34), inset 0 0 0 1px rgba(180,225,255,.16) !important;
+  font-weight:900 !important;
+}
+html[data-theme="dark"] .common-filter.is-active {
+  border-color:#d5a84f !important;
+  background:#51401f !important;
+  color:#ffe6a3 !important;
+  box-shadow:0 0 0 2px rgba(213,168,79,.34), inset 0 0 0 1px rgba(255,226,146,.16) !important;
+  font-weight:900 !important;
+}
+html[data-theme="dark"] .jump-link.checkin-filter.is-active {
+  border-color:#d5a84f !important;
+  background:#51401f !important;
+  color:#ffe6a3 !important;
+  box-shadow:0 0 0 2px rgba(213,168,79,.34), inset 0 0 0 1px rgba(255,226,146,.16) !important;
+  font-weight:900 !important;
+}
+html[data-theme="dark"] .jump-link.auto-checkin-filter.is-active {
+  border-color:#70a8dc !important;
+  background:#254c6b !important;
+  color:#d9efff !important;
+  box-shadow:0 0 0 2px rgba(112,168,220,.34), inset 0 0 0 1px rgba(183,224,255,.16) !important;
+  font-weight:900 !important;
+}
 html[data-theme="dark"] .tool-kicker { background:#223440 !important; }
 html[data-theme="dark"] .table-panel,
 html[data-theme="dark"] .quality-panel,
@@ -129,6 +209,94 @@ html[data-theme="dark"] .search-clear { background:transparent !important; borde
 html[data-theme="dark"] .search-clear:hover { background:#2a4050 !important; color:#f1f6fa !important; }
 html[data-theme="dark"] .report-search-clear { background:transparent !important; border:0 !important; color:#9fb1c1 !important; }
 html[data-theme="dark"] .report-search-clear:hover { background:#2a4050 !important; color:#f1f6fa !important; }
+
+/* Keep frequently used sites distinct even when balance/check-in row styles are also present. */
+html[data-theme="dark"] tbody tr.is-common-site,
+html[data-theme="dark"] tbody tr.is-common-site.has-balance,
+html[data-theme="dark"] tbody tr.is-common-site.has-checkin,
+html[data-theme="dark"] tbody tr.is-common-site.signed-today {
+  background:linear-gradient(90deg, rgba(213,145,0,.34), rgba(76,57,17,.32) 28%, #17232d 60%) !important;
+  box-shadow:inset 5px 0 0 #f2bd5b, inset 0 0 0 1px rgba(242,189,91,.26) !important;
+  outline-color:rgba(242,189,91,.58) !important;
+}
+html[data-theme="dark"] tbody tr.is-common-site:hover { background:#3a3421 !important; }
+html[data-theme="dark"] tbody tr.is-common-site .site-name,
+html[data-theme="dark"] tbody tr.is-common-site .site-input { color:#ffe08a !important; font-weight:850 !important; }
+html[data-theme="dark"] tbody tr.is-common-site .usage-badge,
+html[data-theme="dark"] tbody tr.is-common-site select.usage-input {
+  border-color:#f2bd5b !important;
+  background:#4a3510 !important;
+  color:#ffe08a !important;
+}
 @media (max-width:800px) { .calculator-theme { position:static; margin-top:14px; } .header-theme { align-items:flex-end; flex-direction:column; } }
 
 html[data-theme="dark"] .plain-summary { background:#123c3a !important; border-color:#258d82 !important; color:#b9eee7 !important; }
+
+/* Editor-specific check-in states.  These must come after the shared table
+   rules above because the editor uses the same tbody/tr selectors. */
+html[data-theme="dark"] .panel tbody tr.has-checkin {
+  background:linear-gradient(90deg, rgba(217,154,0,.28), #17232d 42%) !important;
+  box-shadow:inset 5px 0 0 #d99a16 !important;
+}
+html[data-theme="dark"] .panel tbody tr.has-checkin input[data-field="daily_checkin_bonus"] {
+  border-color:#a87816 !important;
+  background:#3d3012 !important;
+  color:#f6d48c !important;
+  font-weight:800 !important;
+}
+html[data-theme="dark"] .panel tbody tr.has-checkin.signed-today {
+  background:linear-gradient(90deg, rgba(18,183,106,.30), #17232d 42%) !important;
+  box-shadow:inset 5px 0 0 #2fbd78 !important;
+}
+html[data-theme="dark"] .panel tbody tr.has-checkin.signed-today input[data-field="daily_checkin_bonus"] {
+  border-color:#287c56 !important;
+  background:#143b2a !important;
+  color:#92e1b8 !important;
+  font-weight:800 !important;
+}
+html[data-theme="dark"] .panel tbody tr.has-checkin td:nth-child(2)::before {
+  border-color:#a87816 !important;
+  background:#3d3012 !important;
+  color:#f6d48c !important;
+}
+html[data-theme="dark"] .panel tbody tr.has-checkin.signed-today td:nth-child(2)::before {
+  border-color:#287c56 !important;
+  background:#143b2a !important;
+  color:#92e1b8 !important;
+}
+html[data-theme="dark"] .panel tbody tr.has-balance td:nth-child(2)::after {
+  border-color:#3c73c4 !important;
+  background:#17375f !important;
+  color:#a9ccff !important;
+}
+html[data-theme="dark"] .panel tbody tr.is-common-site td:nth-child(2)::after {
+  border-color:#f2bd5b !important;
+  background:#4a3510 !important;
+  color:#ffe08a !important;
+}
+html[data-theme="dark"] .editor-badge-common {
+  border-color:#f2bd5b !important;
+  background:#4a3510 !important;
+  color:#ffe08a !important;
+}
+html[data-theme="dark"] .editor-badge-balance {
+  border-color:#3c73c4 !important;
+  background:#17375f !important;
+  color:#a9ccff !important;
+}
+html[data-theme="dark"] .editor-badge-checkin {
+  border-color:#a87816 !important;
+  background:#3d3012 !important;
+  color:#f6d48c !important;
+}
+html[data-theme="dark"] .panel tbody tr.is-common-site {
+  background:linear-gradient(90deg, rgba(213,145,0,.42), rgba(76,57,17,.36) 34%, #17232d 68%) !important;
+  outline:2px solid rgba(242,189,91,.72) !important;
+}
+html[data-theme="dark"] .panel tbody tr.has-checkin.signed-today .checkin-input::after {
+  color:#92e1b8 !important;
+}
+html[data-theme="dark"] .panel tbody tr.has-checkin:hover,
+html[data-theme="dark"] .panel tbody tr.has-checkin.signed-today:hover {
+  background:#263b42 !important;
+}

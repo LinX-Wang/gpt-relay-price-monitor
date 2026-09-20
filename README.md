@@ -1,106 +1,100 @@
-# GPT 中转站倍率看板
+# AI 模型中转站倍率看板
 
-一个本地运行的 GPT、Codex、ChatGPT 中转站价格管理工具。项目包含网页编辑器、报告页面，以及一份经过脱敏处理的公开推荐站点页面。
+这个项目用于整理 GPT、Claude、国模等 AI 模型中转站和公益站的价格倍率、余额、注册送、签到送、邀请链接，并生成本地网页报告。
 
-用户第一次在本机启动编辑器时看到的是空表，可以自行添加站点。公开推荐页不会作为用户的初始编辑数据导入。
+## 日常使用
 
-## 在线推荐页
+双击：
 
-https://linx-wang.github.io/gpt-relay-price-monitor/
+- `启动价格监控编辑器.cmd`：自动关闭本项目之前启动的旧进程，并在后台启动编辑器。
+- `启动价格监控编辑器.vbs`：功能相同，并且连启动时短暂的窗口闪烁也不会出现。
 
-推荐页展示站名、公开倍率、福利、签到信息、备注和邀请入口，不包含整理者的账号余额、后台密钥页面、数据库或登录信息。站点入口使用邀请链接；没有邀请链接的站点不会回退到后台页面。
+编辑器会自动在浏览器中打开。也可以手动打开：
 
-## 功能
+- `http://127.0.0.1:8765/`
 
-- 网页端新增、修改和删除站点
-- 收费站与公益站分类
-- 最低倍率、Plus、Pro 排序
-- 全局搜索与有余额筛选
-- 余额站点、待签到筛选和编辑器签到站筛选
-- 每日签到状态记录
-- 邀请链接复制与快速打开
-- SQLite、JSON、HTML 和 CSV 同步
-- 验纯网站区域
-- API 单次成本计算器，可读取最低、Plus 和 Pro 倍率
-- 编辑器、报告和计算器统一的自动夜间模式
-- 编辑器和报告搜索框一键清空
+在编辑器里修改数据后点“保存并同步”，会同时更新：
 
-## 环境要求
+- `sites.json`
+- `data/price_monitor.sqlite3`
+- `reports/latest.html`
+- `reports/latest.csv`
 
-- Python 3.11 或更高版本
-- 不需要安装第三方 Python 包
-- 不需要 Node.js
+只想重新生成报告时，双击：
 
-## Windows 使用
+- `生成报告.cmd`
 
-1. 下载或克隆本仓库。
-2. 双击 `启动价格监控编辑器.cmd`。它会自动关闭本项目之前启动的旧进程，并在后台启动。
-3. 浏览器会自动打开 http://127.0.0.1:8765/
-4. 点击“新增一行”添加自己的第一个站点。
-5. 点击“保存并同步”生成本地数据和报告。
+## 备份
 
-如果希望连启动时短暂的窗口闪烁也没有，可以直接双击 `启动价格监控编辑器.vbs`，功能相同。启动错误记录在 `data/editor-error.log`，正常运行日志记录在 `data/editor.log`。
+双击：
 
-成本计算器可从编辑器或报告页打开。主题默认在电脑时间 19:00 至次日 07:00 自动切换为夜间模式，也可手动固定日间或夜间。
+- `备份项目.cmd`
 
-只重新生成报告时，双击 `生成报告.cmd`。
+会在 `backups/` 里生成一个 zip，包含代码、站点数据、报告和 SQLite 数据库。
 
-## macOS / Linux 使用
+## 文件说明
 
-```bash
-git clone <你的仓库地址>
-cd <仓库目录>
-python3 app.py
+- `sites.json`：站点清单和人工维护的数据，是最核心的数据文件。
+- `quality_sites.json`：验纯 / 模型检测网站清单。
+- `monitor.py`：读取数据、排序、生成 HTML / CSV / SQLite。
+- `app.py`：本地网页编辑器。
+- `reports/latest.html`：报告页面。
+- `reports/latest.csv`：表格导出。
+- `data/price_monitor.sqlite3`：SQLite 数据库。
+- `calculator.html`：单次 API 成本计算器，会读取本地站点的最低 / Plus / Pro 倍率。
+
+## 成本计算器
+
+在编辑器或报告页面点击“成本计算器”，或直接打开：
+
+- `http://127.0.0.1:8765/calculator.html`
+
+可选一个已维护的站点和倍率类型自动带入倍率；充值金额、获得额度、模型输入/输出价格和 Token 量由你按本次估算填写。计算器参数只保存在当前浏览器，不会修改 `sites.json`、余额或报告数据。
+
+## 手动命令
+
+生成报告：
+
+```powershell
+python monitor.py
 ```
 
-只生成报告：
+启动编辑器：
 
-```bash
-python3 monitor.py
+```powershell
+python app.py
 ```
 
-## 本地文件
+按 SQLite 数据重新生成报告：
 
-这些文件会在本机运行或保存后生成，并已被 `.gitignore` 排除：
+```powershell
+python monitor.py --source db
+```
 
-- `sites.json`：用户自己的站点、倍率、余额和邀请链接
-- `quality_sites.json`：用户自己的验纯网站
-- `data/price_monitor.sqlite3`：SQLite 数据库
-- `reports/latest.html`：本地报告页面
-- `reports/latest.csv`：本地 CSV 报告
-- `calculator.html`：API 单次成本计算器
-- `theme.css`、`theme.js`：三个本地页面共用的主题样式和切换逻辑
+## 字段说明
 
-空数据格式示例见 `sites.example.json` 和 `quality_sites.example.json`。
-
-## 数据字段
+`sites.json` 中每个站点大致长这样：
 
 ```json
 {
-  "name": "示例站点",
+  "name": "小白Code",
   "category": "收费站",
-  "url": "https://example.com/keys",
-  "invite_url": "https://example.com/register?aff=YOUR_CODE",
-  "balance": 0,
-  "welfare_rate": 0.1,
-  "plus_rate": 0.2,
-  "pro_rate": 0.3,
-  "signup_bonus": null,
-  "daily_checkin_bonus": "不固定",
-  "notes": ""
+  "url": "https://token.dialoguedui.com/keys",
+  "invite_url": "https://token.dialoguedui.com/register?aff=...",
+  "balance": 0.14,
+  "welfare_rate": 0.07,
+  "plus_rate": null,
+  "pro_rate": 0.19,
+  "signup_bonus": 1,
+  "daily_checkin_bonus": 0.25,
+  "notes": "福利分组"
 }
 ```
 
-`category` 可选择 `收费站` 或 `公益站`。签到额度既可以填写数字，也可以填写“不固定”等文字。
-
-## 隐私设计
-
-本地编辑器仍以空数据开始。个人 `sites.json`、数据库和本地报告默认不会被 Git 提交。仓库根目录的 `index.html`、`latest.csv` 和 `sites.public.json` 只包含脱敏后的推荐数据，不包含个人余额和后台密钥页面。提交代码前仍建议运行 `git status`，确认没有私人文件进入暂存区。
-
-## GitHub Pages
-
-仓库根目录的 `index.html` 是公开推荐页面，由 GitHub Pages 发布。Python 编辑器不能在 GitHub Pages 上运行，使用编辑器需要把项目下载到本机并启动；下载后的编辑器仍然是空数据。
-
-## 免责声明
-
-本项目只用于整理公开价格信息。中转站价格、可用性和服务条款可能变化，请以对应服务商实际页面为准。
+- `category`：只能填 `收费站` 或 `公益站`。
+- `balance`：当前账号余额；没有就填 `0` 或 `null`。
+- `welfare_rate`：福利 / 特价 / 最低分组倍率。
+- `plus_rate`：Plus 倍率。
+- `pro_rate`：Pro 倍率。
+- `signup_bonus`：注册送。
+- `daily_checkin_bonus`：签到送；可以填数字，也可以填 `不固定` 这类文字。
