@@ -2,6 +2,10 @@
 
 这个项目用于整理 GPT、Claude、国模等 AI 模型中转站和公益站的价格倍率、余额、注册送、签到送、邀请链接，并生成本地网页报告。
 
+在线推荐页面：
+
+[https://linx-wang.github.io/gpt-relay-price-monitor/](https://linx-wang.github.io/gpt-relay-price-monitor/)
+
 ## 日常使用
 
 双击：
