@@ -549,7 +549,7 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
     hint_text = "修改数据：用本地编辑器保存，或编辑项目目录下的 <code>sites.json</code> 后重新运行 <code>python monitor.py</code>"
     path.write_text(
         f"""<!doctype html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-default-theme="dark">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">

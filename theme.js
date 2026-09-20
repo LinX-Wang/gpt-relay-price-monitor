@@ -4,7 +4,7 @@
   const validModes = new Set([autoMode, "light", "dark"]);
 
   function getMode() {
-    const mode = localStorage.getItem(storageKey) || autoMode;
+    const mode = localStorage.getItem(storageKey) || document.documentElement.dataset.defaultTheme || autoMode;
     return validModes.has(mode) ? mode : autoMode;
   }
 
