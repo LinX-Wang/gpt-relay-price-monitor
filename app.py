@@ -56,7 +56,7 @@ def empty_to_none(value: Any) -> Any:
 def normalized_checkin_mode(site: dict[str, Any], daily_checkin_bonus: Any) -> str:
     if daily_checkin_bonus is None:
         return "无签到"
-    return "手动" if site.get("checkin_mode") == "手动" else "自动"
+    return "手动"
 
 
 RECHARGE_RATIO_PATTERN = re.compile(r"^([0-9]+(?:\.[0-9]+)?)\s*[:：]\s*([0-9]+(?:\.[0-9]+)?)$")
@@ -540,33 +540,6 @@ EDITOR_HTML = r"""<!doctype html>
       color: #754600;
       box-shadow: 0 0 0 2px rgba(217,154,22,.28), inset 0 0 0 1px rgba(255,255,255,.5);
       font-weight: 900;
-    }
-    button.auto-checkin-filter {
-      border-color: #b2ccff;
-      background: #f5f9ff;
-      color: #175cd3;
-    }
-    button.auto-checkin-filter:hover,
-    button.auto-checkin-filter.is-active {
-      border-color: #528bff;
-      background: #eaf3ff;
-      color: #004eeb;
-    }
-    button.auto-checkin-complete {
-      border-color: #84adff;
-      background: #175cd3;
-      color: #fff;
-    }
-    button.auto-checkin-complete:hover {
-      border-color: #004eeb;
-      background: #004eeb;
-    }
-    button.auto-checkin-complete:disabled {
-      border-color: #d0d5dd;
-      background: #f2f4f7;
-      color: #98a2b3;
-      cursor: not-allowed;
-      transform: none;
     }
     button.metapi-balance-sync {
       border-color: #0f9f8f;
@@ -1064,9 +1037,7 @@ EDITOR_HTML = r"""<!doctype html>
         <span id="status" class="status">加载中...</span>
         <a id="open-report" class="button" href="/reports/latest.html" target="ai_price_monitor_report" rel="noopener">打开报告</a>
         <a id="open-calculator" class="button" href="/calculator.html" target="ai_price_monitor_calculator" rel="noopener">成本计算器</a>
-        <button id="auto-checkin-filter" class="checkin-filter auto-checkin-filter" type="button" title="只显示自动签到站点">自动签到</button>
         <button id="metapi-balance-sync" class="metapi-balance-sync" type="button" title="从 Metapi 连接管理同步余额">同步 Metapi 余额</button>
-        <button id="auto-checkin-complete" class="auto-checkin-complete" type="button" title="把所有待处理的自动签到站标记为已签到">自动全部已签</button>
         <button id="manual-checkin-filter" class="checkin-filter manual-checkin-filter" type="button" title="只显示手动签到站点">手动签到</button>
         <button id="add" title="在表格末尾新增一个站点">新增一行</button>
         <button id="save" class="primary" title="保存编辑内容并重新生成报告">保存并同步</button>
@@ -1141,9 +1112,7 @@ EDITOR_HTML = r"""<!doctype html>
     const metricBalance = document.querySelector("#metric-balance");
     const metricTotal = document.querySelector("#metric-total");
     const metricCheckin = document.querySelector("#metric-checkin");
-    const autoCheckinFilter = document.querySelector("#auto-checkin-filter");
     const metapiBalanceSync = document.querySelector("#metapi-balance-sync");
-    const autoCheckinComplete = document.querySelector("#auto-checkin-complete");
     const manualCheckinFilter = document.querySelector("#manual-checkin-filter");
     let rows = [];
     let query = "";
@@ -1284,22 +1253,15 @@ EDITOR_HTML = r"""<!doctype html>
       const balanceRows = rows.filter((row) => Number(row.balance || 0) > 0);
       const checkinStations = rows.filter(hasCheckin);
       const checkinRows = checkinStations.filter((row) => !isSignedToday(row));
-      const autoCheckinStations = checkinStations.filter((row) => checkinMode(row) === "自动");
       const manualCheckinStations = checkinStations.filter((row) => checkinMode(row) === "手动");
-      const autoPendingCheckinRows = checkinRows.filter((row) => checkinMode(row) === "自动");
       const totalBalance = rows.reduce((sum, row) => sum + Number(row.balance || 0), 0);
       metricCount.textContent = String(rows.length);
       metricBest.textContent = best === "" ? "-" : `${best}x`;
       metricBalance.textContent = String(balanceRows.length);
       metricTotal.textContent = Number.isInteger(totalBalance) ? String(totalBalance) : totalBalance.toFixed(4).replace(/0+$/, "").replace(/\.$/, "");
       metricCheckin.textContent = String(checkinRows.length);
-      autoCheckinFilter.classList.toggle("is-active", checkinFilterMode === "自动");
       manualCheckinFilter.classList.toggle("is-active", checkinFilterMode === "手动");
-      autoCheckinFilter.setAttribute("aria-pressed", checkinFilterMode === "自动" ? "true" : "false");
       manualCheckinFilter.setAttribute("aria-pressed", checkinFilterMode === "手动" ? "true" : "false");
-      autoCheckinFilter.textContent = `${checkinFilterMode === "自动" ? "当前：" : ""}自动签到 (${autoCheckinStations.length})`;
-      autoCheckinComplete.textContent = `自动全部已签 (${autoPendingCheckinRows.length})`;
-      autoCheckinComplete.disabled = autoPendingCheckinRows.length === 0;
       manualCheckinFilter.textContent = `${checkinFilterMode === "手动" ? "当前：" : ""}手动签到 (${manualCheckinStations.length})`;
     }
 
@@ -1355,7 +1317,6 @@ EDITOR_HTML = r"""<!doctype html>
           <td>
             <select class="category-input" data-field="checkin_mode"${hasCheckin(row) ? "" : " disabled"}>
               <option value="无签到"${checkinMode(row) === "无签到" ? " selected" : ""}>无签到</option>
-              <option value="自动"${checkinMode(row) === "自动" ? " selected" : ""}>自动签到</option>
               <option value="手动"${checkinMode(row) === "手动" ? " selected" : ""}>手动签到</option>
             </select>
           </td>
@@ -1455,7 +1416,7 @@ EDITOR_HTML = r"""<!doctype html>
         }
       }
       if (field === "daily_checkin_bonus") {
-        // 一旦填写签到奖励，就按人工签到处理；自动签到需要用户主动选择。
+        // 一旦填写签到奖励，就按人工签到处理。
         rows[index].checkin_mode = hasCheckin(rows[index]) ? "手动" : "无签到";
         const checkinModeSelect = tr.querySelector('select[data-field="checkin_mode"]');
         if (checkinModeSelect) {
@@ -1551,7 +1512,6 @@ EDITOR_HTML = r"""<!doctype html>
       render();
     }
 
-    autoCheckinFilter.addEventListener("click", () => toggleCheckinFilter("自动"));
     manualCheckinFilter.addEventListener("click", () => toggleCheckinFilter("手动"));
 
     metapiBalanceSync.addEventListener("click", async () => {
@@ -1580,12 +1540,6 @@ EDITOR_HTML = r"""<!doctype html>
       }
     });
 
-    autoCheckinComplete.addEventListener("click", () => {
-      rows
-        .filter((row) => hasCheckin(row) && !isSignedToday(row) && checkinMode(row) === "自动")
-        .forEach((row) => window.localStorage.setItem(checkinStorageKey(row), "1"));
-      render();
-    });
 
     window.addEventListener("storage", (event) => {
       if (event.key && event.key.startsWith("ai-price-monitor:checkin:")) {

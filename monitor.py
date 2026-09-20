@@ -75,7 +75,7 @@ def empty_to_none(value: Any) -> Any:
 def normalized_checkin_mode(site: dict[str, Any], daily_checkin_bonus: Any) -> str:
     if daily_checkin_bonus is None:
         return "无签到"
-    return "手动" if site.get("checkin_mode") == "手动" else "自动"
+    return "手动"
 
 
 def has_value(value: Any) -> bool:
@@ -543,8 +543,6 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
     free_section = render_table_panel("free-sites", "公益站专区", free_items, "搜索公益站、备注、倍率", show_top_button=True)
     balance_filter_button = '<button id="balance-filter" class="jump-link balance-filter" type="button" aria-pressed="false">只看有余额</button>'
     common_filter_button = '<button id="common-filter" class="jump-link common-filter" type="button">只看常用站</button>'
-    auto_checkin_filter_button = '<button id="auto-checkin-filter" class="jump-link checkin-filter auto-checkin-filter" type="button" aria-pressed="false">自动签到</button>'
-    auto_checkin_complete_button = '<button id="auto-checkin-complete" class="jump-link auto-checkin-complete" type="button">自动全部已签</button>'
     manual_checkin_filter_button = '<button id="manual-checkin-filter" class="jump-link checkin-filter manual-checkin-filter" type="button" aria-pressed="false">手动签到</button>'
     hint_text = "修改数据：用本地编辑器保存，或编辑项目目录下的 <code>sites.json</code> 后重新运行 <code>python monitor.py</code>"
     path.write_text(
@@ -849,35 +847,6 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
       color: #a15c00;
       box-shadow: 0 0 0 2px rgba(217,154,22,.24), inset 0 0 0 1px rgba(255,255,255,.35);
       font-weight: 900;
-    }}
-    .auto-checkin-filter {{
-      border-color: #b2ccff;
-      background: #f5f9ff;
-      color: #175cd3;
-    }}
-    .auto-checkin-filter.is-active {{
-      border-color: #528bff;
-      background: #eaf3ff;
-      color: #004eeb;
-      box-shadow: 0 0 0 2px rgba(82,139,255,.25), inset 0 0 0 1px rgba(255,255,255,.55);
-      font-weight: 900;
-    }}
-    .auto-checkin-complete {{
-      border-color: #175cd3;
-      background: #175cd3;
-      color: #fff;
-    }}
-    .auto-checkin-complete:hover {{
-      border-color: #004eeb;
-      background: #004eeb;
-      color: #fff;
-    }}
-    .auto-checkin-complete:disabled {{
-      border-color: #d0d5dd;
-      background: #f2f4f7;
-      color: #98a2b3;
-      cursor: not-allowed;
-      transform: none;
     }}
     .manual-open-control {{
       display: inline-flex;
@@ -1531,8 +1500,6 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
         <nav class="quick-jumps" aria-label="快速跳转">
           {balance_filter_button}
           {common_filter_button}
-          {auto_checkin_filter_button}
-          {auto_checkin_complete_button}
           {manual_checkin_filter_button}
           <div class="manual-open-control" title="按报告顺序打开待签到的手动站页面">
             <input id="manual-checkin-open-count" class="manual-open-count" type="number" min="1" step="1" value="10" aria-label="打开手动签到站点数量">
@@ -1596,18 +1563,14 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
       const balanceOnly = balanceFilter?.classList.contains("is-active") || false;
       const commonFilter = document.querySelector("#common-filter");
       const commonOnly = commonFilter?.classList.contains("is-active") || false;
-      const autoCheckinFilter = document.querySelector("#auto-checkin-filter");
       const manualCheckinFilter = document.querySelector("#manual-checkin-filter");
-      const checkinMode = autoCheckinFilter?.classList.contains("is-active")
-        ? "自动"
-        : manualCheckinFilter?.classList.contains("is-active")
+      const checkinMode = manualCheckinFilter?.classList.contains("is-active")
           ? "手动"
           : "";
       let totalVisible = 0;
       let totalRows = 0;
       let totalBalanceRows = 0;
       let totalCommonRows = 0;
-      let totalAutoPendingCheckinRows = 0;
       let totalManualPendingCheckinRows = 0;
 
       document.querySelectorAll(".table-panel").forEach((panel) => {{
@@ -1625,7 +1588,6 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
         rows.forEach((row) => {{
           if (!row.classList.contains("has-checkin") || row.classList.contains("signed-today")) return;
           if (row.dataset.checkinMode === "手动") totalManualPendingCheckinRows += 1;
-          else totalAutoPendingCheckinRows += 1;
         }});
 
         orderedRows.forEach((row) => {{
@@ -1671,14 +1633,6 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
       }}
       if (commonFilter) {{
         commonFilter.textContent = commonOnly ? `当前：常用站 (${{totalCommonRows}})` : `只看常用站 (${{totalCommonRows}})`;
-      }}
-      if (autoCheckinFilter) {{
-        autoCheckinFilter.textContent = `${{autoCheckinFilter.classList.contains("is-active") ? "当前：" : ""}}自动签到 (${{totalAutoPendingCheckinRows}})`;
-      }}
-      const autoCheckinComplete = document.querySelector("#auto-checkin-complete");
-      if (autoCheckinComplete) {{
-        autoCheckinComplete.textContent = `自动全部已签 (${{totalAutoPendingCheckinRows}})`;
-        autoCheckinComplete.disabled = totalAutoPendingCheckinRows === 0;
       }}
       if (manualCheckinFilter) {{
         manualCheckinFilter.textContent = `${{manualCheckinFilter.classList.contains("is-active") ? "当前：" : ""}}手动签到 (${{totalManualPendingCheckinRows}})`;
@@ -1726,19 +1680,15 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
     updateGroupHighlight();
 
     function toggleCheckinFilter(mode) {{
-      const autoCheckinFilter = document.querySelector("#auto-checkin-filter");
       const manualCheckinFilter = document.querySelector("#manual-checkin-filter");
-      const target = mode === "自动" ? autoCheckinFilter : manualCheckinFilter;
+      const target = manualCheckinFilter;
       const wasActive = target?.classList.contains("is-active");
-      autoCheckinFilter?.classList.remove("is-active");
       manualCheckinFilter?.classList.remove("is-active");
       if (!wasActive) target?.classList.add("is-active");
-      autoCheckinFilter?.setAttribute("aria-pressed", (!wasActive && mode === "自动") ? "true" : "false");
       manualCheckinFilter?.setAttribute("aria-pressed", (!wasActive && mode === "手动") ? "true" : "false");
       applyReportSearch();
     }}
 
-    document.querySelector("#auto-checkin-filter")?.addEventListener("click", () => toggleCheckinFilter("自动"));
     document.querySelector("#manual-checkin-filter")?.addEventListener("click", () => toggleCheckinFilter("手动"));
 
     document.querySelector("#manual-checkin-open")?.addEventListener("click", async (event) => {{
@@ -1793,15 +1743,6 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
       window.setTimeout(applyReportSearch, 1200);
     }});
 
-    document.querySelector("#auto-checkin-complete")?.addEventListener("click", () => {{
-      document.querySelectorAll('tr.has-checkin[data-checkin-mode="自动"] .checkin-toggle').forEach((button) => {{
-        if (window.localStorage.getItem(checkinStorageKey(button)) !== "1") {{
-          window.localStorage.setItem(checkinStorageKey(button), "1");
-        }}
-      }});
-      applyCheckinState();
-      applyReportSearch();
-    }});
 
     document.addEventListener("click", async (event) => {{
       const checkinButton = event.target.closest(".checkin-toggle");
@@ -1837,7 +1778,6 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
     function saveReportViewState() {{
       const balanceFilter = document.querySelector("#balance-filter");
       const commonFilter = document.querySelector("#common-filter");
-      const autoCheckinFilter = document.querySelector("#auto-checkin-filter");
       const manualCheckinFilter = document.querySelector("#manual-checkin-filter");
       const state = {{
         scrollX: window.scrollX,
@@ -1845,7 +1785,7 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
         search: document.querySelector("#report-search")?.value || "",
         balanceOnly: balanceFilter?.classList.contains("is-active") || false,
         commonOnly: commonFilter?.classList.contains("is-active") || false,
-        checkinMode: autoCheckinFilter?.classList.contains("is-active") ? "自动" : manualCheckinFilter?.classList.contains("is-active") ? "手动" : "",
+        checkinMode: manualCheckinFilter?.classList.contains("is-active") ? "手动" : "",
         openCount: document.querySelector("#manual-checkin-open-count")?.value || "10",
         completeCount: document.querySelector("#manual-checkin-complete-count")?.value || "10",
       }};
