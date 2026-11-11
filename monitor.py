@@ -545,6 +545,11 @@ def render_rows(items: list[SiteSnapshot]) -> str:
         if has_value(item.daily_checkin_bonus):
             status_badges.append('<span class="status-badge badge-checkin">⏳ 待签到</span>')
         status_badges_html = "".join(status_badges)
+        reimbursement_note_html = (
+            f'<span class="reimbursement-note">报销：{html.escape(item.reimbursement_notes)}</span>'
+            if item.reimbursement_notes
+            else ""
+        )
         rows.append(
             f"<tr class=\"{row_class}\" data-original-rank=\"{rank}\" data-balance=\"{balance_sort}\" data-checkin-mode=\"{html.escape(item.checkin_mode, quote=True)}\" data-usage-status=\"{html.escape(item.usage_status, quote=True)}\">"
             f"<td class=\"rank\">{rank}</td>"
@@ -559,7 +564,7 @@ def render_rows(items: list[SiteSnapshot]) -> str:
             f"<td class=\"balance-cell\">{format_value(item.balance_2)}</td>"
             f"<td>{open_cell}</td>"
             f"<td>{invite_cell(item.invite_url)}</td>"
-            f"<td class=\"notes\"><span class=\"notes-text\">{html.escape(item.notes)}</span>{(f'<span class=\"reimbursement-note\">报销：{html.escape(item.reimbursement_notes)}</span>' if item.reimbursement_notes else '')}</td>"
+            f"<td class=\"notes\"><span class=\"notes-text\">{html.escape(item.notes)}</span>{reimbursement_note_html}</td>"
             "</tr>"
         )
     return "".join(rows)
