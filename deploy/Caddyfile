@@ -1,0 +1,24 @@
+# Replace the domain; APP_PUBLIC_URL must match it.
+monitor.example.com {
+    encode zstd gzip
+    # Uncomment after installing the optional detector integrations.
+    # redir /detector /detector/ 308
+    # handle /detector/* {
+    #     reverse_proxy 127.0.0.1:8789 {
+    #         flush_interval -1
+    #     }
+    # }
+    # redir /meow /meow/ 308
+    # handle /meow/* {
+    #     reverse_proxy 127.0.0.1:8790 {
+    #         flush_interval -1
+    #     }
+    # }
+    handle {
+        reverse_proxy 127.0.0.1:8765
+    }
+    header {
+        X-Content-Type-Options nosniff
+        Referrer-Policy same-origin
+    }
+}

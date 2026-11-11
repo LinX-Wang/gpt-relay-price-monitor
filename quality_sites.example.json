@@ -1,13 +1,14 @@
 [
   {
     "name": "hvoy",
-    "url": "https://hvoy.ai/",
-    "notes": "模型验纯 / 中转检测"
+    "url": "https://www.hvoyai.com/leaderboard",
+    "notes": "模型验纯 / 中转检测",
+    "daily_checkin": true
   },
   {
-    "name": "ModelKnow",
-    "url": "https://modelknow.com/",
-    "notes": "模型识别 / 验纯参考"
+    "name": "MODELOC",
+    "url": "https://modeloc.com/",
+    "notes": "检测中转模型是否与官方原版一致，查看模型榜单与优质中转站"
   },
   {
     "name": "IPPure",
@@ -20,5 +21,17 @@
     "url": "https://ping0.cc/ip",
     "kind": "IP 纯度",
     "notes": "查看 IP 归属、风险与环境信息"
+  },
+  {
+    "name": "ZTest.AI",
+    "url": "https://ztest.ai/",
+    "kind": "中转可信度",
+    "notes": "检测 AI 中转站可信度与风险参考"
+  },
+  {
+    "name": "TokenFaucet",
+    "url": "https://freetokenfaucet.com/",
+    "kind": "免费额度",
+    "notes": "每日领取免费的 OpenAI 兼容 LLM API 额度"
   }
 ]

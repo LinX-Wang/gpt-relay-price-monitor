@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <title>LinX price monitor mark</title>
+  <rect width="512" height="512" rx="144" fill="#152b3c"/>
+  <path d="M80 104h56v248h128v56H80V104Z" fill="#fff"/>
+  <path d="M292 352 328 310l36 30 48-100" fill="none" stroke="#79c7b9" stroke-width="28" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="412" cy="240" r="16" fill="#79c7b9"/>
+</svg>

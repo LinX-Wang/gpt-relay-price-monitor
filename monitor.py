@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import purity_decisions as decisions
+
 import argparse
 import csv
 import html
@@ -12,17 +14,17 @@ from typing import Any
 from urllib.parse import urlparse
 
 
+from settings import DATA_DIR, REPORTS_DIR, SITES_FILE, DB_FILE
 ROOT = Path(__file__).resolve().parent
-SITES_FILE = ROOT / "sites.json"
 QUALITY_SITES_FILE = ROOT / "quality_sites.json"
-DATA_DIR = ROOT / "data"
-REPORTS_DIR = ROOT / "reports"
-DB_FILE = DATA_DIR / "price_monitor.sqlite3"
+if not QUALITY_SITES_FILE.exists():QUALITY_SITES_FILE = ROOT / "quality_sites.example.json"
+
 SITE_FIELDS = [
     "name",
     "url",
     "category",
     "balance",
+    "balance_2",
     "recharge_ratio",
     "welfare_rate",
     "plus_rate",
@@ -33,6 +35,11 @@ SITE_FIELDS = [
     "notes",
     "invite_url",
     "usage_status",
+    "purity_status",
+    "purity_match",
+    "purity_multiplier",
+    "reimbursement_status",
+    "reimbursement_notes",
 ]
 
 
@@ -47,6 +54,7 @@ class SiteSnapshot:
     pro_rate: float | None
     lowest_rate: float | None
     balance: float | None
+    balance_2: float | None
     signup_bonus: float | None
     daily_checkin_bonus: Any
     checkin_mode: str
@@ -54,7 +62,12 @@ class SiteSnapshot:
     status: str
     notes: str
     usage_status: str
-    checked_at: str
+    purity_status: str = ""
+    purity_match: float | None = None
+    purity_multiplier: float | None = None
+    reimbursement_status: str = ""
+    reimbursement_notes: str = ""
+    checked_at: str = ""
 
 
 def as_float(value: Any) -> float | None:
@@ -64,6 +77,13 @@ def as_float(value: Any) -> float | None:
         return float(value)
     except (TypeError, ValueError):
         return None
+
+
+def normalize_purity_multiplier(value: Any) -> float | None:
+    text = str(value).strip() if value is not None else ""
+    if text.startswith("0") and text.isdigit() and len(text) > 1:
+        return float("0." + text[1:])
+    return as_float(value)
 
 
 def empty_to_none(value: Any) -> Any:
@@ -127,6 +147,7 @@ def init_db(conn: sqlite3.Connection) -> None:
             pro_rate REAL,
             lowest_rate REAL,
             balance REAL,
+            balance_2 REAL,
             signup_bonus REAL,
             daily_checkin_bonus REAL,
             checkin_mode TEXT NOT NULL DEFAULT '自动',
@@ -134,6 +155,11 @@ def init_db(conn: sqlite3.Connection) -> None:
             status TEXT NOT NULL,
             notes TEXT,
             usage_status TEXT NOT NULL DEFAULT '',
+            purity_status TEXT NOT NULL DEFAULT '',
+            purity_match REAL,
+            purity_multiplier REAL,
+            reimbursement_status TEXT NOT NULL DEFAULT '',
+            reimbursement_notes TEXT NOT NULL DEFAULT '',
             checked_at TEXT NOT NULL
         )
         """
@@ -149,6 +175,18 @@ def init_db(conn: sqlite3.Connection) -> None:
         conn.execute("ALTER TABLE snapshots ADD COLUMN usage_status TEXT NOT NULL DEFAULT ''")
     if "checkin_mode" not in columns:
         conn.execute("ALTER TABLE snapshots ADD COLUMN checkin_mode TEXT NOT NULL DEFAULT '自动'")
+    if "balance_2" not in columns:
+        conn.execute("ALTER TABLE snapshots ADD COLUMN balance_2 REAL")
+    snapshot_migrations = {
+        "purity_status": "ALTER TABLE snapshots ADD COLUMN purity_status TEXT NOT NULL DEFAULT ''",
+        "purity_match": "ALTER TABLE snapshots ADD COLUMN purity_match REAL",
+        "purity_multiplier": "ALTER TABLE snapshots ADD COLUMN purity_multiplier REAL",
+        "reimbursement_status": "ALTER TABLE snapshots ADD COLUMN reimbursement_status TEXT NOT NULL DEFAULT ''",
+        "reimbursement_notes": "ALTER TABLE snapshots ADD COLUMN reimbursement_notes TEXT NOT NULL DEFAULT ''",
+    }
+    for column, sql in snapshot_migrations.items():
+        if column not in columns:
+            conn.execute(sql)
     conn.commit()
 
 
@@ -160,6 +198,7 @@ def init_sites_table(conn: sqlite3.Connection) -> None:
             url TEXT NOT NULL,
             category TEXT NOT NULL DEFAULT '收费站',
             balance REAL,
+            balance_2 REAL,
             recharge_ratio TEXT NOT NULL DEFAULT '1:1',
             welfare_rate REAL,
             plus_rate REAL,
@@ -170,6 +209,11 @@ def init_sites_table(conn: sqlite3.Connection) -> None:
             notes TEXT,
             invite_url TEXT,
             usage_status TEXT NOT NULL DEFAULT '',
+            purity_status TEXT NOT NULL DEFAULT '',
+            purity_match REAL,
+            purity_multiplier REAL,
+            reimbursement_status TEXT NOT NULL DEFAULT '',
+            reimbursement_notes TEXT NOT NULL DEFAULT '',
             sort_order INTEGER NOT NULL DEFAULT 0,
             updated_at TEXT NOT NULL
         )
@@ -178,6 +222,7 @@ def init_sites_table(conn: sqlite3.Connection) -> None:
     columns = {row[1] for row in conn.execute("PRAGMA table_info(sites)")}
     migrations = {
         "balance": "ALTER TABLE sites ADD COLUMN balance REAL",
+        "balance_2": "ALTER TABLE sites ADD COLUMN balance_2 REAL",
         "recharge_ratio": "ALTER TABLE sites ADD COLUMN recharge_ratio TEXT NOT NULL DEFAULT '1:1'",
         "category": "ALTER TABLE sites ADD COLUMN category TEXT NOT NULL DEFAULT '收费站'",
         "pro_rate": "ALTER TABLE sites ADD COLUMN pro_rate REAL",
@@ -185,6 +230,11 @@ def init_sites_table(conn: sqlite3.Connection) -> None:
         "updated_at": "ALTER TABLE sites ADD COLUMN updated_at TEXT NOT NULL DEFAULT ''",
         "usage_status": "ALTER TABLE sites ADD COLUMN usage_status TEXT NOT NULL DEFAULT ''",
         "checkin_mode": "ALTER TABLE sites ADD COLUMN checkin_mode TEXT NOT NULL DEFAULT '自动'",
+        "purity_status": "ALTER TABLE sites ADD COLUMN purity_status TEXT NOT NULL DEFAULT ''",
+        "purity_match": "ALTER TABLE sites ADD COLUMN purity_match REAL",
+        "purity_multiplier": "ALTER TABLE sites ADD COLUMN purity_multiplier REAL",
+        "reimbursement_status": "ALTER TABLE sites ADD COLUMN reimbursement_status TEXT NOT NULL DEFAULT ''",
+        "reimbursement_notes": "ALTER TABLE sites ADD COLUMN reimbursement_notes TEXT NOT NULL DEFAULT ''",
     }
     for column, sql in migrations.items():
         if column not in columns:
@@ -202,7 +252,8 @@ def sync_sites_to_db(conn: sqlite3.Connection, sites: list[dict[str, Any]]) -> N
                 "name": site.get("name", ""),
                 "url": site.get("url", ""),
                 "category": site.get("category") or "收费站",
-                "balance": as_float(site.get("balance")),
+            "balance": as_float(site.get("balance")),
+                "balance_2": as_float(site.get("balance_2")),
                 "recharge_ratio": site.get("recharge_ratio") or "",
                 "welfare_rate": as_float(site.get("welfare_rate")),
                 "plus_rate": as_float(site.get("plus_rate")),
@@ -213,6 +264,11 @@ def sync_sites_to_db(conn: sqlite3.Connection, sites: list[dict[str, Any]]) -> N
                 "notes": site.get("notes", ""),
                 "invite_url": site.get("invite_url"),
                 "usage_status": "常用" if site.get("usage_status") == "常用" else "",
+                "purity_status": str(site.get("purity_status") or ""),
+                "purity_match": as_float(site.get("purity_match")),
+                "purity_multiplier": normalize_purity_multiplier(site.get("purity_multiplier")),
+                "reimbursement_status": str(site.get("reimbursement_status") or ""),
+                "reimbursement_notes": str(site.get("reimbursement_notes") or ""),
                 "sort_order": sort_order,
                 "updated_at": now,
             }
@@ -221,11 +277,13 @@ def sync_sites_to_db(conn: sqlite3.Connection, sites: list[dict[str, Any]]) -> N
     conn.executemany(
         """
         INSERT INTO sites (
-            name, url, category, balance, recharge_ratio, welfare_rate, plus_rate, pro_rate, signup_bonus,
-            daily_checkin_bonus, checkin_mode, notes, invite_url, usage_status, sort_order, updated_at
+            name, url, category, balance, balance_2, recharge_ratio, welfare_rate, plus_rate, pro_rate, signup_bonus,
+            daily_checkin_bonus, checkin_mode, notes, invite_url, usage_status, purity_status, purity_match, purity_multiplier,
+            reimbursement_status, reimbursement_notes, sort_order, updated_at
         ) VALUES (
-            :name, :url, :category, :balance, :recharge_ratio, :welfare_rate, :plus_rate, :pro_rate, :signup_bonus,
-            :daily_checkin_bonus, :checkin_mode, :notes, :invite_url, :usage_status, :sort_order, :updated_at
+            :name, :url, :category, :balance, :balance_2, :recharge_ratio, :welfare_rate, :plus_rate, :pro_rate, :signup_bonus,
+            :daily_checkin_bonus, :checkin_mode, :notes, :invite_url, :usage_status, :purity_status, :purity_match, :purity_multiplier,
+            :reimbursement_status, :reimbursement_notes, :sort_order, :updated_at
         )
         """,
         rows,
@@ -237,8 +295,9 @@ def load_sites_from_db(conn: sqlite3.Connection) -> list[dict[str, Any]]:
     init_sites_table(conn)
     rows = conn.execute(
         """
-        SELECT name, url, category, balance, recharge_ratio, welfare_rate, plus_rate, pro_rate, signup_bonus,
-               daily_checkin_bonus, checkin_mode, notes, invite_url, usage_status
+        SELECT name, url, category, balance, balance_2, recharge_ratio, welfare_rate, plus_rate, pro_rate, signup_bonus,
+               daily_checkin_bonus, checkin_mode, notes, invite_url, usage_status, purity_status, purity_match, purity_multiplier,
+               reimbursement_status, reimbursement_notes
         FROM sites
         ORDER BY sort_order, name
         """
@@ -256,6 +315,7 @@ def snapshot_from_site(site: dict[str, Any]) -> SiteSnapshot:
     plus_rate = as_float(site.get("plus_rate"))
     pro_rate = as_float(site.get("pro_rate"))
     balance = as_float(site.get("balance"))
+    balance_2 = as_float(site.get("balance_2"))
     lowest_rate = lowest(welfare_rate, plus_rate, pro_rate)
 
     return SiteSnapshot(
@@ -268,6 +328,7 @@ def snapshot_from_site(site: dict[str, Any]) -> SiteSnapshot:
         pro_rate=pro_rate,
         lowest_rate=lowest_rate,
         balance=balance,
+        balance_2=balance_2,
         signup_bonus=as_float(site.get("signup_bonus")),
         daily_checkin_bonus=empty_to_none(site.get("daily_checkin_bonus")),
         checkin_mode=normalized_checkin_mode(site, empty_to_none(site.get("daily_checkin_bonus"))),
@@ -275,32 +336,31 @@ def snapshot_from_site(site: dict[str, Any]) -> SiteSnapshot:
         status="manual_seed",
         notes=site.get("notes", ""),
         usage_status="常用" if site.get("usage_status") == "常用" else "",
+        purity_status=str(site.get("purity_status") or ""),
+        purity_match=as_float(site.get("purity_match")),
+        purity_multiplier=normalize_purity_multiplier(site.get("purity_multiplier")),
+        reimbursement_status=str(site.get("reimbursement_status") or ""),
+        reimbursement_notes=str(site.get("reimbursement_notes") or ""),
         checked_at=datetime.now().isoformat(timespec="seconds"),
     )
 
 
 def save_snapshots(conn: sqlite3.Connection, snapshots: list[SiteSnapshot]) -> None:
+    init_db(conn)
     conn.executemany(
         """
         INSERT INTO snapshots (
-            name, url, category, invite_url, welfare_rate, plus_rate, pro_rate, lowest_rate, balance,
-            signup_bonus, daily_checkin_bonus, checkin_mode, source, status, notes, usage_status, checked_at
+            name, url, category, invite_url, welfare_rate, plus_rate, pro_rate, lowest_rate, balance, balance_2,
+            signup_bonus, daily_checkin_bonus, checkin_mode, source, status, notes, usage_status, purity_status, purity_match,
+            purity_multiplier, reimbursement_status, reimbursement_notes, checked_at
         ) VALUES (
-            :name, :url, :category, :invite_url, :welfare_rate, :plus_rate, :pro_rate, :lowest_rate, :balance,
-            :signup_bonus, :daily_checkin_bonus, :checkin_mode, :source, :status, :notes, :usage_status, :checked_at
+            :name, :url, :category, :invite_url, :welfare_rate, :plus_rate, :pro_rate, :lowest_rate, :balance, :balance_2,
+            :signup_bonus, :daily_checkin_bonus, :checkin_mode, :source, :status, :notes, :usage_status, :purity_status, :purity_match,
+            :purity_multiplier, :reimbursement_status, :reimbursement_notes, :checked_at
         )
         """,
         [snapshot.__dict__ for snapshot in snapshots],
     )
-    columns = {row[1] for row in conn.execute("PRAGMA table_info(snapshots)")}
-    if "invite_url" not in columns:
-        conn.execute("ALTER TABLE snapshots ADD COLUMN invite_url TEXT")
-    if "pro_rate" not in columns:
-        conn.execute("ALTER TABLE snapshots ADD COLUMN pro_rate REAL")
-    if "usage_status" not in columns:
-        conn.execute("ALTER TABLE snapshots ADD COLUMN usage_status TEXT NOT NULL DEFAULT ''")
-    if "checkin_mode" not in columns:
-        conn.execute("ALTER TABLE snapshots ADD COLUMN checkin_mode TEXT NOT NULL DEFAULT '自动'")
     conn.commit()
 
 
@@ -321,6 +381,11 @@ def export_csv(snapshots: list[SiteSnapshot]) -> Path:
         "invite_url",
         "notes",
         "usage_status",
+        "purity_status",
+        "purity_match",
+        "purity_multiplier",
+        "reimbursement_status",
+        "reimbursement_notes",
         "checked_at",
     ]
     with path.open("w", encoding="utf-8-sig", newline="") as f:
@@ -346,6 +411,19 @@ def format_rate(value: Any) -> str:
     if value is None:
         return "-"
     return f"{format_value(value)}<span>x</span>"
+
+
+def format_purity_match(value: Any) -> str:
+    if value is None:
+        return "-"
+    number = float(value)
+    if number == 100:
+        return "100%"
+    if number > 100:
+        number /= 10
+    elif 0 < number <= 1:
+        number *= 100
+    return f"{number:.4f}".rstrip("0").rstrip(".") + "%"
 
 def invite_cell(invite_url: str | None) -> str:
     normalized_url = normalize_optional_http_url(invite_url)
@@ -426,6 +504,7 @@ def site_category(item: SiteSnapshot) -> str:
 
 
 def render_rows(items: list[SiteSnapshot]) -> str:
+    conclusion_map = decisions.data()["current"]
     rows = []
     for rank, item in enumerate(items, start=1):
         if item.lowest_rate is not None and item.lowest_rate <= 0.03:
@@ -434,15 +513,19 @@ def render_rows(items: list[SiteSnapshot]) -> str:
             row_class = "tier-mid"
         else:
             row_class = ""
-        if item.balance is not None and item.balance > 0:
+        if (item.balance or 0) + (item.balance_2 or 0) > 0:
             row_class = f"{row_class} has-balance".strip()
-        elif item.balance is not None and item.balance < 0:
+        elif (item.balance or 0) + (item.balance_2 or 0) < 0:
             row_class = f"{row_class} has-debt".strip()
         if has_value(item.daily_checkin_bonus):
             row_class = f"{row_class} has-checkin".strip()
         if item.usage_status == "常用":
             row_class = f"{row_class} is-common-site".strip()
-        balance_sort = item.balance if item.balance is not None else 0
+        if item.purity_status == "GPT-6.1-Sol 较纯":
+            row_class = f"{row_class} is-pure-site".strip()
+        if item.reimbursement_status == "可报销":
+            row_class = f"{row_class} is-reimbursable".strip()
+        balance_sort = (item.balance or 0) + (item.balance_2 or 0)
         balance_display = format_value(item.balance)
         open_url_escaped = html.escape(item.url, quote=True)
         open_cell = (
@@ -450,10 +533,14 @@ def render_rows(items: list[SiteSnapshot]) -> str:
             if item.url
             else "-"
         )
-        status_badges = []
+        status_badges = [decisions.badges(conclusion_map.get(item.name, []))]
         if item.usage_status == "常用":
             status_badges.append('<span class="status-badge badge-common">★ 常用</span>')
-        if item.balance is not None and item.balance > 0:
+        if item.purity_status == "GPT-6.1-Sol 较纯" and not conclusion_map.get(item.name):
+            status_badges.append('<span class="status-badge badge-pure">◆ GPT-6.1-Sol 较纯</span>')
+        if item.reimbursement_status == "可报销":
+            status_badges.append('<span class="status-badge badge-reimburse">￥ 可报销</span>')
+        if (item.balance or 0) + (item.balance_2 or 0) > 0:
             status_badges.append('<span class="status-badge badge-balance">💰 有余额</span>')
         if has_value(item.daily_checkin_bonus):
             status_badges.append('<span class="status-badge badge-checkin">⏳ 待签到</span>')
@@ -462,15 +549,17 @@ def render_rows(items: list[SiteSnapshot]) -> str:
             f"<tr class=\"{row_class}\" data-original-rank=\"{rank}\" data-balance=\"{balance_sort}\" data-checkin-mode=\"{html.escape(item.checkin_mode, quote=True)}\" data-usage-status=\"{html.escape(item.usage_status, quote=True)}\">"
             f"<td class=\"rank\">{rank}</td>"
             f"<td class=\"site-col\"><div class=\"site-name\">{html.escape(item.name)}</div><div class=\"site-badges\">{status_badges_html}</div><div class=\"site-url\">{html.escape(item.url or '-')}</div></td>"
+            f"<td class=\"purity-cell\"><strong>{format_purity_match(item.purity_match)}</strong><small>倍率 {format_value(item.purity_multiplier)}x</small></td>"
             f"<td class=\"rate\">{format_rate(item.lowest_rate)}</td>"
             f"<td class=\"plus-rate\">{format_rate(item.plus_rate)}</td>"
             f"<td class=\"pro-rate\">{format_rate(item.pro_rate)}</td>"
             f"<td class=\"signup-cell\">{format_value(item.signup_bonus)}</td>"
             f"<td class=\"checkin-cell\">{checkin_cell(item.daily_checkin_bonus, item.url or item.name)}</td>"
-            f"<td class=\"balance-cell\">{balance_display}</td>"
+            f"<td class=\"balance-cell\">{format_value(item.balance)}</td>"
+            f"<td class=\"balance-cell\">{format_value(item.balance_2)}</td>"
             f"<td>{open_cell}</td>"
             f"<td>{invite_cell(item.invite_url)}</td>"
-            f"<td class=\"notes\">{html.escape(item.notes)}</td>"
+            f"<td class=\"notes\"><span class=\"notes-text\">{html.escape(item.notes)}</span>{(f'<span class=\"reimbursement-note\">报销：{html.escape(item.reimbursement_notes)}</span>' if item.reimbursement_notes else '')}</td>"
             "</tr>"
         )
     return "".join(rows)
@@ -502,13 +591,15 @@ def render_table_panel(
         <thead>
           <tr>
             <th>#</th>
+            <th>验纯匹配度 / 倍率</th>
             <th>站点</th>
             <th>最低倍率</th>
             <th>Plus</th>
             <th>Pro</th>
             <th>注册送</th>
             <th>签到送</th>
-            <th>余额</th>
+            <th>余额1</th>
+            <th>余额2</th>
             <th>页面</th>
             <th>邀请链接</th>
             <th>备注</th>
@@ -551,6 +642,9 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#152b3c">
+  <link rel="icon" href="/assets/linx-mark.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/assets/linx-mark.svg">
   <title>AI 模型中转站倍率看板</title>
   <style>
     * {{
@@ -1198,7 +1292,9 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
       color: var(--muted);
       font-size: 12px;
     }}
-    td.notes {{ overflow:hidden; text-overflow:ellipsis; max-width:0; }}
+    td.notes {{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:0; line-height:1.25; }}
+    .notes-text, .reimbursement-note {{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }}
+    .reimbursement-note {{ display:inline; margin-left:6px; }}
     .rate {{
       color: var(--accent-dark);
       font-size: 16px;
@@ -1235,10 +1331,17 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
     .is-common-site .site-name {{
       color: #7a4b00;
     }}
-    .site-badges {{ display:flex; flex-wrap:wrap; gap:4px; margin-top:4px; }}
+    .site-badges {{ display:flex; flex-wrap:nowrap; gap:3px; margin-top:2px; max-height:21px; overflow:hidden; white-space:nowrap; }}
     .table-panel .site-name::before,
     .table-panel .site-name::after {{ display:none !important; content:none !important; }}
-    .status-badge {{ display:inline-flex; align-items:center; min-height:19px; padding:2px 6px; border:1px solid; border-radius:999px; font-size:11px; font-weight:850; line-height:1; }}
+    .is-pure-site {{ background: linear-gradient(90deg, rgba(224, 242, 254, .72), #fff 48%); box-shadow: inset 4px 0 0 #2563eb; }}
+    .is-reimbursable {{ outline: 2px solid rgba(16, 185, 129, .38); outline-offset: -2px; }}
+    .badge-pure {{ border-color:#93c5fd; background:#eff6ff; color:#1d4ed8; }}
+    .badge-reimburse {{ border-color:#6ee7b7; background:#ecfdf5; color:#047857; }}
+    .purity-cell {{ color:#1d4ed8; font-variant-numeric:tabular-nums; }}
+    .purity-cell small {{ display:block; margin-top:3px; color:var(--muted); font-size:11px; }}
+    .reimbursement-note {{ color:#047857; font-size:12px; }}
+    .status-badge {{ display:inline-flex; align-items:center; height:19px; min-height:19px; padding:2px 6px; border:1px solid; border-radius:999px; font-size:11px; font-weight:850; line-height:1; }}
     .badge-common {{ border-color:#e7a23b; background:#fff4d6; color:#8a5200; }}
     .badge-balance {{ border-color:#b2ccff; background:#eaf3ff; color:#175cd3; }}
     .badge-checkin {{ border-color:#fedf89; background:#fff4d7; color:#93370d; }}
@@ -1428,8 +1531,8 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
     }}
   </style>
   <link rel="stylesheet" href="/tokens.css">
-  <link rel="stylesheet" href="/theme.css">
-  <script src="/theme.js"></script>
+  <link rel="stylesheet" href="/theme.css?v=20261105-producer-v3">
+  <script src="/theme.js?v=20261105-unified"></script>
 </head>
 <body id="top">
   <header>
@@ -1525,8 +1628,8 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
     </section>
 {paid_section}
 {free_section}
-  </main>
-  <script>
+  <div class="linx-producer-footer"><span class="linx-producer " aria-label="LinX 出品"><span class="linx-producer-art"><img class="producer-day" src="/assets/linx-v3-lockup_color.svg" alt="LinX" width="1240" height="380"><img class="producer-night" src="/assets/linx-v3-lockup_white.svg" alt="" aria-hidden="true" width="1240" height="380"></span><small>出品</small></span></div></main>
+  <script src="/purity-decisions.js" defer></script><script>
     function todayString() {{
       const now = new Date();
       const year = now.getFullYear();
@@ -1539,11 +1642,13 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
       return `ai-price-monitor:checkin:${{todayString()}}:${{button.dataset.checkinKey}}`;
     }}
 
+    const signedCheckinKeys = new Set();
+
     function applyCheckinState() {{
       let remaining = 0;
       document.querySelectorAll(".checkin-toggle").forEach((button) => {{
         const row = button.closest("tr");
-        const signed = window.localStorage.getItem(checkinStorageKey(button)) === "1";
+        const signed = signedCheckinKeys.has(button.dataset.checkinKey);
         row.classList.toggle("signed-today", signed);
         button.textContent = signed ? "已签到" : "标记已签";
         const badge = row.querySelector(".badge-checkin");
@@ -1723,7 +1828,7 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
       }}
     }});
 
-    document.querySelector("#manual-checkin-complete")?.addEventListener("click", (event) => {{
+    document.querySelector("#manual-checkin-complete")?.addEventListener("click", async (event) => {{
       const button = event.currentTarget;
       const countInput = document.querySelector("#manual-checkin-complete-count");
       const requested = Math.floor(Number(countInput?.value));
@@ -1735,9 +1840,10 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
         .filter((checkinButton) => !checkinButton.closest("tr")?.classList.contains("signed-today"))
         .slice(0, requested);
       if (!checkinButtons.length) return;
-      checkinButtons.forEach((checkinButton) => {{
-        window.localStorage.setItem(checkinStorageKey(checkinButton), "1");
-      }});
+      await Promise.all(checkinButtons.map(async (checkinButton) => {{
+        const response = await fetch("/api/checkins", {{method: "POST", headers: {{"Content-Type": "application/json"}}, body: JSON.stringify({{date: todayString(), site_key: checkinButton.dataset.checkinKey, checked: true}})}});
+        if (response.ok) signedCheckinKeys.add(checkinButton.dataset.checkinKey);
+      }}));
       applyCheckinState();
       button.textContent = `已标记 ${{checkinButtons.length}} 个`;
       window.setTimeout(applyReportSearch, 1200);
@@ -1747,13 +1853,11 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
     document.addEventListener("click", async (event) => {{
       const checkinButton = event.target.closest(".checkin-toggle");
       if (checkinButton) {{
-        const key = checkinStorageKey(checkinButton);
-        const signed = window.localStorage.getItem(key) === "1";
-        if (signed) {{
-          window.localStorage.removeItem(key);
-        }} else {{
-          window.localStorage.setItem(key, "1");
-        }}
+        const key = checkinButton.dataset.checkinKey;
+        const signed = signedCheckinKeys.has(key);
+        const response = await fetch("/api/checkins", {{method: "POST", headers: {{"Content-Type": "application/json"}}, body: JSON.stringify({{date: todayString(), site_key: key, checked: !signed}})}});
+        if (!response.ok) return;
+        if (signed) signedCheckinKeys.delete(key); else signedCheckinKeys.add(key);
         applyCheckinState();
         applyReportSearch();
         return;
@@ -1821,6 +1925,17 @@ def export_html(snapshots: list[SiteSnapshot]) -> Path:
         window.location.reload();
       }}
     }});
+    async function loadSharedCheckins() {{
+      try {{
+        const response = await fetch("/api/checkins?date=" + encodeURIComponent(todayString()));
+        if (!response.ok) return;
+        const payload = await response.json();
+        (payload.signed_keys || []).forEach((key) => signedCheckinKeys.add(key));
+        applyCheckinState();
+      }} catch (_) {{}}
+    }}
+    loadSharedCheckins();
+    window.setInterval(loadSharedCheckins, 15000);
     applyCheckinState();
     applyReportSearch();
     const reportSearchInput = document.querySelector("#report-search");
@@ -1853,7 +1968,7 @@ def collect_manual(sites: list[dict[str, Any]]) -> list[SiteSnapshot]:
 def build_reports(
     sites: list[dict[str, Any]],
 ) -> tuple[Path, Path, int]:
-    DATA_DIR.mkdir(exist_ok=True)
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
     REPORTS_DIR.mkdir(exist_ok=True)
 
     snapshots = collect_manual(sites)
@@ -1888,16 +2003,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
-
-
-
-
-
-
-
-
-
-
-
-

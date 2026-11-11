@@ -1,18 +1,30 @@
-# User data and generated output
+# Private state and generated output
 sites.json
 quality_sites.json
 data/
+storage/
 reports/
 backups/
-
-# Python and local environment
-__pycache__/
-*.pyc
+dist/
 .env
+.env.*
+!.env.example
+*.sqlite*
+*.db
+*.enc
+*.key
+*.pem
+*.log
+*.bak*
+*.before-*
+*.upstream
+node_modules/
+vendor/
+__pycache__/
+*.py[cod]
 .venv/
 venv/
-
-# Editor and operating system files
+.pytest_cache/
 .vscode/
 .idea/
 .DS_Store

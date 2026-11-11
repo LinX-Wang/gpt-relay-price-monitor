@@ -1,0 +1,16 @@
+{
+  "id": "/",
+  "name": "LinX · 价格监控",
+  "short_name": "LinX 价格监控",
+  "description": "AI 中转站价格、余额与签到管理",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "background_color": "#101820",
+  "theme_color": "#152b3c",
+  "icons": [
+    {"src": "/assets/linx-mark-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable"},
+    {"src": "/assets/linx-mark.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable"}
+  ]
+}

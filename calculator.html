@@ -63,8 +63,8 @@
     @media (max-width:800px) { .guide-grid { grid-template-columns:1fr; } }
     @media (max-width:600px) { .fields, .results, .plain-grid { grid-template-columns:1fr; } .result.primary { grid-column:auto; } .rate-row { grid-template-columns:1fr; } h1 { font-size:22px; } }
   </style>
-  <link rel="stylesheet" href="/theme.css">
-  <script src="/theme.js"></script>
+  <link rel="stylesheet" href="/theme.css?v=20261105-producer-v3">
+  <script src="/theme.js?v=20261105-unified"></script>
 </head>
 <body>
   <header>
@@ -142,7 +142,7 @@
       <div class="simple-tip"><strong>最简单的用法：</strong>如果你没有缓存和精确用量数据，缓存命中率先填 0；把本次输入和输出 Token 按大概数量估计。这样算出来是偏保守的成本，不会把花费算低。输入、输出价格不要填站点倍率，它们是模型页面标的“额度 / 百万 Token”价格。</div>
       </div>
     </details>
-  </main>
+  <div class="linx-producer-footer"><span class="linx-producer " aria-label="LinX 出品"><span class="linx-producer-art"><img class="producer-day" src="/assets/linx-v3-lockup_color.svg" alt="LinX" width="1240" height="380"><img class="producer-night" src="/assets/linx-v3-lockup_white.svg" alt="" aria-hidden="true" width="1240" height="380"></span><small>出品</small></span></div></main>
   <script>
     const storageKey = "ai-price-monitor:cost-calculator";
     const defaults = { rate:"1", topup:"10", credit:"10", inputPrice:"1", inputTokens:"0.001", outputPrice:"1", outputTokens:"0.001", cacheHit:"0", cacheDiscount:"10", rateType:"lowest_rate", site:"" };

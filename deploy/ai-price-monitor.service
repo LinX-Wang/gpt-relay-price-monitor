@@ -1,0 +1,20 @@
+[Unit]
+Description=LinX Relay Price Monitor
+After=network.target
+
+[Service]
+Type=simple
+User=linx
+Group=linx
+WorkingDirectory=/opt/gpt-relay-price-monitor
+ExecStart=/opt/gpt-relay-price-monitor/.venv/bin/python app.py
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

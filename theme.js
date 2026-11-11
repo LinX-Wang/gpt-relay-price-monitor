@@ -1,61 +1,94 @@
 (() => {
-  const storageKey = "ai-price-monitor:theme-mode";
-  const autoMode = "auto";
-  const validModes = new Set([autoMode, "light", "dark"]);
+  'use strict';
+  const key = 'ai-price-monitor:theme-mode';
+  const modes = new Set(['light', 'dark', 'auto']);
+  let memory = 'auto';
+  let transitionTimer;
+  let channel;
+  try { channel = new BroadcastChannel('linx-theme'); } catch (_) {}
 
-  function getMode() {
-    const mode = localStorage.getItem(storageKey) || document.documentElement.dataset.defaultTheme || autoMode;
-    return validModes.has(mode) ? mode : autoMode;
+  function mode() {
+    try {
+      const saved = localStorage.getItem(key);
+      if (modes.has(saved)) memory = saved;
+    } catch (_) {}
+    return memory;
   }
-
-  function automaticTheme() {
+  function scheduledTheme() {
     const hour = new Date().getHours();
-    return hour >= 19 || hour < 7 ? "dark" : "light";
+    return hour >= 19 || hour < 7 ? 'dark' : 'light';
   }
-
-  function effectiveTheme(mode = getMode()) {
-    return mode === autoMode ? automaticTheme() : mode;
+  function apply(animate = false) {
+    const selected = mode();
+    const theme = selected === 'auto' ? scheduledTheme() : selected;
+    const root = document.documentElement;
+    const previous = root.dataset.theme;
+    clearTimeout(transitionTimer);
+    root.classList.remove('theme-transitioning', 'theme-transitioning-active');
+    const motion = typeof matchMedia === 'function' && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (animate && previous && previous !== theme && motion) {
+      root.classList.add('theme-transitioning');
+      requestAnimationFrame(() => root.classList.add('theme-transitioning-active'));
+      transitionTimer = setTimeout(() => root.classList.remove('theme-transitioning', 'theme-transitioning-active'), 820);
+    }
+    root.dataset.theme = theme;
+    root.dataset.themeMode = selected;
+    document.querySelectorAll('[data-theme-control] button[data-theme-mode]').forEach(button => {
+      const active = button.dataset.themeMode === selected;
+      button.setAttribute('aria-pressed', String(active));
+      button.classList.toggle('is-active', active);
+      button.classList.toggle('is-auto', active && selected === 'auto');
+      if (button.dataset.themeMode === 'auto') {
+        button.title = '按本机时间自动切换：19:00 至次日 07:00 为夜间；当前为' + (theme === 'dark' ? '夜间' : '日间');
+      }
+    });
   }
-
-  function updateControl(control, mode, theme) {
-    const manual = control.querySelector(".theme-toggle");
-    const automatic = control.querySelector(".theme-auto");
-    const themeName = theme === "dark" ? "夜间模式" : "日间模式";
-    manual.textContent = theme === "dark" ? "切到日间" : "切到夜间";
-    manual.title = `当前为${themeName}，点击后手动切换`;
-    automatic.textContent = mode === autoMode ? `跟随时间：${theme === "dark" ? "夜间" : "日间"}` : "跟随时间";
-    automatic.classList.toggle("is-auto", mode === autoMode);
-    automatic.title = "恢复按电脑时间自动切换（19:00 至次日 07:00 为夜间模式）";
+  function select(value) {
+    if (!modes.has(value)) return;
+    memory = value;
+    try { localStorage.setItem(key, value); } catch (_) {}
+    apply(true);
+    try { channel?.postMessage({ mode: value }); } catch (_) {}
   }
-
-  function applyTheme() {
-    const mode = getMode();
-    const theme = effectiveTheme(mode);
-    document.documentElement.dataset.theme = theme;
-    document.querySelectorAll("[data-theme-control]").forEach((control) => updateControl(control, mode, theme));
-  }
-
-  function mountControls() {
-    document.querySelectorAll("[data-theme-control]").forEach((control) => {
-      if (control.dataset.ready) return;
-      control.dataset.ready = "true";
-      control.classList.add("theme-control");
-      control.innerHTML = '<button class="theme-toggle" type="button"></button><button class="theme-auto" type="button">跟随时间</button>';
-      control.querySelector(".theme-toggle").addEventListener("click", () => {
-        localStorage.setItem(storageKey, effectiveTheme() === "dark" ? "light" : "dark");
-        applyTheme();
-      });
-      control.querySelector(".theme-auto").addEventListener("click", () => {
-        localStorage.setItem(storageKey, autoMode);
-        applyTheme();
+  function mount() {
+    document.querySelectorAll('[data-theme-control]').forEach(control => {
+      if (control.dataset.themeReady === 'true') return;
+      control.dataset.themeReady = 'true';
+      control.classList.add('theme-control');
+      control.setAttribute('role', 'group');
+      control.setAttribute('aria-label', '页面显示模式');
+      control.innerHTML = '<button type="button" class="theme-light" data-theme-mode="light" title="始终使用日间模式">日间</button><button type="button" class="theme-dark" data-theme-mode="dark" title="始终使用夜间模式">夜间</button><button type="button" class="theme-auto" data-theme-mode="auto">跟随时间</button>';
+      control.querySelectorAll('button[data-theme-mode]').forEach(button => {
+        button.addEventListener('click', () => select(button.dataset.themeMode));
       });
     });
-    applyTheme();
+    apply();
   }
 
-  applyTheme();
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", mountControls);
-  else mountControls();
-  window.addEventListener("storage", (event) => { if (event.key === storageKey) applyTheme(); });
-  window.setInterval(() => { if (getMode() === autoMode) applyTheme(); }, 60000);
+  // Apply the stored theme immediately, even when this script is deferred and
+  // placeholders exist but their buttons have not been mounted yet.
+  apply();
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', mount, { once: true });
+  } else {
+    mount();
+  }
+  window.addEventListener('storage', event => {
+    if (event.key === key || event.key === null) {
+      memory = modes.has(event.newValue) ? event.newValue : 'auto';
+      apply();
+    }
+  });
+  if (channel) channel.onmessage = event => {
+    if (modes.has(event.data?.mode)) {
+      memory = event.data.mode;
+      apply();
+    }
+  };
+  window.addEventListener('pageshow', mount);
+  window.addEventListener('focus', () => apply());
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) apply();
+  });
+  window.setInterval(() => { if (mode() === 'auto') apply(); }, 30000);
 })();

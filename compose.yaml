@@ -1,0 +1,16 @@
+services:
+  monitor:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8765:8765"
+    env_file: .env
+    environment:
+      APP_HOST: 0.0.0.0
+      APP_DATA_DIR: /app/storage
+    volumes:
+      - monitor-data:/app/storage
+    security_opt:
+      - no-new-privileges:true
+volumes:
+  monitor-data:

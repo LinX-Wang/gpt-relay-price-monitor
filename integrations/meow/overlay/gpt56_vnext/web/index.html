@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>meow LLM Detector</title><link rel="stylesheet" href="/meow/assets/style.css"></head>
+<body>
+<header class="app-header"><a class="brand" href="/meow/"><span class="brand-icon"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M8 17V7l10 6h4l10-6v10c5 14-1 18-12 18S3 31 8 17Z"/><path d="M13 22h2m10 0h2m-9 5 2 2 2-2"/></svg></span><strong>meow<span>模型检测</span></strong><small class="version-badge">4.5.4</small></a>
+<nav class="tabs" aria-label="工作区"><button data-view="detect-view" aria-current="page">检测台</button><button data-view="library-view">基准</button></nav>
+<div class="header-meta"><a href="/purity.html">返回验纯分析 ↗</a><span id="service-state" class="connection-status">连接中</span><select id="theme-choice" aria-label="外观"><option value="system">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option></select><button data-view="settings-view">设置</button><button id="quick-update" type="button">检查更新</button><a class="github-link" aria-label="GitHub 项目（新标签页打开）" href="https://github.com/chen-006/meow-llm-detector" target="_blank" rel="noopener noreferrer">GitHub ↗</a></div></header>
+<div id="startup-updates" class="startup-updates" role="status" hidden><span id="global-update-status">有更新可用</span><button id="startup-program-update" hidden>更新程序</button><button id="startup-baseline-update" hidden>更新基准</button></div>
+<main class="app-content"><div id="detect-view" class="workspace">
+<div class="page-heading"><div><p class="eyebrow">MODEL FINGERPRINT</p><h1>模型检测</h1></div><span class="page-context">连接 · 检测 · 查看结果</span></div>
+<p class="context-note">本站规则：验证 GPT-6.1-Sol 时，强指向 GPT-6.1-Sol 或 GPT-6-Astra 均为好结果；证据不足仍显示待确认。原始分数和强指向线保持原样。</p><p class="scoring-update context-note">新版评分旨在提高识别准确性、减少匹配度波动。强指向线已重新校准，通常更低；新旧分数不宜直接比较。 <a class="score-scale-link" href="https://github.com/chen-006/meow-llm-detector#新旧版分数参考" target="_blank" rel="noopener noreferrer">新旧分数说明 ↗</a></p>
+<div class="workbench-grid">
+<aside class="setup-panel panel"><div class="panel-heading"><h2>开始检测</h2><span class="step-badge">01</span></div><form id="detect-form">
+<div class="mode-cards" role="group" aria-label="模型系列"><button type="button" data-mode="gpt" aria-pressed="true">GPT</button><button type="button" data-mode="claude" aria-pressed="false">Claude</button><button type="button" data-mode="chat" aria-pressed="false">other</button></div>
+<label hidden>基准模式<select id="mode"><option value="gpt">GPT</option><option value="claude">Claude</option><option value="chat">Chat</option></select></label>
+<details class="saved-connection"><summary>使用保存的连接</summary><select id="endpoint-preset" aria-label="使用已保存的 API 连接"><option value="">仅本次手动输入</option></select></details>
+<label>API 地址<input id="base-url" placeholder="https://api.example.com/v1" autocomplete="off"></label>
+<label>API Key<input id="key" type="password" placeholder="仅本页临时使用" autocomplete="off"></label>
+<button type="button" id="save-current-connection" class="text-button">保存连接</button>
+<label>你想验证的模型<select id="claimed"></select></label>
+<label for="request-model">实际请求模型</label><div class="input-action"><input id="request-model" list="supported-models" placeholder="服务商的模型名" autocomplete="off"><button id="fetch-models" type="button" title="获取站点支持的模型">获取模型</button></div><datalist id="supported-models"></datalist><p id="models-notice" class="field-notice" role="status"></p>
+<label>站点分组 <small>选填，建议填写</small><input id="site-group" maxlength="80" placeholder="未填写" autocomplete="off"></label>
+<div class="settings-divider"></div>
+<label>检测档位<select id="tier"><option value="low">快速</option><option value="medium">标准</option><option value="high" selected>深入 · GPT 推荐 128 次</option></select></label>
+<details class="inline-options"><summary>基准与连接选项</summary><label>基准<select id="package"></select></label><label class="check"><input id="show-reference-packages" type="checkbox">显示本地或社区参考基准</label><label class="check"><input id="allow-http" type="checkbox">允许明文 HTTP（仅可信网络，Key 不加密）</label><div id="benchmark-note" class="context-note"></div></details>
+<details class="advanced-panel inline-options"><summary><span>高级设置</span><small>并发、重试与定时检测</small></summary>
+<div class="grid"><label>并发<input id="workers" type="number" min="1" max="32" value="8"></label><label>整次检测重试预算<input id="retry-budget" type="number" min="0" placeholder="默认请求数的50%"><small>留空按计划请求数的50%设置；填0不重试。</small></label></div>
+<div class="grid"><label>执行方式<select id="run-mode"><option value="once">立即单次</option><option value="scheduled">定时独立单次</option></select></label><div id="schedule-controls" class="wide grid" hidden><label>轮间隔（分钟）<input id="schedule-minutes" type="number" min="1" value="60"></label><label>最多轮数（留空至手动停止）<input id="schedule-rounds" type="number" min="1"></label></div></div><p id="schedule-help" class="muted" hidden>定时检测需保存 API 连接，关闭网页不会停止计划。</p>
+</details>
+<div class="request-budget"><span><strong id="request-count">—</strong> 次请求</span><small id="readiness">请选择基准。</small></div>
+<p id="detect-estimate" class="budget-detail"></p><label class="check retention-choice"><input id="retain-raw" type="checkbox">保留请求与响应到本机</label>
+<p id="start-error" class="action-error" role="alert" tabindex="-1"></p><div class="start-actions"><button type="submit" id="start" class="primary" disabled>开始检测 <span aria-hidden="true">↗</span></button></div>
+<p class="privacy-note">临时 Key 不写入普通文件。</p>
+</form></aside>
+<div class="report-column"><section class="result-panel panel"><div class="panel-heading"><h2>检测结果</h2><span class="live-badge">实时</span></div>
+<div id="report-placeholder" class="empty-result"><div class="empty-art" aria-hidden="true"><i></i><i></i><span><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M8 17V7l10 6h4l10-6v10c5 14-1 18-12 18S3 31 8 17Z"/><path d="M13 22h2m10 0h2m-9 5 2 2 2-2"/></svg></span></div><h3>等待一次新的检测</h3><p>开始后，在这里查看实时匹配度。</p></div>
+<div id="verdict" class="verdict" hidden></div><div id="progress" class="progress-copy" role="status"></div><div class="meter"><span id="meter-bar"></span></div><p id="schedule-status" class="field-notice"></p><button id="schedule-pause" class="text-button" hidden>暂停后续计划</button>
+<p id="report-summary"></p><div id="match-bars"></div><div id="report-note" class="report-note" hidden></div>
+<div class="evidence-actions"><button id="stop" class="secondary-stop" type="button" hidden>停止本次检测</button><button id="retention-export" class="text-button" hidden>导出本次留存证据</button><details><summary>检测明细与基准信息</summary><pre id="report"></pre></details></div>
+<div class="result-footer"><div class="legend"><span class="green">● 符合本站接受规则</span><span class="yellow">● 证据不足</span><span class="red">● 强指向其他模型</span></div><details class="result-boundary"><summary>如何理解结果</summary><p>匹配度不是身份概率。检测不符也可能与上游路由、服务变化或基准局限有关，不能单独判定原因。<a href="https://linux.do/t/topic/2811197" target="_blank" rel="noopener noreferrer">社区讨论 ↗</a></p></details></div>
+</section>
+<aside id="history-view" class="history-panel panel"><div class="panel-heading"><h2>历史报告</h2><span class="history-count" id="history-count">0</span></div>
+<form id="history-search" class="history-search" role="search"><div class="search-field"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg><input id="history-query" type="search" placeholder="搜索网址或模型" maxlength="2048" aria-label="搜索历史报告"></div><div class="search-actions"><button type="submit">搜索</button><button type="reset">清除</button></div></form>
+<div id="run-history" class="history-feed"></div><button id="history-more" class="load-more" hidden>加载更多</button><p id="history-notice" class="field-notice" role="status"></p></aside>
+</div></div></div>
+<div id="library-view" class="workspace" hidden>
+<section class="intro"><h1>基准</h1></section>
+<section class="panel"><h2>本地基准包</h2><label>导入 .meow.json<input id="package-import" type="file" accept=".json"></label><div id="local-packages"></div></section>
+<section class="panel"><h2>在线目录</h2><button id="catalog-refresh">检查目录更新</button><div id="remote-packages"></div></section>
+<section class="panel"><h2>创建基准</h2><div class="grid"><label>采集站点 URL<input id="agent-url" required type="url" placeholder="https://example.com/v1"></label><label>请求协议<select id="agent-mode"><option value="gpt">GPT · Responses</option><option value="claude">Claude · Messages</option><option value="chat">other · Chat</option></select></label><label class="wide">候选模型（每行一个）<textarea id="agent-models" required rows="4"></textarea></label></div><p class="muted">填写后复制任务，发给你的本地 AI 助手。</p><div class="actions"><button id="agent-copy">复制任务</button><a href="/meow/api/agent-kit" download>下载工具说明</a></div><details class="inline-options"><summary>旧版数据</summary><button id="legacy-export">导出旧基准工作数据</button></details></section><p id="library-notice" role="status"></p></div>
+<div id="settings-view" class="workspace" hidden><section class="intro"><div class="eyebrow">YOUR API CONNECTIONS</div><h1>API 连接预设</h1><p>地址和模型名保存在本机，key 只保存在系统凭据库。不会存进 JSON 或浏览器存储。</p></section>
+<p class="muted">定时计划独立保存连接与凭据。修改或删除预设不改变已有计划；新建计划时采用新设置。</p>
+<button id="schedule-delete">删除已停止的定时计划及凭据</button>
+<section class="panel"><h2>添加或编辑 API 连接</h2><div class="grid">
+<label>要编辑的连接<select id="preset-edit"><option value="">添加新连接</option></select></label>
+<label>名称<input id="preset-name"></label>
+<label>协议<select id="preset-mode"><option value="gpt">GPT · Responses</option><option value="claude">Claude · Messages</option><option value="chat">other · Chat</option></select></label>
+<label>模型别名<input id="preset-model"></label>
+<label class="wide">API 基地址<input id="preset-url" placeholder="https://example.com/v1"></label>
+<label><span><input id="preset-http" type="checkbox"> 允许明文 HTTP（仅可信网络，Key 不加密）</span></label>
+<label class="wide">新 key（留空保留已有凭据）<input id="preset-key" type="password" autocomplete="off"></label></div>
+<p class="muted">更换地址时必须重新提供 key。已有定时计划使用独立凭据，不受预设修改或删除影响。</p>
+<div class="actions"><button id="preset-save">保存到系统凭据库</button><button id="preset-delete">删除所选连接及凭据</button><button id="preset-export">导出非秘密连接配置</button></div>
+<p id="preset-notice" role="status"></p></section>
+<section class="panel"><div class="eyebrow">APPLICATION</div><h2>程序更新</h2><p class="muted">发现新版后，可在这里一键更新。</p><div class="actions"><button id="program-check">检查程序更新</button><button id="program-download" disabled>安装更新</button><button id="program-exit" class="text-button">停止本地服务</button></div><p id="program-status" role="status"></p><details><summary>版本说明</summary><pre id="program-notes"></pre></details><p class="muted">当前任务结束后自动重启；失败时保留或恢复旧版本。</p></section></div>
+
+</main><button id="jump-to-start" class="jump-to-start" hidden>返回检测配置 ↑</button><script src="/meow/assets/ui.js"></script><script src="/meow/assets/i18n.js"></script><script src="/meow/assets/app.js"></script><script src="/meow/assets/workbench.js"></script></body></html>

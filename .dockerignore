@@ -1,0 +1,15 @@
+.git
+.env
+data
+storage
+reports
+backups
+dist
+vendor
+node_modules
+sites.json
+quality_sites.json
+__pycache__
+.venv
+venv
+docs/screenshots
