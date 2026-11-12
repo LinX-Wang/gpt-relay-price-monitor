@@ -67,6 +67,7 @@ def main():
                 page.route('**/api/cache/icon?**',lambda route:route.fulfill(content_type='image/png',body=(ROOT/'docs/screenshot-assets/lulu.png').read_bytes()))
                 page.goto(origin+'/cache.html');page.wait_for_function('typeof siteList!=="undefined" && siteList.length && !busy')
                 assert not page.locator('#usageTrend').is_visible()
+                page.wait_for_function('document.querySelector("#utContext").textContent.includes("全部分组")')
                 page.locator('#usageTrendOpen').click()
                 page.wait_for_function('document.querySelector("#utContext").textContent.includes("全部分组")')
                 page.screenshot(path=str(Path(tempfile.gettempdir())/'linx-usage-trends-light.png'))

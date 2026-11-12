@@ -20,6 +20,10 @@
   modal.querySelector('.sync-head p').textContent='官网保持登录，新令牌自动送达用量面板。';
   modal.querySelector('summary').textContent='第一次使用？查看安装指南';
   modal.querySelector('#syncPairCreate').textContent='＋ 连接新浏览器';
+  style.textContent+='html body#cache-dashboard #browserSyncModal #syncDeviceRefresh{display:inline-flex;align-items:center;gap:6px;height:37px;padding:0 12px;border:1px solid var(--line)!important;border-radius:9px;background:var(--bg)!important;color:var(--ink)!important;font-size:12px;font-weight:500}html body#cache-dashboard #browserSyncModal .sync-device button{display:inline-flex;align-items:center;gap:5px;height:31px;padding:0 10px;border:1px solid #d6747940!important;border-radius:8px;color:#d67479!important;background:#d674790c!important;font-size:11px;flex:none}html body#cache-dashboard #browserSyncModal .sync-device button:hover{background:#d6747924!important;border-color:#d6747970!important}html body#cache-dashboard #browserSyncModal #syncModalClose{display:inline-flex;align-items:center;gap:6px;height:35px;padding:0 18px;border:1px solid var(--brand)!important;border-radius:9px;background:var(--brand)!important;color:var(--surface)!important;font-weight:650;font-size:12px}html body#cache-dashboard #browserSyncModal #syncPairCreate{background:var(--ink)!important;color:var(--surface)!important;border-color:var(--ink)!important}#browserSyncModal #syncDeviceRefresh svg,#browserSyncModal .sync-device button svg,#browserSyncModal #syncModalClose svg{width:14px;height:14px;stroke:currentColor;stroke-width:1.7;fill:none;stroke-linecap:round;stroke-linejoin:round}#browserSyncModal button:hover{transform:none;filter:brightness(1.06)}#browserSyncModal button:focus-visible{outline:2px solid var(--brand);outline-offset:3px}#browserSyncModal .sync-foot{align-items:center}';
+  modal.querySelector('#syncDeviceRefresh').innerHTML='<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16 7a6 6 0 1 0 0 6M16 3v4h-4"/></svg><span>刷新状态</span>';
+  modal.querySelector('#syncModalClose').innerHTML='<svg viewBox="0 0 20 20" aria-hidden="true"><path d="m4 10 4 4 8-8"/></svg><span>完成</span>';
+  style.textContent+='html body#cache-dashboard #browserSyncModal #syncModalClose span{color:inherit!important;font-size:12px;font-weight:650}';
   document.body.append(modal);
   const get=id=>document.getElementById(id);get('syncMonitorOrigin').textContent=location.origin;
   async function call(path,payload){
@@ -39,7 +43,7 @@
       const row=document.createElement('div');row.className='sync-device';const text=document.createElement('div');
       const name=document.createElement('strong');name.textContent=device.name;const detail=document.createElement('small');
       detail.textContent=device.last_seen?'上次连接 '+new Date(device.last_seen*1000).toLocaleString():'等待首次同步';text.append(name,detail);
-      const remove=document.createElement('button');remove.type='button';remove.textContent='移除';remove.onclick=async()=>{
+      const remove=document.createElement('button');remove.type='button';remove.innerHTML='<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 5h14M7 5V3h6v2M5 5l1 12h8l1-12M8 8v6m4-6v6"/></svg><span>移除</span>';remove.onclick=async()=>{
         remove.disabled=true;try{await call('revoke',{device_id:device.id});await devices()}catch(e){get('syncManageMessage').textContent=e.message}finally{remove.disabled=false}
       };const icon=document.createElement('span');icon.className='sync-device-icon';icon.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>';row.append(icon,text,remove);list.append(row);
     }
@@ -50,7 +54,7 @@
   modal.addEventListener('close',()=>{get('syncPairCode').value='';get('syncPairBox').hidden=true;pairingDeviceIds=null});
   setInterval(()=>{if(modal.open&&!document.hidden)devices().catch(e=>{get('syncManageMessage').textContent=e.message})},3000);
   window.addEventListener('focus',()=>{if(modal.open)devices().catch(()=>{})});
-  get('syncDeviceRefresh').onclick=async()=>{try{await devices()}catch(e){get('syncManageMessage').textContent=e.message}};
+  get('syncDeviceRefresh').onclick=async()=>{const b=get('syncDeviceRefresh');b.disabled=true;try{await devices();get('syncManageMessage').textContent='设备状态已更新'}catch(e){get('syncManageMessage').textContent=e.message}finally{b.disabled=false}};
   get('syncPairCreate').onclick=async()=>{
     get('syncPairCreate').disabled=true;try{const baseline=await call('status');const d=await call('create-pairing',{});pairingDeviceIds=baseline.devices.map(device=>device.id);get('syncPairCode').value=d.code;get('syncPairBox').hidden=false;get('syncManageMessage').textContent='配对码只用于连接此监测服务器，请仅粘贴到自己的扩展中。'}catch(e){get('syncManageMessage').textContent=e.message}finally{get('syncPairCreate').disabled=false}
   };

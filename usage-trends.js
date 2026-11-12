@@ -8,6 +8,7 @@
  style.textContent+='html body#cache-dashboard #usageTrend button[aria-pressed=true]{background:var(--soft)!important;color:var(--brand)!important;border-color:var(--line)!important}';
  const el=id=>document.getElementById(id),canvas=panel.querySelector('canvas'),ctx=canvas.getContext('2d'),empty=panel.querySelector('.ut-empty'),tip=panel.querySelector('.ut-tip');
  let days='7',metric='total_tokens',points=[],lastKey='',lastFetch=0,controller=null,ticket=0,hover=-1,collapsed=false,latest=null;
+ const trendMemory=new Map();let paintedKey='';
  collapsed=true;el('utClose').textContent='×';el('utClose').setAttribute('aria-label','关闭数据趋势');panel.setAttribute('aria-label','用量与缓存趋势');
  // Refined controls remain inside the native dialog's focus boundary.
  const heading=panel.querySelector('.ut-title');heading.innerHTML='<span class="ut-title-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4v16h18M6 15l5-6 4 3 5-7"/></svg></span><span>用量与缓存趋势<small>每天的使用变化，一眼看清</small></span>';
@@ -34,16 +35,19 @@
  if(editorLink){editorLink.classList.add('ut-editor-return');editorLink.innerHTML='<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16 10H4m5-5-5 5 5 5"/></svg><span>返回编辑器</span>';editorLink.parentElement.append(editorLink);}
  style.textContent+='html body#cache-dashboard .dashboard-header a.ut-editor-return{display:inline-flex;align-items:center;justify-content:center;gap:7px;height:35px;padding:0 13px;border:1px solid #dc6e6e55;border-radius:10px;color:#bf4b53;background:#ce515b0d;font-size:12px;font-weight:600;transition:background .15s,border-color .15s}html body#cache-dashboard .dashboard-header a.ut-editor-return:hover{background:#ce515b1c;border-color:#ce515b99;color:#b63e49}html body#cache-dashboard .dashboard-header a.ut-editor-return:focus-visible{outline:2px solid #cf6670;outline-offset:3px}.ut-editor-return svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}html[data-theme=dark] body#cache-dashboard .dashboard-header a.ut-editor-return{color:#efa0a5;background:#e4777e12;border-color:#e4777e40}html[data-theme=dark] body#cache-dashboard .dashboard-header a.ut-editor-return:hover{color:#ffc0c4;background:#e4777e24;border-color:#e4777e80}';
  function query(){if(typeof applied==='undefined'||!applied)return null;let start,end;if(days==='filter'){start=applied.start_date;end=applied.end_date}else{end=dateDay(new Date());const d=new Date(end+'T12:00:00+08:00');d.setUTCDate(d.getUTCDate()-Number(days)+1);start=dateDay(d)}return {site_id:currentSite,model:applied.model||'',group_id:applied.group_id||'',start_date:start,end_date:end}}
- openButton.onclick=()=>{panel.showModal();collapsed=false;draw();refresh()};el('utClose').onclick=()=>panel.close();panel.addEventListener('close',()=>{collapsed=true;if(controller)controller.abort();controller=null;ticket++;tip.hidden=true;openButton.focus()});
+ openButton.onclick=()=>{panel.showModal();collapsed=false;draw();refresh()};el('utClose').onclick=()=>panel.close();panel.addEventListener('close',()=>{collapsed=true;tip.hidden=true;openButton.focus()});
  panel.querySelectorAll('[data-days]').forEach(b=>b.onclick=()=>{days=b.dataset.days;panel.querySelectorAll('[data-days]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));refresh(true)});
  el('utMetric').onchange=()=>{metric=el('utMetric').value;el('utMetricLabel').textContent=el('utMetric').selectedOptions[0].textContent;syncPicker();draw()};
  async function refresh(force=false){
-  if(collapsed)return;const q=query();if(!q)return;const key=JSON.stringify(q);
+  const q=query();if(!q)return;const identity=typeof siteList==='undefined'?'':siteList.find(s=>s.site_id===q.site_id)?.connected_at||'';const key=JSON.stringify([q,identity]);
   if(typeof connected==='undefined'||!connected){if(controller)controller.abort();controller=null;lastKey='';ticket++;points=[];empty.textContent='连接站点后查看趋势';empty.hidden=false;draw();return}
+  const saved=trendMemory.get(key);
+  if(saved&&paintedKey!==key){points=saved.data.points;latest=saved.data;paintedKey=key;empty.hidden=true;el('utContext').textContent=q.start_date.slice(5).replace('-','/')+' – '+q.end_date.slice(5).replace('-','/')+' · '+(q.model||'全部模型')+(q.group_id?' · 所选分组':' · 全部分组');draw()}
   if(key===lastKey&&(controller||(!force&&Date.now()-lastFetch<60000)))return;
+  if(saved&&!force&&Date.now()-saved.at<60000){lastKey=key;lastFetch=saved.at;return}
   if(controller)controller.abort();controller=new AbortController();const own=controller,seq=++ticket;const changed=key!==lastKey;lastKey=key;
-  if(changed){points=[];hover=-1;tip.hidden=true;draw();empty.textContent='正在读取逐天统计…';empty.hidden=false}
-  try{const r=await fetch('/api/cache/trend?'+new URLSearchParams(q),{cache:'no-store',signal:own.signal});const d=await r.json();if(seq!==ticket)return;if(!r.ok)throw Error(d.error||'趋势暂时不可用');if(!Array.isArray(d.points))throw Error('该站暂未提供逐天趋势');points=d.points;latest=d;lastFetch=Date.now();empty.hidden=points.some(p=>p[metric]!=null||p.cache_rate!=null);empty.textContent='这段时间暂无可展示的统计';el('utContext').textContent=q.start_date.slice(5).replace('-','/')+' – '+q.end_date.slice(5).replace('-','/')+' · '+(q.model||'全部模型')+(q.group_id?' · 所选分组':' · 全部分组');draw()}
+  if(changed&&!saved){points=[];paintedKey='';hover=-1;tip.hidden=true;draw();empty.textContent='正在读取逐天统计…';empty.hidden=false}
+  try{const r=await fetch('/api/cache/trend?'+new URLSearchParams(q),{cache:'no-store',signal:own.signal});const d=await r.json();if(seq!==ticket)return;if(!r.ok)throw Error(d.error||'趋势暂时不可用');if(!Array.isArray(d.points))throw Error('该站暂未提供逐天趋势');points=d.points;latest=d;lastFetch=Date.now();paintedKey=key;trendMemory.set(key,{data:d,at:lastFetch});if(trendMemory.size>20)trendMemory.delete(trendMemory.keys().next().value);empty.hidden=points.some(p=>p[metric]!=null||p.cache_rate!=null);empty.textContent='这段时间暂无可展示的统计';el('utContext').textContent=q.start_date.slice(5).replace('-','/')+' – '+q.end_date.slice(5).replace('-','/')+' · '+(q.model||'全部模型')+(q.group_id?' · 所选分组':' · 全部分组');draw()}
   catch(e){if(seq!==ticket||e.name==='AbortError')return;empty.textContent=e.message;empty.hidden=false;lastFetch=Date.now()}
   finally{if(controller===own)controller=null}
  }
