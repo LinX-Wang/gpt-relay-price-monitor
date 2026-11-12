@@ -8,6 +8,7 @@ import purity_groups as groups
 import usage_dashboard as usage
 import usage_sites as usage_sites
 import usage_icons
+import usage_trends
 import browser_sync
 
 import json
@@ -738,6 +739,9 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/browser-sync-ui.js":
             file_response(self, ROOT / "browser-sync-ui.js", "application/javascript; charset=utf-8")
             return
+        if path == "/usage-trends.js":
+            file_response(self, ROOT / "usage-trends.js", "application/javascript; charset=utf-8")
+            return
         if path == "/cache.html":
             file_response(self, ROOT / "cache.html", "text/html; charset=utf-8")
             return
@@ -761,6 +765,7 @@ class Handler(BaseHTTPRequestHandler):
                 elif path == "/api/cache/sites": result = {"sites": usage_sites.sites()}
                 elif path == "/api/cache/status": result = usage_sites.client(query.get("site_id", ["lulu"])[0]).status()
                 elif path == "/api/cache/metadata": result = usage_sites.client(query.get("site_id", ["lulu"])[0]).metadata()
+                elif path == "/api/cache/trend": result = usage_trends.trend(query)
                 elif path == "/api/cache/snapshot": result = usage_sites.client(query.get("site_id", ["lulu"])[0]).snapshot(query)
                 else:
                     json_response(self, {"error": "接口不存在"}, status=404)
