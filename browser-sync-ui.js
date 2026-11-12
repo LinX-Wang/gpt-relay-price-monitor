@@ -18,8 +18,14 @@
     const r=await fetch('/api/cache/browser-sync/'+path,{method:payload?'POST':'GET',cache:'no-store',headers:{'Content-Type':'application/json'},...(payload?{body:JSON.stringify(payload)}:{})});
     const d=await r.json();if(!r.ok)throw Error(d.error||'自动同步配置读取失败');return d;
   }
+  let deviceRequest=false,deviceSignature='',pairingDeviceIds=null;
   async function devices(){
-    const d=await call('status');const list=get('syncDeviceList');list.replaceChildren();
+    if(deviceRequest)return;deviceRequest=true;
+    try{
+    const d=await call('status');
+    if(pairingDeviceIds&&d.devices.some(device=>!pairingDeviceIds.includes(device.id))){get('syncPairCode').value='';get('syncPairBox').hidden=true;pairingDeviceIds=null;get('syncManageMessage').textContent='浏览器已配对，扩展会自动检查授权站点的登录状态。'}
+    const signature=JSON.stringify(d.devices);if(signature===deviceSignature)return;deviceSignature=signature;
+    const list=get('syncDeviceList');list.replaceChildren();
     if(!d.devices.length){list.textContent='暂未配对浏览器';return}
     for(const device of d.devices){
       const row=document.createElement('div');row.className='sync-device';const text=document.createElement('div');
@@ -29,13 +35,16 @@
         remove.disabled=true;try{await call('revoke',{device_id:device.id});await devices()}catch(e){get('syncManageMessage').textContent=e.message}finally{remove.disabled=false}
       };row.append(text,remove);list.append(row);
     }
+    }finally{deviceRequest=false}
   }
   button.onclick=async()=>{modal.showModal();get('syncManageMessage').textContent='';try{await devices()}catch(e){get('syncManageMessage').textContent=e.message}};
   get('syncModalClose').onclick=()=>modal.close();
-  modal.addEventListener('close',()=>{get('syncPairCode').value='';get('syncPairBox').hidden=true});
+  modal.addEventListener('close',()=>{get('syncPairCode').value='';get('syncPairBox').hidden=true;pairingDeviceIds=null});
+  setInterval(()=>{if(modal.open&&!document.hidden)devices().catch(e=>{get('syncManageMessage').textContent=e.message})},3000);
+  window.addEventListener('focus',()=>{if(modal.open)devices().catch(()=>{})});
   get('syncDeviceRefresh').onclick=async()=>{try{await devices()}catch(e){get('syncManageMessage').textContent=e.message}};
   get('syncPairCreate').onclick=async()=>{
-    get('syncPairCreate').disabled=true;try{const d=await call('create-pairing',{});get('syncPairCode').value=d.code;get('syncPairBox').hidden=false;get('syncManageMessage').textContent='配对码只用于连接此监测服务器，请仅粘贴到自己的扩展中。'}catch(e){get('syncManageMessage').textContent=e.message}finally{get('syncPairCreate').disabled=false}
+    get('syncPairCreate').disabled=true;try{const baseline=await call('status');const d=await call('create-pairing',{});pairingDeviceIds=baseline.devices.map(device=>device.id);get('syncPairCode').value=d.code;get('syncPairBox').hidden=false;get('syncManageMessage').textContent='配对码只用于连接此监测服务器，请仅粘贴到自己的扩展中。'}catch(e){get('syncManageMessage').textContent=e.message}finally{get('syncPairCreate').disabled=false}
   };
   get('syncPairCopy').onclick=async()=>{try{await navigator.clipboard.writeText(get('syncPairCode').value);get('syncManageMessage').textContent='配对码已复制'}catch{get('syncPairCode').select();get('syncManageMessage').textContent='请复制已选中的配对码'}};
   // Recover even if an expired connection paused the ordinary snapshot refresh.

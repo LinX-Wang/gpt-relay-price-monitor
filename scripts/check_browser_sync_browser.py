@@ -67,6 +67,11 @@ def main():
                 page.locator('#browserSyncBtn').click();page.wait_for_selector('#syncDeviceList .sync-device')
                 page.locator('#syncPairCreate').click();page.wait_for_function('document.querySelector("#syncPairCode").value.length>20')
                 assert len(page.locator('#syncPairCode').input_value())==32
+                assert not page.locator('#syncPairBox').is_hidden()
+                bridge.pair({'code':page.locator('#syncPairCode').input_value(),'name':'Newly paired fixture'})
+                page.wait_for_function('document.querySelectorAll("#syncDeviceList .sync-device").length===2')
+                assert page.locator('#syncPairBox').is_hidden()
+                assert '浏览器已配对' in page.locator('#syncManageMessage').inner_text()
                 page.screenshot(path=str(Path(tempfile.gettempdir())/'linx-browser-sync-dialog.png'))
                 page.locator('#syncModalClose').click();assert page.locator('#syncPairCode').input_value()==''
                 page.evaluate('connected=false;reconnectNeeded=true')
