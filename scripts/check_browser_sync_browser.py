@@ -64,8 +64,10 @@ def main():
                           'page_summary':{},'period_summary':{},'balance':0}
                 page.route('**/api/cache/snapshot?**',lambda route:route.fulfill(json=snapshot))
                 trend_points=[{'date':'2026-11-'+str(6+i).zfill(2),'total_tokens':v,'cache_rate':r,'requests':12+i*5,'actual_cost':.1+i*.07,'input_tokens':100-r,'cache_read_tokens':r,'cache_creation_tokens':0} for i,(v,r) in enumerate([(2400000,82),(3800000,91),(3100000,89),(5900000,96),(4200000,93),(7800000,98),(6200000,97)])]
+                trend_calls=[]
                 def trend_response(route):
                     q=parse_qs(urlparse(route.request.url).query)
+                    trend_calls.append(q)
                     pts=[] if q.get('model')==['fixture-other'] else [p for p in trend_points if q['start_date'][0]<=p['date']<=q['end_date'][0]]
                     route.fulfill(json={'points':pts,'site_id':q.get('site_id',['lulu'])[0]})
                 page.route('**/api/cache/trend?**',trend_response)
@@ -73,6 +75,7 @@ def main():
                 page.goto(origin+'/cache.html');page.wait_for_function('typeof siteList!=="undefined" && siteList.length && !busy')
                 assert not page.locator('#usageTrend').is_visible()
                 page.wait_for_function('document.querySelector("#utContext").textContent.includes("全部分组")')
+                assert len(trend_calls)==1,'background fetch should prepare all three views'
                 page.locator('#usageTrendOpen').click()
                 page.wait_for_function('document.querySelector("#utContext").textContent.includes("全部分组")')
                 page.screenshot(path=str(Path(tempfile.gettempdir())/'linx-usage-trends-light.png'))
@@ -95,6 +98,8 @@ def main():
                 page.locator('#usageTrendOpen').click()
                 page.locator('#uiTab-calendar').click()
                 page.wait_for_selector('.ui-day')
+                page.locator('#utPickerButton').click()
+                page.locator('#utPickerMenu [data-value="total_tokens"]').click()
                 page.locator('.ui-day[aria-label^="2026-11-11"]').click()
                 assert '7.8M' in page.locator('.ui-layout .ui-card').inner_text()
                 assert '98.00%' in page.locator('.ui-layout .ui-card').inner_text()
@@ -103,11 +108,13 @@ def main():
                 page.wait_for_selector('.ui-report-grid')
                 assert '+85.7%' in page.locator('.ui-report-grid').inner_text()
                 assert '+5.00' in page.locator('.ui-report-grid').inner_text()
+                assert len(trend_calls)==1,'calendar and report triggered duplicate upstream reads'
                 page.screenshot(path=str(Path(tempfile.gettempdir())/'linx-usage-report-dark.png'))
                 page.locator('.ui-date').fill('2026-11-05')
                 page.wait_for_function('document.querySelector(".ui-report-grid")?.textContent.includes("暂无可用统计")')
                 page.locator('.ui-date').fill('2026-11-11')
                 page.wait_for_function('document.querySelector(".ui-report-grid")?.textContent.includes("7.8M")')
+                assert len(trend_calls)==1,'changing the report day should reuse month aggregates'
                 original_model=page.evaluate('applied.model')
                 page.evaluate("applied.model='fixture-other'")
                 page.wait_for_function('document.querySelector(".ui-report-grid")?.textContent.includes("暂无可用统计")')
@@ -122,6 +129,12 @@ def main():
                 page.wait_for_selector('.ui-day')
                 assert page.locator('#uiInsights').evaluate('n=>n.scrollWidth<=n.clientWidth')
                 page.screenshot(path=str(Path(tempfile.gettempdir())/'linx-usage-calendar-mobile.png'))
+                page.set_viewport_size({'width':320,'height':740})
+                assert page.locator('#uiInsights').evaluate('n=>n.scrollWidth<=n.clientWidth')
+                page.locator('#uiTab-report').click()
+                assert page.locator('#uiInsights').evaluate('n=>n.scrollWidth<=n.clientWidth')
+                assert not page.locator('.ui-method').evaluate('n=>n.open')
+                page.set_viewport_size({'width':390,'height':844})
                 page.locator('#uiTab-trend').click()
                 page.keyboard.press('Escape')
                 page.set_viewport_size({'width':1440,'height':1000})

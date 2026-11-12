@@ -6,6 +6,7 @@ import usage_sites
 from usage_dashboard import UsageError,SHANGHAI,number
 CACHE={}
 LOCK=threading.Lock()
+INFLIGHT={}
 
 def trend(params):
     get=lambda key,default='':str(params.get(key,[default])[0]).strip()
@@ -28,6 +29,41 @@ def trend(params):
     with LOCK:
         saved=CACHE.get(key)
         if saved and time.monotonic()-saved[0]<60:return saved[1]
+        # A month already read by another tab can also serve a shorter range.
+        for cached_key,(at,result) in reversed(list(CACHE.items())):
+            f=result['filters']
+            if (cached_key[:2]==key[:2] and time.monotonic()-at<60
+                and f.get('model','')==model and f.get('group_id','')==group
+                and f['start_date']<=str(start) and f['end_date']>=str(end)):
+                return dict(result,filters=filters,points=[p for p in result['points'] if str(start)<=p['date']<=str(end)])
+        flight=INFLIGHT.get(key)
+        owner=flight is None
+        if owner:
+            flight={'event':threading.Event(),'error':None}
+            INFLIGHT[key]=flight
+    if not owner:
+        if not flight['event'].wait(40):raise UsageError('统计读取超时，请稍后重试。',504,'TREND_TIMEOUT')
+        if flight['error'] is not None:raise flight['error']
+        if client.status().get('connected_at')!=identity:
+            raise UsageError('连接已变化，请重新读取趋势。',409,'CONNECT_REQUIRED')
+        return flight['result']
+    try:
+        result=_read(client,sid,identity,filters,start,end)
+        with LOCK:
+            if len(CACHE)>80:CACHE.clear()
+            CACHE[key]=(time.monotonic(),result)
+            flight['result']=result
+        return result
+    except Exception as error:
+        flight['error']=error
+        raise
+    finally:
+        with LOCK:
+            INFLIGHT.pop(key,None)
+            flight['event'].set()
+
+
+def _read(client,sid,identity,filters,start,end):
     raw=client.api('/api/v1/usage/dashboard/trend?'+urlencode(filters))
     if not isinstance(raw,dict) or not isinstance(raw.get('trend'),list):
         raise UsageError('该站暂未提供兼容的逐天趋势统计。',502,'TREND_UNAVAILABLE')
@@ -51,8 +87,4 @@ def trend(params):
         day+=timedelta(days=1)
     if client.status().get('connected_at')!=identity:
         raise UsageError('连接已变化，请重新读取趋势。',409,'CONNECT_REQUIRED')
-    result={'site_id':sid,'points':points,'filters':filters,'fetched_at':datetime.now(SHANGHAI).isoformat(timespec='seconds')}
-    with LOCK:
-        if len(CACHE)>80:CACHE.clear()
-        CACHE[key]=(time.monotonic(),result)
-    return result
+    return {'site_id':sid,'points':points,'filters':filters,'fetched_at':datetime.now(SHANGHAI).isoformat(timespec='seconds')}

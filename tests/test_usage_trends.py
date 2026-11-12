@@ -25,3 +25,31 @@ class TrendTests(unittest.TestCase):
             u.save_session(dict(u.load_session(),connected_at='changed'))
             t.trend(q);assert len(calls)==3
         ''')
+
+    def test_contained_range_and_simultaneous_read_share_upstream(self):
+        self.run_case('''
+            import usage_trends as t,usage_dashboard as u
+            import threading,time
+            from concurrent.futures import ThreadPoolExecutor
+            u.request=lambda *a,**k:{'id':1,'email':'demo@example.com'}
+            u.connect({'access_token':'fixture-token-for-testing-only'})
+            calls=[];started=threading.Event();release=threading.Event()
+            def upstream(path):
+                calls.append(path);started.set();assert release.wait(3)
+                return {'trend':[{'date':'2026-11-10','total_tokens':100,'requests':1}]}
+            u.api=upstream
+            q={k:[v] for k,v in {'site_id':'lulu','start_date':'2026-11-01','end_date':'2026-11-12','model':'gpt-6.1-sol'}.items()}
+            with ThreadPoolExecutor(max_workers=2) as pool:
+                first=pool.submit(t.trend,q);assert started.wait(2)
+                second=pool.submit(t.trend,q);time.sleep(.08);release.set()
+                a=first.result();b=second.result();assert a==b and len(calls)==1
+            smaller=dict(q,start_date=['2026-11-10'],end_date=['2026-11-11'])
+            result=t.trend(smaller);assert len(calls)==1
+            assert len(result['points'])==2 and result['points'][0]['total_tokens']==100
+            assert result['filters']['start_date']=='2026-11-10'
+            t.trend(dict(smaller,group_id=['2']));assert len(calls)==2
+            t.trend(dict(smaller,model=['other']));assert len(calls)==3
+            u.save_session(dict(u.load_session(),connected_at='changed'))
+            t.trend(smaller);assert len(calls)==4
+            assert not t.INFLIGHT
+        ''')
