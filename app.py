@@ -8,6 +8,7 @@ import purity_groups as groups
 import usage_dashboard as usage
 import usage_sites as usage_sites
 import usage_icons
+import browser_sync
 
 import json
 import hashlib
@@ -710,6 +711,8 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self) -> None:
         path = urlparse(self.path).path
+        if browser_sync.handle(self, path, json_response):
+            return
         if path in ("/login", "/login.html"):
             if self.authenticated():
                 self.send_response(302)
@@ -731,6 +734,9 @@ class Handler(BaseHTTPRequestHandler):
             self.send_migration_export()
             return
         if not self.require_auth(api=path.startswith("/api/")):
+            return
+        if path == "/browser-sync-ui.js":
+            file_response(self, ROOT / "browser-sync-ui.js", "application/javascript; charset=utf-8")
             return
         if path == "/cache.html":
             file_response(self, ROOT / "cache.html", "text/html; charset=utf-8")
@@ -866,6 +872,8 @@ class Handler(BaseHTTPRequestHandler):
             payload = json.loads(raw or "{}")
         except json.JSONDecodeError:
             json_response(self, {"error": "invalid json"}, status=400)
+            return
+        if browser_sync.handle(self, path, json_response, payload):
             return
         if path == "/api/change-credentials":
             username = str(payload.get("username", ""))

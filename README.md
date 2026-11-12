@@ -8,6 +8,8 @@
 
 [部署与迁移](docs/DEPLOYMENT.md) · [两个检测工具](docs/DETECTORS.md) · [字体与出品标识](docs/DESIGN.md)
 
+[浏览器自动同步登录](docs/BROWSER_SYNC.md)：为已连接的中转站安装一次浏览器扩展，官网保持登录即可自动同步新令牌，减少手动更新操作。
+
 ## 功能
 
 | 模块 | 功能 |
