@@ -2,6 +2,8 @@
 
 把中转站价格、余额、验纯记录和真实用量放进同一个工作台。支持本机运行，也支持在自己的服务器部署，通过同一账号跨电脑使用。
 
+[下载当前部署包 · 2026.11.12](https://github.com/LinX-Wang/gpt-relay-price-monitor/archive/refs/tags/server-2026.11.12.zip) · [本次更新](CHANGELOG.md) · [用量功能说明](docs/USAGE.md)
+
 ![用量与缓存看板](docs/screenshots/usage-dark.png)
 
 > 所有截图均来自独立演示环境。用量页展示“噜噜 AI”和“万家灯火”的真实站名、公开域名与图标，其余站名及邮箱、余额、倍率、匹配度和用量均为虚构示例；不包含作者账户、令牌或真实检测记录，不构成中转站推荐。
@@ -22,6 +24,7 @@
 | 用量数据中心 | 独立弹窗展示趋势曲线、月度用量日历与自动日报；按模型、分组筛选，与前日比较 |
 | 自动更新 | 每 10 秒查询；后台尝试刷新、返回补刷；跨天更新日期，更新令牌后立即读取 |
 | 连接管理 | 默认站点官网登录令牌，服务器加密保存；从编辑器搜索添加站点；折叠式教程 |
+| 浏览器同步 | Chrome / Edge 扩展自动同步已授权站点的新登录令牌；账户一致性检查与设备撤销 |
 | 统一外观 | 日间 / 夜间 / 跟随时间跨页面同步；中文、英文与数字字体分别配置 |
 | 共享部署 | 管理员登录、账号设置、服务器持久化、备份和可选自托管检测工具 |
 
@@ -53,13 +56,19 @@
 
 ![站点切换菜单](docs/screenshots/usage-picker-dark.png)
 
-### 用量日历与自动日报
+### 用量数据中心：曲线、日历与日报
 
 在用量页点击“数据曲线”，切换到用量日历或自动日报。日历按 Token、请求数或费用显示深浅，提供本月汇总；日报按当前站点、模型和分组自动生成，展示缓存进度与近 7 日节奏。完整日期与前一天比较，今天标记为进行中；缺失数据保留为空。
 
 三个视图共享后台预取的逐天统计，同月切换日期无需重新读取。前后端均合并相同的并发请求，服务器可用已有较大范围的缓存响应较短范围查询；统计缓存为 60 秒。首次读取尚未缓存的日期范围仍取决于上游响应速度。日报为站内展示，不发送外部通知，数据取自兼容的中转站日聚合接口。
 
+站点标签同时显示中转站图标、站名、模型与分组范围；切换站点后同步变化。数字沿用统一的数字字体，日夜主题一致。
+
+![用量与缓存趋势·夜间](docs/screenshots/usage-trends-dark.png)
+
 ![用量日历·夜间](docs/screenshots/usage-calendar-dark.png)
+
+![自动日报·夜间](docs/screenshots/usage-daily-report-dark.png)
 
 ![自动日报·日间](docs/screenshots/usage-daily-report-light.png)
 
@@ -72,6 +81,8 @@
 ## 快速启动
 
 需要 **Python 3.10+**，主程序没有前端构建步骤。
+
+可直接下载上方部署包并解压，在项目目录执行以下命令中的虚拟环境、依赖安装与启动步骤。习惯 Git 的用户也可以克隆：
 
 ~~~bash
 git clone https://github.com/LinX-Wang/gpt-relay-price-monitor.git
@@ -129,9 +140,10 @@ Meow 额外展示规则：声明 GPT-6.1-Sol 时，证据充分且强指向 Sol 
 python -m pip install -r requirements-dev.txt
 python -m unittest discover -s tests -v
 python scripts/screenshots.py
+python scripts/check_browser_sync_browser.py
 ~~~
 
-截图脚本自动创建临时数据、临时账号与本地服务。用量接口使用虚构响应，不连接真实中转站。需要 Playwright Chromium（python -m playwright install chromium），也可用 --chrome 指定现有 Chrome。运行后生成 README 的 9 张截图。
+截图脚本自动创建临时数据、临时账号与本地服务，重新生成 README 中的 13 张截图，覆盖编辑器、报告、验纯、用量、趋势、日历及日夜日报。用量接口使用虚构响应，不连接真实中转站。Windows 默认使用已安装的 Chrome；也可用 --chrome 指定路径，其他环境可安装 Playwright Chromium（python -m playwright install chromium）。浏览器检查脚本还验证跨视图请求复用、筛选隔离、同步连接恢复及手机边界。
 
 ## 项目结构
 
@@ -139,6 +151,7 @@ python scripts/screenshots.py
 app.py / monitor.py          编辑器服务、数据与报告
 purity*.py / purity*.js      验纯结论、稳定分组与界面
 usage_*.py / cache.html      多站点用量与缓存看板
+usage-trends.js              趋势、日历、自动日报及共享读取
 settings.py                 环境配置与持久化路径
 assets/                     产品图标、出品标识、字体许可
 deploy/                     systemd / Caddy 模板

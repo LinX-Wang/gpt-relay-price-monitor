@@ -34,7 +34,7 @@ def main():
                 assert len(context.request.get(base+'/api/purity').json()['history'])==30
                 assert len(context.request.get(base+'/api/purity/groups').json()['groups'])==5
                 def shot(name,theme):
-                    if args.usage_only and name not in ('usage-dark.png','usage-picker-dark.png'):return
+                    if args.usage_only and not name.startswith('usage-'):return
                     page.evaluate("t=>{localStorage.setItem('ai-price-monitor:theme-mode',t);document.documentElement.dataset.theme=t;document.documentElement.classList.remove('theme-transitioning','theme-transitioning-active')}",theme)
                     page.evaluate('document.fonts.ready');page.screenshot(path=str(out/name),animations='disabled')
                 shot('editor-light.png','light');shot('editor-dark.png','dark')
@@ -53,6 +53,14 @@ def main():
                 summary.update(requests=len(rows),cache_rate=summary['cache_read_tokens']/summary['input_total']*100)
                 sites=[{'site_id':'lulu','name':'噜噜 AI','base_url':'https://luluai.win','connected':True,'username':'demo@example.com'},
                     {'site_id':'demo-two','name':'万家灯火','base_url':'https://wjapi.vip','connected':True,'username':'demo@example.com'}]
+                daily=[]
+                for i in range(31):
+                    day=now.date()-timedelta(days=30-i)
+                    tokens=[2400000,3800000,3100000,5900000,4200000,7800000,6200000][i%7]
+                    rate=[82,91,89,96,93,98,97][i%7]
+                    daily.append({'date':str(day),'total_tokens':tokens,'requests':85+i*9,
+                        'actual_cost':round(.12+i*.043,4),'input_tokens':100-rate,
+                        'output_tokens':2400,'cache_read_tokens':rate,'cache_creation_tokens':0,'cache_rate':rate})
                 def cache_route(route):
                     path=urlsplit(route.request.url).path
                     if path.endswith('/icon'):
@@ -61,6 +69,10 @@ def main():
                         route.fulfill(content_type='image/png',body=(ROOT/'docs/screenshot-assets'/icon).read_bytes());return
                     if path.endswith('/sites'):value={'sites':sites}
                     elif path.endswith('/status'):value=sites[0]
+                    elif path.endswith('/trend'):
+                        q=parse_qs(urlsplit(route.request.url).query)
+                        value={'site_id':q.get('site_id',['lulu'])[0],'fetched_at':now.isoformat(),
+                            'points':[p for p in daily if q['start_date'][0]<=p['date']<=q['end_date'][0]]}
                     elif path.endswith('/snapshot'):value={**sites[0],'rows':rows,'page':1,'page_size':100,'total':32,'warnings':[],
                         'fetched_at':now.isoformat(),'groups':[{'id':1,'name':'标准分组'},{'id':2,'name':'经济分组'}],
                         'page_summary':summary,'period_summary':summary,'balance':128.6}
@@ -75,11 +87,23 @@ def main():
                 assert page.locator('#sitePickerMenu').inner_text().count('万家灯火')==1
                 shot('usage-picker-dark.png','dark')
                 page.keyboard.press('Escape');assert not page.locator('#sitePickerMenu').is_visible()
+                page.locator('#usageTrendOpen').click()
+                page.wait_for_function('document.querySelector("#utContext").textContent.includes("全部分组")')
+                shot('usage-trends-dark.png','dark')
+                page.locator('#uiTab-calendar').click()
+                page.wait_for_function('document.querySelector(".ui-scope img")?.naturalWidth>0')
+                assert page.locator('.ui-scope img').get_attribute('src').endswith('site_id=lulu')
+                shot('usage-calendar-dark.png','dark')
+                page.locator('#uiTab-report').click()
+                page.wait_for_selector('.ui-report-grid')
+                page.wait_for_function('document.querySelector(".ui-scope img")?.naturalWidth>0')
+                shot('usage-daily-report-dark.png','dark');shot('usage-daily-report-light.png','light')
+                page.locator('#utClose').click()
                 page.set_viewport_size({'width':390,'height':844});page.locator('#sitePickerButton').click()
                 box=page.locator('#sitePickerMenu').bounding_box();assert box and box['x']>=0 and box['x']+box['width']<=390
                 assert not errors,errors
                 browser.close()
-                print('PASS: login guard, authenticated APIs, seeded history/groups, all page scripts, real station icons, picker Escape and mobile bounds; '+('2' if args.usage_only else '9')+' screenshots generated.')
+                print('PASS: login guard, authenticated APIs, seeded history/groups, all page scripts, station icons, trends/calendar/reports, picker Escape and mobile bounds; '+('6' if args.usage_only else '13')+' screenshots generated.')
         finally:
             server.terminate();server.wait(timeout=15);log.close()
 if __name__=='__main__':main()
