@@ -4,6 +4,7 @@ Chrome extension APIs are controlled mocks; relay profiles and JWTs are fixtures
 This does not install an extension in, or read credentials from, a user profile.
 """
 import argparse,base64,json,os,secrets,sys,tempfile,threading,time
+from urllib.parse import urlparse,parse_qs
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
@@ -63,7 +64,11 @@ def main():
                           'page_summary':{},'period_summary':{},'balance':0}
                 page.route('**/api/cache/snapshot?**',lambda route:route.fulfill(json=snapshot))
                 trend_points=[{'date':'2026-11-'+str(6+i).zfill(2),'total_tokens':v,'cache_rate':r,'requests':12+i*5,'actual_cost':.1+i*.07,'input_tokens':100-r,'cache_read_tokens':r,'cache_creation_tokens':0} for i,(v,r) in enumerate([(2400000,82),(3800000,91),(3100000,89),(5900000,96),(4200000,93),(7800000,98),(6200000,97)])]
-                page.route('**/api/cache/trend?**',lambda route:route.fulfill(json={'points':trend_points,'site_id':'lulu'}))
+                def trend_response(route):
+                    q=parse_qs(urlparse(route.request.url).query)
+                    pts=[] if q.get('model')==['fixture-other'] else [p for p in trend_points if q['start_date'][0]<=p['date']<=q['end_date'][0]]
+                    route.fulfill(json={'points':pts,'site_id':q.get('site_id',['lulu'])[0]})
+                page.route('**/api/cache/trend?**',trend_response)
                 page.route('**/api/cache/icon?**',lambda route:route.fulfill(content_type='image/png',body=(ROOT/'docs/screenshot-assets/lulu.png').read_bytes()))
                 page.goto(origin+'/cache.html');page.wait_for_function('typeof siteList!=="undefined" && siteList.length && !busy')
                 assert not page.locator('#usageTrend').is_visible()
@@ -86,6 +91,40 @@ def main():
                 page.locator('#utPickerButton').focus();page.keyboard.press('ArrowDown');page.keyboard.press('ArrowDown');page.keyboard.press('Enter')
                 assert page.locator('#utMetricLabel').inner_text()=='请求次数'
                 page.keyboard.press('Escape');assert not page.locator('#usageTrend').is_visible()
+                # Calendar uses day aggregates; reports preserve missing values and comparisons.
+                page.locator('#usageTrendOpen').click()
+                page.locator('#uiTab-calendar').click()
+                page.wait_for_selector('.ui-day')
+                page.locator('.ui-day[aria-label^="2026-11-11"]').click()
+                assert '7.8M' in page.locator('.ui-layout .ui-card').inner_text()
+                assert '98.00%' in page.locator('.ui-layout .ui-card').inner_text()
+                page.screenshot(path=str(Path(tempfile.gettempdir())/'linx-usage-calendar-dark.png'))
+                page.locator('.ui-actions button').click()
+                page.wait_for_selector('.ui-report-grid')
+                assert '+85.7%' in page.locator('.ui-report-grid').inner_text()
+                assert '+5.00' in page.locator('.ui-report-grid').inner_text()
+                page.screenshot(path=str(Path(tempfile.gettempdir())/'linx-usage-report-dark.png'))
+                page.locator('.ui-date').fill('2026-11-05')
+                page.wait_for_function('document.querySelector(".ui-report-grid")?.textContent.includes("暂无可用统计")')
+                page.locator('.ui-date').fill('2026-11-11')
+                page.wait_for_function('document.querySelector(".ui-report-grid")?.textContent.includes("7.8M")')
+                original_model=page.evaluate('applied.model')
+                page.evaluate("applied.model='fixture-other'")
+                page.wait_for_function('document.querySelector(".ui-report-grid")?.textContent.includes("暂无可用统计")')
+                assert '7.8M' not in page.locator('#uiInsights').inner_text(),'previous model data leaked into new filter'
+                page.evaluate('model=>applied.model=model',original_model)
+                page.wait_for_function('document.querySelector(".ui-report-grid")?.textContent.includes("7.8M")')
+                page.evaluate("document.documentElement.dataset.theme='light'")
+                page.wait_for_timeout(250)
+                page.screenshot(path=str(Path(tempfile.gettempdir())/'linx-usage-report-light.png'))
+                page.set_viewport_size({'width':390,'height':844})
+                page.locator('#uiTab-calendar').click()
+                page.wait_for_selector('.ui-day')
+                assert page.locator('#uiInsights').evaluate('n=>n.scrollWidth<=n.clientWidth')
+                page.screenshot(path=str(Path(tempfile.gettempdir())/'linx-usage-calendar-mobile.png'))
+                page.locator('#uiTab-trend').click()
+                page.keyboard.press('Escape')
+                page.set_viewport_size({'width':1440,'height':1000})
                 page.locator('#browserSyncBtn').click();page.wait_for_selector('#syncDeviceList .sync-device')
                 page.locator('#syncPairCreate').click();page.wait_for_function('document.querySelector("#syncPairCode").value.length>20')
                 assert len(page.locator('#syncPairCode').input_value())==32
