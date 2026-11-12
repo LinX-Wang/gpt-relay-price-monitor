@@ -89,6 +89,15 @@ def main():
                 popup.evaluate('''()=>{window.chrome={storage:{local:{async get(){return {}}}},runtime:{},permissions:{},alarms:{},action:{}}}''')
                 popup.add_script_tag(content=(ROOT/'integrations/browser-sync/popup.js').read_text(encoding='utf-8'))
                 assert popup.locator('#pair').is_visible()
+                assert popup.locator('#origin').input_value()=='https://linxprice.bot.cd'
+                popup.evaluate("chrome.storage.local.get=async()=>({preferredOrigin:'https://custom.example'});render()")
+                assert popup.locator('#origin').input_value()=='https://custom.example'
+                page.set_viewport_size({'width':390,'height':844})
+                page.locator('#browserSyncBtn').click()
+                assert not page.locator('#browserSyncModal details').evaluate('node=>node.open')
+                box=page.locator('#browserSyncModal').bounding_box()
+                assert box['x']>=0 and box['x']+box['width']<=390
+                page.screenshot(path=str(Path(tempfile.gettempdir())/'linx-browser-sync-dialog-mobile.png'))
                 assert not errors,errors
                 browser.close()
                 print('PASS: permitted-origin reads, actual token API and encryption, unchanged-token dedupe, account protection, management UI, popup script and expired-dashboard recovery (extension APIs mocked).')

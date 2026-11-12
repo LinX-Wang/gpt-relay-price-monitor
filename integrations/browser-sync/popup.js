@@ -1,5 +1,6 @@
 'use strict';
 const $=id=>document.getElementById(id);let config,sites=[];
+const DEFAULT_ORIGIN='https://linxprice.bot.cd';
 function monitorOrigin(value){
   const u=new URL(value);
   if(u.username||u.password||u.search||u.hash||!(['https:'].includes(u.protocol)||(u.protocol==='http:'&&['localhost','127.0.0.1'].includes(u.hostname))))throw Error('请输入自己的 HTTPS 监测网站地址');
@@ -14,9 +15,9 @@ async function api(path,body){
   const data=await response.json();if(!response.ok)throw Error(data.error||'无法连接监测服务器');return data;
 }
 async function render(){
-  const state=await chrome.storage.local.get(['config','results','lastError']);config=state.config;
+  const state=await chrome.storage.local.get(['config','results','lastError','preferredOrigin']);config=state.config;
   $('setup').hidden=!!config?.key;$('paired').hidden=!config?.key;
-  if(!config?.key)return;
+  if(!config?.key){$('origin').value=state.preferredOrigin||DEFAULT_ORIGIN;return}
   $('server').textContent=config.origin;$('pause').textContent=config.paused?'恢复同步':'暂停同步';
   $('message').textContent=state.lastError||'';
   $('results').replaceChildren();
@@ -36,6 +37,7 @@ $('pair').onclick=async()=>{
     const origin=monitorOrigin($('origin').value.trim());
     const code=$('code').value.trim();if(!code)throw Error('请先输入配对码');
     if(!await chrome.permissions.request({origins:[origin+'/*']}))throw Error('需要访问自己的监测服务器才能同步');
+    await chrome.storage.local.set({preferredOrigin:origin});
     config={origin};const data=await api('pair',{code,name:'Chrome / Edge 浏览器'});
     await chrome.storage.local.set({config:{origin,key:data.device_key,id:data.device_id,paused:false},fingerprints:{},results:[],lastError:'',lastSuccess:{}});
     $('code').value='';await render();$('message').textContent='已配对。请点击「授权站点」，允许读取已添加站点的登录状态。';
@@ -59,7 +61,7 @@ $('pause').onclick=async()=>{
 $('reset').onclick=async()=>{
   if(!confirm('解除本机配对？服务器用量连接会保留。'))return;
   try{await api('unpair',{})}catch{/* Local deletion must remain possible offline. */}
-  await chrome.storage.local.clear();await chrome.alarms.clear('linx-login-sync');
+  const preferredOrigin=config.origin;await chrome.storage.local.clear();await chrome.storage.local.set({preferredOrigin});await chrome.alarms.clear('linx-login-sync');
   const permissions=await chrome.permissions.getAll();if(permissions.origins?.length)await chrome.permissions.remove({origins:permissions.origins});
   await chrome.action.setBadgeText({text:''});await render();
 };
