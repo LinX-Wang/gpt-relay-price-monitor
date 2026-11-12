@@ -62,7 +62,7 @@ def main():
                           'page':1,'page_size':100,'total':0,'warnings':[],'fetched_at':'2026-11-12T12:00:00+08:00',
                           'page_summary':{},'period_summary':{},'balance':0}
                 page.route('**/api/cache/snapshot?**',lambda route:route.fulfill(json=snapshot))
-                trend_points=[{'date':'2026-11-'+str(6+i).zfill(2),'total_tokens':v,'cache_rate':r,'requests':12+i*5,'actual_cost':.1+i*.07} for i,(v,r) in enumerate([(2400000,82),(3800000,91),(3100000,89),(5900000,96),(4200000,93),(7800000,98),(6200000,97)])]
+                trend_points=[{'date':'2026-11-'+str(6+i).zfill(2),'total_tokens':v,'cache_rate':r,'requests':12+i*5,'actual_cost':.1+i*.07,'input_tokens':100-r,'cache_read_tokens':r,'cache_creation_tokens':0} for i,(v,r) in enumerate([(2400000,82),(3800000,91),(3100000,89),(5900000,96),(4200000,93),(7800000,98),(6200000,97)])]
                 page.route('**/api/cache/trend?**',lambda route:route.fulfill(json={'points':trend_points,'site_id':'lulu'}))
                 page.route('**/api/cache/icon?**',lambda route:route.fulfill(content_type='image/png',body=(ROOT/'docs/screenshot-assets/lulu.png').read_bytes()))
                 page.goto(origin+'/cache.html');page.wait_for_function('typeof siteList!=="undefined" && siteList.length && !busy')
@@ -76,8 +76,14 @@ def main():
                 assert page.locator('#usageTrend .ut-tip').is_visible()
                 page.locator('#utClose').click();assert not page.locator('#usageTrend').is_visible()
                 page.locator('#usageTrendOpen').click();assert page.locator('#usageTrend').is_visible()
-                page.locator('#utMetric').select_option('actual_cost')
+                page.locator('#utPickerButton').click()
+                assert page.locator('#utPickerMenu').is_visible()
+                page.screenshot(path=str(Path(tempfile.gettempdir())/'linx-usage-trends-picker.png'))
+                page.locator('#utPickerMenu [data-value="actual_cost"]').click()
+                assert not page.locator('#utPickerMenu').is_visible()
                 assert page.locator('#utMetricLabel').inner_text()=='实际费用'
+                page.locator('#utPickerButton').focus();page.keyboard.press('ArrowDown');page.keyboard.press('ArrowDown');page.keyboard.press('Enter')
+                assert page.locator('#utMetricLabel').inner_text()=='请求次数'
                 page.keyboard.press('Escape');assert not page.locator('#usageTrend').is_visible()
                 page.locator('#browserSyncBtn').click();page.wait_for_selector('#syncDeviceList .sync-device')
                 page.locator('#syncPairCreate').click();page.wait_for_function('document.querySelector("#syncPairCode").value.length>20')
