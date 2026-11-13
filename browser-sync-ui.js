@@ -91,13 +91,17 @@
    if(!sid){const created=await api('sites',{name:choice.name.slice(0,32),base_url:choice.origin});sid=created.site_id;choice.existing=created}
    const job=await request('create-capture',{site_id:sid});
    const result=await new Promise((resolve,reject)=>{
-    const missing=setTimeout(()=>{clearTimeout(timeout);window.removeEventListener('message',listener);reject(Error('未检测到新版扩展。请在「自动同步登录」下载 1.1.0，更新扩展并配对，刷新本页后重试。'))},2500);
+    const missing=setTimeout(()=>{clearTimeout(timeout);window.removeEventListener('message',listener);reject(Error('未检测到新版扩展。请在「自动同步登录」下载 1.1.1，更新扩展并配对，刷新本页后重试。'))},2500);
     const timeout=setTimeout(()=>{clearTimeout(missing);window.removeEventListener('message',listener);reject(Error('官网登录验证超时，请检查站点连接后重试。'))},45000);
     function listener(event){if(event.source!==window||event.origin!==location.origin||event.data?.request_id!==job.request_id)return;if(event.data?.type==='linx-capture-ack'){clearTimeout(missing);return}if(event.data?.type!=='linx-capture-result')return;clearTimeout(missing);clearTimeout(timeout);window.removeEventListener('message',listener);resolve(event.data)}
     window.addEventListener('message',listener);window.postMessage({type:'linx-capture-request',request_id:job.request_id,site_id:sid},location.origin);
     message.textContent='正在从 '+choice.name+' 官网获取并验证登录。首次使用请在扩展中点击「授权站点」。';
    });
-   if(!result.ok)throw Error(result.error||'未能获取官网登录，请在当前浏览器登录该站后重试');
+   if(!result.ok&&result.code==='PERMISSION_REQUIRED'){
+    message.textContent='请打开 LinX 登录同步扩展点击「授权站点」。此页面会在授权后自动继续连接，无需再次点击。';
+    const deadline=Date.now()+75000;
+    while(true){const pending=await request('capture-status/'+encodeURIComponent(job.request_id));if(pending.state==='done')break;if(pending.state==='failed')throw Error('站点登录验证未通过，请检查官网登录后重试');if(Date.now()>deadline)throw Error('等待授权超时，请授权后重新点击获取');if(!document.getElementById('addSiteModal').open)throw Error('已取消等待');await new Promise(resolve=>setTimeout(resolve,1000))}
+   }else if(!result.ok)throw Error(result.error||'未能获取官网登录，请在当前浏览器登录该站后重试');
    const status=await request('capture-status/'+encodeURIComponent(job.request_id));if(status.state!=='done')throw Error('连接尚未完成，请重试');
    epoch++;clearSiteSnapshots(sid);await loadSites(sid);try{localStorage.setItem('linx-usage-site',sid)}catch{}
    token.value='';document.getElementById('addSiteModal').close();data=null;dates();capture();render();note('已从官网登录状态连接，正在读取最新用量。');await load();

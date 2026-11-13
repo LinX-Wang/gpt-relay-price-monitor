@@ -107,6 +107,7 @@ class BrowserSyncTests(unittest.TestCase):
             token='header.'+encoded+'.signature'
             u.request=lambda *a,**k:{'id':123,'email':'demo@example.com'}
             job=b.create_capture({'site_id':'lulu'})
+            assert b.configured_sites()['sites'][0]['capture_request']==job['request_id']
             payload=dict(job,access_token=token)
             try:b.capture_token(dict(payload,origin='https://wrong.example'))
             except b.UsageError as e:assert e.code=='ORIGIN_MISMATCH'
@@ -114,6 +115,7 @@ class BrowserSyncTests(unittest.TestCase):
             assert not u.load_session()
             assert b.capture_token(payload)['ok']
             assert b.capture_status(job['request_id'])['state']=='done'
+            assert 'capture_request' not in b.configured_sites()['sites'][0]
             assert u.load_session()['user_id']==123
             assert token.encode() not in (u.PRIVATE/'connection.enc').read_bytes()
             assert token not in json.dumps(b.CAPTURES)

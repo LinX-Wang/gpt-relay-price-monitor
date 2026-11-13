@@ -15,11 +15,13 @@ async function api(path,body){
   const data=await response.json();if(!response.ok)throw Error(data.error||'无法连接监测服务器');return data;
 }
 async function render(){
-  const state=await chrome.storage.local.get(['config','results','lastError','preferredOrigin']);config=state.config;
+  const state=await chrome.storage.local.get(['config','results','lastError','preferredOrigin','sites','checking','lastCheck']);config=state.config;
+  sites=state.sites||sites;
   $('setup').hidden=!!config?.key;$('paired').hidden=!config?.key;
   if(!config?.key){$('origin').value=state.preferredOrigin||DEFAULT_ORIGIN;return}
   $('server').textContent=config.origin;$('pause').textContent=config.paused?'恢复同步':'暂停同步';
-  $('message').textContent=state.lastError||'';
+  $('message').textContent=state.lastError||(state.checking?'正在并行检查，完成的站点会立即显示结果。':state.lastCheck?'检查完成 · '+new Date(state.lastCheck).toLocaleTimeString():'');
+  $('sync').disabled=!!state.checking;$('sync').textContent=state.checking?'检查中…':'立即检查';
   $('results').replaceChildren();
   for(const item of state.results||[]){
     const node=document.createElement('div');node.className='site';
@@ -29,8 +31,8 @@ async function render(){
     if(item.lastSuccess){const time=document.createElement('small');time.textContent='上次同步 '+new Date(item.lastSuccess).toLocaleString();node.append(time)}
     $('results').append(node);
   }
-  try{sites=(await api('sites')).sites}catch(error){$('message').textContent=error.message}
 }
+async function refreshRoster(){try{const data=await chrome.runtime.sendMessage({type:'sites'});if(data?.sites){sites=data.sites;await render()}else if(data?.error)$('message').textContent=data.error}catch(error){$('message').textContent=error.message}}
 $('pair').onclick=async()=>{
   $('pair').disabled=true;
   try{
@@ -49,11 +51,11 @@ $('grant').onclick=async()=>{
     const origins=sites.map(s=>new URL(s.base_url).origin+'/*');
     if(!origins.length)throw Error('还没有可授权站点');
     if(!await chrome.permissions.request({origins}))throw Error('尚未授权，将继续保留手动连接方式');
-    $('message').textContent='已授权，正在检查…';await chrome.runtime.sendMessage({type:'sync'});await render();
+    $('message').textContent='已授权，正在并行检查；待连接站点会自动继续。';await chrome.runtime.sendMessage({type:'sync'});
   }catch(error){$('message').textContent=error.message}
 };
 $('sync').onclick=async()=>{
-  $('sync').disabled=true;try{await chrome.runtime.sendMessage({type:'sync'});await render()}catch{$('message').textContent='检查未完成，请重新打开扩展'}finally{$('sync').disabled=false}
+  $('sync').disabled=true;$('message').textContent='正在检查，各站点结果会分别更新…';try{await chrome.runtime.sendMessage({type:'sync'})}catch{$('message').textContent='检查未完成，请重新打开扩展';$('sync').disabled=false}
 };
 $('pause').onclick=async()=>{
   config.paused=!config.paused;await chrome.storage.local.set({config});
@@ -67,4 +69,5 @@ $('reset').onclick=async()=>{
   await chrome.scripting.unregisterContentScripts({ids:['linx-capture']});
   await chrome.action.setBadgeText({text:''});await render();
 };
-render();
+chrome.storage.onChanged?.addListener((changes,area)=>{if(area==='local'&&['results','checking','lastCheck','lastError','sites'].some(k=>k in changes))render()});
+render().then(()=>{if(config?.key)refreshRoster()});

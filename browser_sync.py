@@ -121,12 +121,19 @@ def touch(device_id):
         state = _read()
         for d in state['devices']:
             if d['id'] == device_id:
+                if d.get('last_seen') and time.time()-d['last_seen']<60:break
                 d['last_seen'] = int(time.time()); _save(state); break
 
 def configured_sites():
     # Do not expose account names, balances or tokens to the extension.
-    return {'sites': [{k: s[k] for k in ('site_id', 'name', 'base_url', 'connected')}
-                      for s in usage_sites.sites()]}
+    sites = [{k: s[k] for k in ('site_id', 'name', 'base_url', 'connected')}
+             for s in usage_sites.sites()]
+    with LOCK:
+        for site in sites:
+            pending = next((key for key, job in reversed(list(CAPTURES.items()))
+                            if job['site_id']==site['site_id'] and job['state']=='pending' and job['expires']>time.time()),None)
+            if pending:site['capture_request']=pending
+    return {'sites':sites}
 
 def sync_token(payload, allow_initial=False):
     sid = str(payload.get('site_id', ''))

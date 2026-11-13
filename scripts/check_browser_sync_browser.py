@@ -190,6 +190,28 @@ def main():
                 assert not denied['ok'] and '授权站点' in denied['error']
                 assert bridge.capture_status(job['request_id'])['state']=='pending'
                 worker.evaluate('fixture.allowed=true')
+                client.disconnect()
+                worker.evaluate('sync(true)')
+                assert bridge.capture_status(job['request_id'])['state']=='done','authorization did not resume pending first connection'
+                assert client.load_session()['access_token']==await_token
+                # A slow relay must not block another site's result, or the popup response.
+                parallel=worker.evaluate('''async()=>{
+                    const original=request,originalRoster=getRoster,originalRead=readSiteLogin;
+                    let releaseSlow;const gate=new Promise(resolve=>releaseSlow=resolve),started=[];
+                    try{
+                        getRoster=async()=>({sites:[{site_id:'fast',name:'Fast fixture',base_url:'https://fast.example',connected:true},{site_id:'slow',name:'Slow fixture',base_url:'https://slow.example',connected:true}]});
+                        readSiteLogin=async origin=>({matching:1,login:{token:origin,expires:9999999999}});
+                        request=async(_config,path,body)=>{started.push(body.site_id);if(body.site_id==='slow')await gate;return {changed:true}};
+                        const run=sync(true);
+                        await new Promise(resolve=>setTimeout(resolve,100));
+                        const early=fixture.stored.results.map(x=>({...x}));
+                        releaseSlow();await run;
+                        return {started,early,done:fixture.stored.results};
+                    }finally{releaseSlow();request=original;getRoster=originalRoster;readSiteLogin=originalRead}
+                }''')
+                assert parallel['started']==['fast','slow']
+                assert parallel['early'][0]['ok'] and parallel['early'][1]['checking']
+                assert all(item['ok'] for item in parallel['done'])
                 # Popup script loads without inline script/CSP or syntax assumptions.
                 popup=context.new_page();popup.goto(origin+'/_popup-fixture')
                 popup.set_content((ROOT/'integrations/browser-sync/popup.html').read_text(encoding='utf-8').replace('<script src="popup.js"></script>',''))
@@ -199,6 +221,18 @@ def main():
                 assert popup.locator('#origin').input_value()=='https://linxprice.bot.cd'
                 popup.evaluate("chrome.storage.local.get=async()=>({preferredOrigin:'https://custom.example'});render()")
                 assert popup.locator('#origin').input_value()=='https://custom.example'
+                popup.evaluate('''()=>{
+                    window.popupState={config:{origin:'https://monitor.example',key:'fixture'},sites:[],results:[],checking:false};
+                    chrome.storage.local.get=async()=>popupState;
+                    chrome.runtime.sendMessage=async()=>({ok:true,started:true});render();
+                }''')
+                popup.locator('#sync').click()
+                assert popup.locator('#message').inner_text().startswith('正在检查')
+                popup.evaluate('popupState.checking=true;render()')
+                assert popup.locator('#sync').inner_text()=='检查中…'
+                popup.evaluate('popupState.checking=false;popupState.lastCheck=Date.now();render()')
+                assert popup.locator('#sync').is_enabled()
+                assert popup.locator('#message').inner_text().startswith('检查完成')
                 page.set_viewport_size({'width':390,'height':844})
                 page.locator('#usageTrendOpen').click()
                 trend_box=page.locator('#usageTrend').bounding_box()
