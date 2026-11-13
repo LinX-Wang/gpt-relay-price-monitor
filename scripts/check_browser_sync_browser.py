@@ -140,7 +140,7 @@ def main():
                 page.wait_for_function('document.querySelector(".ui-report-grid")?.textContent.includes("暂无可用统计")')
                 page.locator('.ui-date').fill('2026-11-11')
                 page.wait_for_function('document.querySelector(".ui-report-grid")?.textContent.includes("7.8M")')
-                assert len([q for q in trend_calls if q.get('granularity')!=['hour']])==2,'changing the report day should reuse month aggregates'
+                assert len([q for q in trend_calls if q.get('granularity')!=['hour']])==3,'report should fetch only the missing comparison range'
                 original_model=page.evaluate('applied.model')
                 page.evaluate("applied.model='fixture-other'")
                 page.wait_for_function('document.querySelector(".ui-report-grid")?.textContent.includes("暂无可用统计")')
@@ -343,6 +343,10 @@ def main():
                 page.keyboard.press('Escape')
                 page.locator('#browserSyncBtn').click()
                 assert not page.locator('#browserSyncModal details').evaluate('node=>node.open')
+                page.set_viewport_size({'width':1440,'height':1000})
+                page.screenshot(path=str(Path(tempfile.gettempdir())/'linx-sync-compact-dark.png'))
+                assert page.locator('#browserSyncModal').bounding_box()['width']<=760
+                page.set_viewport_size({'width':390,'height':844})
                 page.locator('#browserSyncModal summary').click()
                 assert page.locator('.guide-browser-card .guide-copy-icon').count()==2
                 assert page.locator('.account-status-row #connectionState').count()==1
@@ -362,7 +366,7 @@ def main():
                 page.locator('#browserSyncModal').evaluate('n=>n.scrollTop=0')
                 panel=page.locator('.sync-connection-panel').bounding_box()
                 guide_box=page.locator('.sync-guide').bounding_box()
-                assert panel['x']+panel['width']<=guide_box['x'],'desktop guide should sit beside connection panel'
+                assert panel['y']+panel['height']<=guide_box['y'],'guide should expand below full-width connection management'
                 page.screenshot(path=str(Path(tempfile.gettempdir())/'linx-sync-guide-dark.png'))
                 page.evaluate("document.documentElement.dataset.theme='light'")
                 page.screenshot(path=str(Path(tempfile.gettempdir())/'linx-sync-guide-light.png'))

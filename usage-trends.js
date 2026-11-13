@@ -20,7 +20,7 @@
   if(!entry){entry={range,identity:connectionIdentity(q.site_id)};dailyPool.set(key,entry);if(dailyPool.size>20){const old=[...dailyPool].find(([k,v])=>k!==key&&!v.promise);if(old)dailyPool.delete(old[0])}}
   if(entry.error&&Date.now()-entry.failedAt<10000)throw entry.error;
   if(!entry.promise){const request=new AbortController(),timeout=setTimeout(()=>request.abort(),35000);const identity=connectionIdentity(q.site_id);
-   entry.promise=(async()=>{try{const r=await fetch('/api/cache/trend?'+new URLSearchParams(range),{cache:'no-store',signal:request.signal}),d=await r.json();if(!r.ok)throw Error(d.error||'暂时无法读取逐天统计');if(!Array.isArray(d.points))throw Error('该站暂未提供兼容的逐天统计');if(identity!==connectionIdentity(q.site_id))throw Error('连接已更新，正在重新准备统计');entry.data=d;entry.at=Date.now();entry.error=null;return d}catch(e){entry.error=e.name==='AbortError'?Error('统计读取超时，请稍后重试'):e;entry.failedAt=Date.now();throw entry.error}finally{clearTimeout(timeout);entry.promise=null}})();
+   entry.promise=(async()=>{try{const r=await fetch('/api/cache/trend?'+new URLSearchParams(range),{cache:'no-store',signal:request.signal}),d=await r.json();if(!r.ok)throw Error(d.error||'暂时无法读取逐天统计');if(!Array.isArray(d.points))throw Error('该站暂未提供兼容的逐天统计');if(identity!==connectionIdentity(q.site_id))throw Error('连接已更新，正在重新准备统计');entry.data=d;entry.at=Date.now()-(d.stale?57000:0);entry.error=null;return d}catch(e){entry.error=e.name==='AbortError'?Error('统计读取超时，请稍后重试'):e;entry.failedAt=Date.now();throw entry.error}finally{clearTimeout(timeout);entry.promise=null}})();
   }
   await entry.promise;return cachedDaily(q)
  }
@@ -62,11 +62,12 @@
   if(saved&&!force&&Date.now()-saved.at<(days==="1"?10000:60000)){lastKey=key;lastFetch=saved.at;return}
   if(controller)controller.abort();controller=new AbortController();const own=controller,seq=++ticket;const changed=key!==lastKey;lastKey=key;
   if(changed&&!saved){points=[];paintedKey='';hover=-1;tip.hidden=true;draw();empty.textContent='正在读取逐天统计…';empty.hidden=false}
-  try{const d=await readDaily(q);if(seq!==ticket)return;points=d.points;latest=d;lastFetch=Date.now();paintedKey=key;trendMemory.set(key,{data:d,at:lastFetch});if(trendMemory.size>20)trendMemory.delete(trendMemory.keys().next().value);empty.hidden=points.some(p=>p[metric]!=null||p.cache_rate!=null);empty.textContent='这段时间暂无可展示的统计';el('utContext').textContent=q.start_date.slice(5).replace('-','/')+' — '+q.end_date.slice(5).replace('-','/')+' · '+(q.model||'全部模型')+(q.group_id?' · 所选分组':' · 全部分组');draw()}
+  try{const d=await readDaily(q);if(seq!==ticket)return;points=d.points;latest=d;lastFetch=Date.now()-(d.stale?57000:0);paintedKey=key;trendMemory.set(key,{data:d,at:lastFetch});if(trendMemory.size>20)trendMemory.delete(trendMemory.keys().next().value);empty.hidden=points.some(p=>p[metric]!=null||p.cache_rate!=null);empty.textContent='这段时间暂无可展示的统计';el('utContext').textContent=q.start_date.slice(5).replace('-','/')+' — '+q.end_date.slice(5).replace('-','/')+' · '+(q.model||'全部模型')+(q.group_id?' · 所选分组':' · 全部分组');draw()}
   catch(e){if(seq!==ticket||e.name==='AbortError')return;empty.textContent=e.message;empty.hidden=false;lastFetch=Date.now()}
   finally{if(controller===own)controller=null}
  }
  function draw(){
+  if(latest?.stale&&!el('utContext').textContent.includes(String.fromCharCode(21518,21488,26356,26032,20013)))el('utContext').textContent+=' ? '+String.fromCharCode(21518,21488,26356,26032,20013);
   const hourly=days==='1';
   panel.querySelector('.ut-foot').textContent=(hourly?'逐小时汇总 · 今日 00:00 起 · ':'逐天汇总 · ')+'北京时间 · 缓存率按输入 Token 加权；未返回数据留空。';
   el('utSummaryPeak').previousElementSibling.textContent=hourly?'峰值时段':'峰值日期';
@@ -103,7 +104,7 @@
  function num(value,m='total_tokens'){if(value==null)return '—';if(m==='actual_cost')return '$'+Number(value).toFixed(value<1?4:2);return new Intl.NumberFormat('en',{notation:'compact',maximumFractionDigits:2}).format(value)}
  function node(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!=null)n.textContent=text;return n}
  function button(text,action,label){const b=node('button','',text);b.type='button';b.onclick=action;if(label)b.setAttribute('aria-label',label);return b}
- function insightQuery(){const q=query();if(!q)return null;const today=dateDay(new Date()),target=insightView==='report'?selectedDay.slice(0,7):month;const start=shiftDay(target+'-01',-7),d=new Date(target+'-01T12:00:00+08:00');d.setUTCMonth(d.getUTCMonth()+1);let end=shiftDay(dateDay(d),-1);if(end>today)end=today;const {granularity,...daily}=q;return {...daily,start_date:start,end_date:end}}
+ function insightQuery(){const q=query();if(!q)return null;const {granularity,...daily}=q;if(insightView==='report')return {...daily,start_date:shiftDay(selectedDay,-7),end_date:selectedDay};const today=dateDay(new Date()),d=new Date(month+'-01T12:00:00+08:00');d.setUTCMonth(d.getUTCMonth()+1);let end=shiftDay(dateDay(d),-1);if(end>today)end=today;return {...daily,start_date:month+'-01',end_date:end}}
  async function loadInsights(force=false){
   if(insightView==='trend'||!panel.open)return;const q=insightQuery();if(!q)return;
   const identity=typeof siteList==='undefined'?'':siteList.find(s=>s.site_id===q.site_id)?.connected_at||'';
@@ -112,7 +113,7 @@
   if(insightAbort)insightAbort.abort();insightAbort=new AbortController();const own=insightAbort,generation=++insightGeneration;
   if(key!==insightKey){const shared=cachedDaily(q);insightData=shared||insightMemory.get(key)?.data||null;insightFetched=shared?poolEntry(q).entry.at:insightMemory.get(key)?.at||0;insightError='';insightKey=key;renderInsights()}
   if(!force&&insightData&&Date.now()-insightFetched<60000){insightAbort=null;return}
-  try{const data=await readDaily(q);if(generation!==insightGeneration)return;insightData=data;insightError='';insightFetched=Date.now();insightMemory.set(key,{data,at:insightFetched});if(insightMemory.size>20)insightMemory.delete(insightMemory.keys().next().value);renderInsights()}
+  try{const data=await readDaily(q);if(generation!==insightGeneration)return;insightData=data;insightError='';insightFetched=Date.now()-(data.stale?57000:0);insightMemory.set(key,{data,at:insightFetched});if(insightMemory.size>20)insightMemory.delete(insightMemory.keys().next().value);renderInsights()}
   catch(e){if(generation!==insightGeneration||e.name==='AbortError')return;insightError=e.message;insightFetched=Date.now();renderInsights()}
   finally{if(insightAbort===own)insightAbort=null}
  }
@@ -137,7 +138,7 @@
   const site=typeof siteList==='undefined'?null:siteList.find(s=>s.site_id===q?.site_id),siteName=site?.name||site?.site_name||q?.site_id||'站点',scope=node('span','ui-caption ui-scope');
   const icon=node('span','ui-scope-icon'),fallback=node('span','',siteName.slice(0,1)),img=node('img');fallback.setAttribute('aria-hidden','true');img.alt='';img.hidden=true;img.decoding='async';img.onload=()=>{img.hidden=false;fallback.hidden=true};img.onerror=()=>{img.hidden=true;fallback.hidden=false};icon.append(fallback,img);if(q?.site_id)img.src='/api/cache/icon?site_id='+encodeURIComponent(q.site_id);
   scope.append(icon,node('span','ui-scope-name',siteName),node('span','ui-scope-filters',' · '+(q?.model||'全部模型')+' · '+(q?.group_id?'当前分组':'全部分组')));scope.title=siteName+' · '+(q?.model||'全部模型')+' · '+(q?.group_id?'当前分组':'全部分组');toolbar.append(scope);insights.append(toolbar);
-  const state=node('div','ui-state');state.setAttribute('role','status');state.textContent=insightError?(insightData?'更新失败，以下为上次读取的统计：':'')+insightError:!insightData?'正在读取逐天统计…':'自动更新 · '+(insightData.fetched_at?new Date(insightData.fetched_at).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false}):'最新读取')+' · 北京时间';insights.append(state);
+  const state=node('div','ui-state');state.setAttribute('role','status');state.textContent=insightError?(insightData?'更新失败，以下为上次读取的统计：':'')+insightError:!insightData?'正在读取逐天统计…':'自动更新 · '+(insightData.fetched_at?new Date(insightData.fetched_at).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false}):'最新读取')+' · 北京时间';if(insightData?.stale)state.textContent+=' ? '+String.fromCharCode(21518,21488,26356,26032,20013);insights.append(state);
   if(!insightData){if(insightError)insights.append(button('重试',()=>loadInsights(true)));else{const skeleton=node('div','ui-loading');skeleton.setAttribute('aria-hidden','true');for(let i=0;i<6;i++)skeleton.append(node('i'));insights.append(skeleton)}return}
   if(insightView==='report'){
    const grid=node('div','ui-report-grid');grid.append(dailyCard(selectedDay),rhythmCard(selectedDay));insights.append(grid);

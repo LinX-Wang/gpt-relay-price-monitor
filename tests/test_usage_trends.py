@@ -2,6 +2,35 @@ import unittest
 import test_core
 class TrendTests(unittest.TestCase):
     run_case=test_core.CoreTests.run_case
+    def test_restart_restores_dated_snapshot_without_waiting_for_upstream(self):
+        self.run_case('''
+            import usage_trends as t,usage_dashboard as u
+            import threading,time,json
+            from datetime import datetime
+            u.request=lambda *a,**k:{'id':1}
+            u.connect({'access_token':'fixture-persistent-trend'})
+            today=str(datetime.now(u.SHANGHAI).date())
+            u.api=lambda path:{'trend':[{'date':today,'requests':1,'total_tokens':100}]}
+            q={'site_id':['lulu'],'start_date':[today],'end_date':[today]}
+            t.trend(q)
+            scope=('lulu',u.status()['connected_at'],'','');path=t._scope_file(scope)
+            disk=json.loads(path.read_text());disk[today][0]-=120;path.write_text(json.dumps(disk))
+            t.CACHE.clear();t.DAILY_CACHE.clear();t.LOADED_SCOPES.clear()
+            started=threading.Event();release=threading.Event();calls=[]
+            def slow(path):
+                calls.append(path);started.set();assert release.wait(3)
+                return {'trend':[{'date':today,'requests':2,'total_tokens':200}]}
+            u.api=slow;begin=time.monotonic();r=t.trend(q)
+            assert time.monotonic()-begin<.3 and r['stale'] and r['points'][0]['total_tokens']==100
+            assert started.wait(1)
+            assert t.trend(q)['stale'] and len(calls)==1
+            release.set()
+            until=time.monotonic()+2
+            while t.INFLIGHT and time.monotonic()<until:time.sleep(.01)
+            fresh=t.trend(q);assert not fresh.get('stale') and fresh['points'][0]['total_tokens']==200
+            u.save_session(dict(u.load_session(),connected_at='different-account'))
+            assert not t.trend(q).get('stale')
+        ''')
     def test_completed_days_reused_when_recent_statistics_expire(self):
         self.run_case('''
             import usage_trends as t,usage_dashboard as u
@@ -22,6 +51,9 @@ class TrendTests(unittest.TestCase):
             t.CACHE.clear()
             for key,(at,point) in list(t.DAILY_CACHE.items()):t.DAILY_CACHE[key]=(at-120,point)
             result=t.trend(q)
+            import time
+            until=time.monotonic()+2
+            while t.INFLIGHT and time.monotonic()<until:time.sleep(.01)
             assert len(calls)==2 and calls[-1]['start_date']==[str(today)]
             assert len(result['points'])==2 and result['points'][0]['total_tokens']==100
             t.CACHE.clear()

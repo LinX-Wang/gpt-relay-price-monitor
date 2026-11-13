@@ -46,16 +46,16 @@
   for(const child of [...body.children])if(child!==guide)connectionPanel.append(child);
   body.prepend(connectionPanel);
   style.textContent+=`
-    #browserSyncModal{width:min(1040px,calc(100vw - 32px));max-height:90dvh;box-sizing:border-box}
+    #browserSyncModal{width:min(760px,calc(100vw - 32px));max-height:90dvh;box-sizing:border-box}
     #browserSyncModal .sync-head{padding:24px 28px 0;align-items:center}
-    #browserSyncModal .sync-body{display:grid;grid-template-columns:280px minmax(0,1fr);gap:26px;padding:24px 28px}
-    #browserSyncModal .sync-connection-panel{min-width:0;padding-right:24px;border-right:1px solid var(--line)}
-    #browserSyncModal .sync-endpoint{flex-direction:column;align-items:flex-start;gap:6px;padding-bottom:18px}
+    #browserSyncModal .sync-body{display:grid;grid-template-columns:minmax(0,1fr);gap:20px;padding:22px 28px}
+    #browserSyncModal .sync-connection-panel{min-width:0;padding:0;border:0}
+    #browserSyncModal .sync-endpoint{flex-direction:row;align-items:center;gap:12px;padding:12px 14px;background:var(--bg);border:1px solid var(--line);border-radius:10px}
     #browserSyncModal .sync-endpoint code{overflow-wrap:anywhere}
     #browserSyncModal .sync-actions{gap:8px}
-    #browserSyncModal .sync-actions #syncPairCreate{flex:1}
-    #browserSyncModal .sync-actions #syncDeviceRefresh{width:100%;justify-content:center}
-    #browserSyncModal .sync-device{flex-wrap:wrap;gap:10px}
+    #browserSyncModal .sync-actions #syncPairCreate{flex:0 1 auto}
+    #browserSyncModal .sync-actions #syncDeviceRefresh{margin-left:auto;justify-content:center}
+    #browserSyncModal .sync-device{flex-wrap:nowrap;gap:14px;padding:16px;background:var(--bg);border:1px solid var(--line);border-radius:12px;margin-top:12px}
     #browserSyncModal .sync-device>div{flex:1;min-width:0;overflow-wrap:anywhere}
     #browserSyncModal .sync-guide{margin:0;align-self:start}
     #browserSyncModal .guide-content{padding:0 16px 16px}
@@ -67,6 +67,15 @@
     #browserSyncModal .guide-note{padding:10px 12px}
     #browserSyncModal .guide-note small{margin-top:5px;line-height:1.7}
     #browserSyncModal .sync-foot{position:sticky;bottom:0;background:var(--surface);z-index:1}
+    #browserSyncModal .sync-section-title{margin-top:20px}
+    #browserSyncModal .sync-section-title h3{font-size:12px;font-weight:600;color:var(--ink)}
+    #browserSyncModal .sync-device small{font-size:12px;line-height:1.6}
+    #browserSyncModal .sync-guide[open] .guide-steps{grid-template-columns:repeat(2,minmax(0,1fr))}
+    #browserSyncModal .guide-steps li:first-child{grid-column:1}
+    #browserSyncModal .guide-steps li:nth-child(2){grid-column:2;grid-row:1/3}
+    #browserSyncModal .guide-steps li:nth-child(3){grid-column:1;grid-row:2}
+    #browserSyncModal .guide-steps li:nth-child(4){grid-column:1/-1}
+    #browserSyncModal .guide-browser-links{grid-template-columns:1fr}
     @media(max-width:860px){
       #browserSyncModal{width:min(720px,calc(100vw - 24px))}
       #browserSyncModal .sync-body{grid-template-columns:minmax(0,1fr);gap:18px}
@@ -81,7 +90,8 @@
       #browserSyncModal .sync-body{padding:18px 16px}
       #browserSyncModal .sync-head h2{font-size:18px}
       #browserSyncModal .guide-steps{grid-template-columns:minmax(0,1fr)}
-      #browserSyncModal .guide-steps li{grid-column:1}
+      #browserSyncModal .sync-guide[open] .guide-steps{grid-template-columns:minmax(0,1fr)}
+      #browserSyncModal .guide-steps li:nth-child(n){grid-column:1;grid-row:auto}
       #browserSyncModal .guide-content{padding:0 12px 12px}
       #browserSyncModal .sync-foot{padding:12px 16px}
       #browserSyncModal .sync-foot span{max-width:65%;line-height:1.6}

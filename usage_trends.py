@@ -1,7 +1,7 @@
 """Daily upstream aggregates, isolated from the records endpoint."""
 from datetime import datetime, timedelta
 from urllib.parse import urlencode
-import threading,time
+import threading,time,json,hashlib,os,secrets
 from concurrent.futures import ThreadPoolExecutor
 import usage_sites
 from usage_dashboard import UsageError,SHANGHAI,number
@@ -9,6 +9,34 @@ CACHE={}
 LOCK=threading.Lock()
 INFLIGHT={}
 DAILY_CACHE={}
+LOADED_SCOPES=set()
+
+def _scope_file(scope):
+    return usage_sites.PRIVATE/'trend-cache'/(hashlib.sha256(json.dumps(scope).encode()).hexdigest()+'.json')
+
+def _load_days(scope):
+    # Only aggregates, never tokens. Identity separates reconnects and accounts.
+    if scope in LOADED_SCOPES:return
+    LOADED_SCOPES.add(scope)
+    try:
+        data=json.loads(_scope_file(scope).read_text())
+        for date,(at,point) in data.items():
+            age=max(0,time.time()-at)
+            if age<7*86400:DAILY_CACHE[scope+(date,)]=(time.monotonic()-age,point)
+    except (OSError,ValueError,TypeError):pass
+
+def _save_days(scope):
+    path=_scope_file(scope);tmp=path.with_suffix('.'+secrets.token_hex(5)+'.tmp')
+    try:
+        path.parent.mkdir(mode=0o700,parents=True,exist_ok=True)
+        data={k[-1]:[time.time()-max(0,time.monotonic()-at),p] for k,(at,p) in DAILY_CACHE.items() if k[:-1]==scope}
+        fd=os.open(tmp,os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600)
+        with os.fdopen(fd,'w') as f:json.dump(data,f)
+        os.replace(tmp,path)
+    except OSError:pass
+    finally:
+        try:tmp.unlink(missing_ok=True)
+        except OSError:pass
 
 def trend(params):
     get=lambda key,default='':str(params.get(key,[default])[0]).strip()
@@ -31,6 +59,7 @@ def trend(params):
     if model:filters['model']=model
     if group:filters['group_id']=group
     key=(sid,identity,urlencode(filters))
+    stale=None
     with LOCK:
         saved=CACHE.get(key)
         if saved and time.monotonic()-saved[0]<(10 if granularity=='hour' else 60):return saved[1]
@@ -41,31 +70,52 @@ def trend(params):
                 and f.get('model','')==model and f.get('group_id','')==group and f.get('granularity','day')==granularity
                 and f['start_date']<=str(start) and f['end_date']>=str(end)):
                 return dict(result,filters=filters,points=[p for p in result['points'] if str(start)<=p['date']<=str(end)])
+        if granularity=='day':
+            scope=(sid,identity,model,group);_load_days(scope)
+            cached=[];ages=[];day=start;expired=False
+            while day<=end:
+                item=DAILY_CACHE.get(scope+(str(day),))
+                if not item:break
+                age=time.monotonic()-item[0];ages.append(age);cached.append(item[1])
+                ttl=21600 if day<today and item[1].get('requests') is not None else 60
+                expired=expired or age>=ttl;day+=timedelta(days=1)
+            if day>end and expired and ages and max(ages)<7*86400:
+                stale={'site_id':sid,'points':cached,'filters':filters,'stale':True,
+                       'fetched_at':(datetime.now(SHANGHAI)-timedelta(seconds=max(ages))).isoformat(timespec='seconds')}
         flight=INFLIGHT.get(key)
         owner=flight is None
         if owner:
             flight={'event':threading.Event(),'error':None}
             INFLIGHT[key]=flight
+    if stale and not owner:return stale
+    def execute():
+        try:
+            result=_hourly(client,sid,identity,filters,start) if granularity=='hour' else _read(client,sid,identity,filters,start,end)
+            with LOCK:
+                if len(CACHE)>80:CACHE.clear()
+                CACHE[key]=(time.monotonic(),result)
+                flight['result']=result
+            return result
+        except Exception as error:
+            flight['error']=error
+            raise
+        finally:
+            with LOCK:
+                INFLIGHT.pop(key,None)
+                flight['event'].set()
+    if stale:
+        def update():
+            try:execute()
+            except Exception:pass  # Keep the dated snapshot; retry on next read.
+        threading.Thread(target=update,daemon=True).start()
+        return stale
     if not owner:
         if not flight['event'].wait(40):raise UsageError('统计读取超时，请稍后重试。',504,'TREND_TIMEOUT')
         if flight['error'] is not None:raise flight['error']
         if client.status().get('connected_at')!=identity:
             raise UsageError('连接已变化，请重新读取趋势。',409,'CONNECT_REQUIRED')
         return flight['result']
-    try:
-        result=_hourly(client,sid,identity,filters,start) if granularity=='hour' else _read(client,sid,identity,filters,start,end)
-        with LOCK:
-            if len(CACHE)>80:CACHE.clear()
-            CACHE[key]=(time.monotonic(),result)
-            flight['result']=result
-        return result
-    except Exception as error:
-        flight['error']=error
-        raise
-    finally:
-        with LOCK:
-            INFLIGHT.pop(key,None)
-            flight['event'].set()
+    return execute()
 
 
 def _hourly(client,sid,identity,filters,day):
@@ -126,6 +176,7 @@ def _read(client,sid,identity,filters,start,end):
             for point in result['points']:
                 points[point['date']]=point
                 DAILY_CACHE[scope+(point['date'],)]=(time.monotonic(),point)
+        if results:_save_days(scope)
     if client.status().get('connected_at')!=identity:
         raise UsageError('连接已变化，请重新读取趋势。',409,'CONNECT_REQUIRED')
     return {'site_id':sid,'points':[points[d] for d in sorted(points)],'filters':filters,'fetched_at':datetime.now(SHANGHAI).isoformat(timespec='seconds')}
