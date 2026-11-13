@@ -34,7 +34,9 @@ def capture_status(request_id):
         job = CAPTURES.get(request_id)
         if not job or job['expires'] < time.time():
             raise UsageError('获取请求已过期，请重新点击。', 410, 'CAPTURE_EXPIRED')
-        return {k:job[k] for k in ('site_id','state')}
+        result = {k:job[k] for k in ('site_id','state')}
+        if job['state']=='done':result['connection']=usage_sites.client(job['site_id']).status()
+        return result
 
 
 def capture_token(payload):
@@ -49,7 +51,7 @@ def capture_token(payload):
     try:
         result = sync_token(payload, allow_initial=True)
         with LOCK:job['state'] = 'done'
-        return result
+        return dict(result,connection=usage_sites.client(job['site_id']).status())
     except Exception:
         with LOCK:job['state'] = 'failed'
         raise
@@ -141,39 +143,45 @@ def sync_token(payload, allow_initial=False):
     if not site or payload.get('origin') != site['base_url'].rstrip('/'):
         raise UsageError('令牌来源与已添加站点不一致，未保存。', 400, 'ORIGIN_MISMATCH')
     token = str(payload.get('access_token', ''))
-    if not 20 <= len(token) <= 16000 or not re.fullmatch(r'[A-Za-z0-9_-]+.[A-Za-z0-9_-]+.[A-Za-z0-9_-]+', token):
-        raise UsageError('未找到有效的网页登录 JWT。', 400, 'INVALID_TOKEN')
-    try:
-        claims = json.loads(base64.urlsafe_b64decode(token.split('.')[1] + '==='))
-        if not isinstance(claims, dict) or float(claims.get('exp', 0)) <= time.time() + 15:
-            raise ValueError()
-    except (ValueError, TypeError, UnicodeError):
-        raise UsageError('网页登录令牌已过期，请先在官网重新登录。', 400, 'EXPIRED_TOKEN') from None
+    panel=payload.get('panel','sub2api')
+    if panel not in ('sub2api','newapi'):
+        raise UsageError('不支持的站点面板类型。',400,'INVALID_INPUT')
+    jwt=bool(re.fullmatch(r'[A-Za-z0-9_-]+[.][A-Za-z0-9_-]+[.][A-Za-z0-9_-]+',token))
+    if not 20<=len(token)<=16000 or token.startswith('sk-') or not re.fullmatch(r'[A-Za-z0-9_.-]+',token) or (not jwt and panel!='newapi'):
+        raise UsageError('未找到有效的网页登录令牌。',400,'INVALID_TOKEN')
+    if jwt:
+        try:
+            claims = json.loads(base64.urlsafe_b64decode(token.split('.')[1] + '==='))
+            if not isinstance(claims, dict) or float(claims.get('exp', 0)) <= time.time() + 15:
+                raise ValueError()
+        except (ValueError, TypeError, UnicodeError):
+            raise UsageError('网页登录令牌已过期，请先在官网重新登录。', 400, 'EXPIRED_TOKEN') from None
     client = usage_sites.client(sid)
-    with client.LOCK:
+    with client.REFRESH_LOCK:
         old = client.load_session()
         if not old and not allow_initial:
             raise UsageError('该站点尚未连接或已手动断开，请先在用量页连接一次。', 409, 'CONNECT_REQUIRED')
         if not old:
-            client.connect({'mode':'token','access_token':token,'refresh_token':''})
+            client.connect({'mode':'token','access_token':token,'refresh_token':'','panel':panel})
             return {'ok':True,'changed':True}
-        if secrets.compare_digest(old['access_token'], token):
+        if secrets.compare_digest(old['access_token'], token) and old.get('panel','sub2api')==panel:
             return {'ok': True, 'changed': False}
         # Verify against the site's own API; decoding a JWT is not verification.
-        profile = client.request('/api/v1/auth/me', token)
+        profile,panel = client.verify_profile(token,panel)
         if not isinstance(profile, dict) or not profile.get('id') or str(profile['id']) != str(old.get('user_id')):
             raise UsageError('官网登录了另一个账户，已停止覆盖。需要换账户时请手动连接。', 409, 'ACCOUNT_MISMATCH')
         from datetime import datetime
-        client.save_session({'access_token': token, 'refresh_token': '', 'user_id': profile['id'],
+        client.save_session({'access_token': token, 'refresh_token': '', 'panel':panel,'user_id': profile['id'],
                              'username': profile.get('username') or profile.get('email') or '站点用户',
                              'connected_at': datetime.now().isoformat(timespec='microseconds')})
         client.CACHE.clear(); client.RANGES.clear(); client.META = None
+        with client.NEWAPI_LOCK:client.NEWAPI_STATE.clear()
     return {'ok': True, 'changed': True}
 
 def extension_archive():
     stream = io.BytesIO()
     with zipfile.ZipFile(stream, 'w', zipfile.ZIP_DEFLATED) as out:
-        for name in ('manifest.json', 'background.js', 'content.js', 'popup.html', 'popup.js', 'icon.png'):
+        for name in ('manifest.json', 'background.js', 'content.js', 'panel-bridge.js','newapi-observer.js','popup.html', 'popup.js', 'icon.png'):
             out.write(ROOT / 'integrations/browser-sync' / name, 'linx-browser-sync/' + name)
         out.write(ROOT / 'docs/BROWSER_SYNC.md', 'linx-browser-sync/安装说明.md')
     return stream.getvalue()

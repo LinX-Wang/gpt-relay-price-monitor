@@ -66,7 +66,8 @@ $('reset').onclick=async()=>{
   try{await api('unpair',{})}catch{/* Local deletion must remain possible offline. */}
   const preferredOrigin=config.origin;await chrome.storage.local.clear();await chrome.storage.local.set({preferredOrigin});await chrome.alarms.clear('linx-login-sync');
   const permissions=await chrome.permissions.getAll();if(permissions.origins?.length)await chrome.permissions.remove({origins:permissions.origins});
-  await chrome.scripting.unregisterContentScripts({ids:['linx-capture']});
+  const scripts=await chrome.scripting.getRegisteredContentScripts();
+  if(scripts.length)await chrome.scripting.unregisterContentScripts({ids:scripts.map(s=>s.id)});
   await chrome.action.setBadgeText({text:''});await render();
 };
 chrome.storage.onChanged?.addListener((changes,area)=>{if(area==='local'&&['results','checking','lastCheck','lastError','sites'].some(k=>k in changes))render()});

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "LinX 登录同步",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "description": "将已授权中转站页面的新登录令牌同步到自己的 LinX 用量面板。",
   "permissions": ["storage", "alarms", "scripting"],
   "optional_host_permissions": ["https://*/*", "http://localhost/*", "http://127.0.0.1/*"],

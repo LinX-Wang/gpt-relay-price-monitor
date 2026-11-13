@@ -77,8 +77,9 @@ def _read(client,sid,identity,filters,start,end):
         for k in ('requests','input_tokens','output_tokens','cache_creation_tokens','cache_read_tokens','total_tokens','actual_cost'):
             row[k]=number(item.get(k))
         vals=[row[k] for k in ('input_tokens','cache_creation_tokens','cache_read_tokens')]
-        inputs=sum(vals) if all(v is not None for v in vals) else None
-        row['cache_rate']=100*row['cache_read_tokens']/inputs if inputs and 0<=row['cache_read_tokens']<=inputs else None
+        inputs=number(item.get('input_total')) if 'input_total' in item else sum(vals) if all(v is not None for v in vals) else None
+        row['input_total']=inputs
+        row['cache_rate']=100*row['cache_read_tokens']/inputs if inputs and row['cache_read_tokens'] is not None and 0<=row['cache_read_tokens']<=inputs else None
         by_date[date]=row
     points=[];day=start
     while day<=end:

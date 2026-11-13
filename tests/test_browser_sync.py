@@ -135,4 +135,20 @@ class BrowserSyncTests(unittest.TestCase):
             else:raise AssertionError('expired job accepted')
         ''')
 
+    def test_capture_does_not_wait_for_slow_usage_read_lock(self):
+        self.run_case('''
+            import browser_sync as b,usage_dashboard as u,json,base64,time,threading
+            from concurrent.futures import ThreadPoolExecutor
+            token='header.'+base64.urlsafe_b64encode(json.dumps({'exp':time.time()+7200}).encode()).decode().rstrip('=')+'.signature'
+            u.request=lambda *a,**k:{'id':123,'email':'demo@example.com'}
+            job=b.create_capture({'site_id':'lulu'})
+            with ThreadPoolExecutor(max_workers=1) as pool:
+                with u.LOCK:
+                    task=pool.submit(b.capture_token,dict(job,access_token=token))
+                    result=task.result(timeout=1)
+                    assert result['connection']['connected']
+                    assert result['connection']['site_id']=='lulu'
+            assert b.capture_status(job['request_id'])['connection']['connected']
+        ''')
+
 if __name__=='__main__':unittest.main()

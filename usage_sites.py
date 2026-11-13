@@ -1,4 +1,4 @@
-"""Encrypted credentials and per-site clients for Sub2API-compatible usage panels."""
+"""Encrypted credentials and isolated Sub2API / New API usage clients."""
 from __future__ import annotations
 import hashlib, importlib.util, ipaddress, json, os, re, secrets, sys, threading, socket
 from pathlib import Path

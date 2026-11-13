@@ -40,7 +40,7 @@ def main():
                         storage:{local:{async get(keys){if(typeof keys==='string')keys=[keys];return Object.fromEntries(keys.map(k=>[k,fixture.stored[k]]))},async set(v){Object.assign(fixture.stored,v)}}},
                         permissions:{async contains(){return fixture.allowed}},
                         tabs:{async query(){return [{id:1,url:'https://luluai.win/dashboard'}]},onUpdated:event,onActivated:event},
-                        scripting:{async getRegisteredContentScripts(){return fixture.registered},async unregisterContentScripts(){fixture.registered=[]},async registerContentScripts(s){fixture.registered=s},async executeScript({func,args,files}){
+                        scripting:{async getRegisteredContentScripts({ids}={}){return ids?fixture.registered.filter(s=>ids.includes(s.id)):fixture.registered},async unregisterContentScripts({ids}){fixture.registered=fixture.registered.filter(s=>!ids.includes(s.id))},async registerContentScripts(s){fixture.registered.push(...s)},async executeScript({func,args,files}){
                             if(files)return [];
                             const store={getItem:k=>fixture.relay[k]||null};
                             const run=new Function('location','localStorage','sessionStorage','args','return ('+func.toString()+')(...args)');
@@ -57,8 +57,8 @@ def main():
                 worker.evaluate('fixture.allowed=true;sync()')
                 assert client.load_session()['access_token']==second
                 worker.evaluate('installCaptureBridge()')
-                assert worker.evaluate('fixture.registered[0].matches[0]')==origin+'/*'
-                assert worker.evaluate('fixture.registered[0].js[0]')=='content.js'
+                assert worker.evaluate('fixture.registered.find(s=>s.id==="linx-capture").matches[0]')==origin+'/*'
+                assert worker.evaluate('fixture.registered.find(s=>s.id==="linx-capture").js[0]')=='content.js'
                 before=len(calls);worker.evaluate('sync()');assert len(calls)==before,'duplicate token uploaded'
                 assert second not in worker.evaluate('JSON.stringify(fixture.stored)'),'JWT persisted in extension storage'
                 # Real dashboard management and recovery after an expired connection.
@@ -69,6 +69,7 @@ def main():
                 page.route('**/api/cache/snapshot?**',lambda route:route.fulfill(json=snapshot))
                 trend_points=[{'date':'2026-11-'+str(6+i).zfill(2),'total_tokens':v,'cache_rate':r,'requests':12+i*5,'actual_cost':.1+i*.07,'input_tokens':100-r,'cache_read_tokens':r,'cache_creation_tokens':0} for i,(v,r) in enumerate([(2400000,82),(3800000,91),(3100000,89),(5900000,96),(4200000,93),(7800000,98),(6200000,97)])]
                 trend_calls=[]
+                trend_points[0].update(input_total=100,input_tokens=None,cache_creation_tokens=None)
                 def trend_response(route):
                     q=parse_qs(urlparse(route.request.url).query)
                     trend_calls.append(q)
@@ -82,6 +83,7 @@ def main():
                 assert len(trend_calls)==1,'background fetch should prepare all three views'
                 page.locator('#usageTrendOpen').click()
                 page.wait_for_function('document.querySelector("#utContext").textContent.includes("全部分组")')
+                assert page.locator('#utSummaryRate').inner_text()!='—','known input_total was ignored'
                 page.screenshot(path=str(Path(tempfile.gettempdir())/'linx-usage-trends-light.png'))
                 page.evaluate("document.documentElement.dataset.theme='dark'")
                 page.screenshot(path=str(Path(tempfile.gettempdir())/'linx-usage-trends-dark.png'))
@@ -183,6 +185,20 @@ def main():
                 page.wait_for_function('!document.querySelector("#addSiteModal").open && !busy')
                 assert client.load_session()['access_token']==await_token
                 assert await_token not in page.content(),'token exposed to monitor page'
+                # Lost extension result must recover from server completion,
+                # rather than forcing a timeout and a manual retry.
+                client.disconnect();polled_token=jwt()
+                worker.evaluate('t=>fixture.relay.auth_token=t',polled_token)
+                page.evaluate('''()=>{chrome.runtime.sendMessage=m=>{
+                    const result=window.fixtureCapture(m);
+                    return m.type==='capture'?result.then(()=>new Promise(()=>{})):result;
+                }}''')
+                page.locator('#addSiteBtn').click();page.locator('.editor-site-option').click()
+                page.locator('#captureLogin').click()
+                page.wait_for_function('!document.querySelector("#addSiteModal").open && !busy',timeout=8000)
+                assert client.load_session()['access_token']==polled_token
+                await_token=polled_token
+                page.evaluate('chrome.runtime.sendMessage=m=>window.fixtureCapture(m)')
                 # An unpermitted site must not be read, even for explicit first connect.
                 worker.evaluate('fixture.allowed=false')
                 job=bridge.create_capture({'site_id':'lulu'})
@@ -212,6 +228,72 @@ def main():
                 assert parallel['started']==['fast','slow']
                 assert parallel['early'][0]['ok'] and parallel['early'][1]['checking']
                 assert all(item['ok'] for item in parallel['done'])
+                # Exercise actual fetch/XHR observation in a real document. The
+                # site owns these fixture tokens; no user browser is inspected.
+                panel=context.new_page()
+                panel.route('https://newapi.example/**',lambda r:r.fulfill(content_type='text/html',body='<title>Fixture</title>'))
+                panel.goto('https://newapi.example/dashboard')
+                panel.evaluate('window.observations=[];window.chrome={runtime:{async sendMessage(m){observations.push(m)}}}')
+                panel.add_script_tag(content=(ROOT/'integrations/browser-sync/panel-bridge.js').read_text(encoding='utf-8'))
+                panel.add_script_tag(content=(ROOT/'integrations/browser-sync/newapi-observer.js').read_text(encoding='utf-8'))
+                panel.evaluate('''async()=>{
+                    const r=await fetch('/api/user/self',{headers:{Authorization:'Bearer fixture-browser-access-token'}});
+                    if(!r.ok)throw Error('fetch behavior changed');
+                    await fetch('/v1/responses',{headers:{Authorization:'Bearer sk-model-must-be-ignored'}});
+                    await new Promise(resolve=>{const x=new XMLHttpRequest();x.open('GET','/api/log/self');x.setRequestHeader('Authorization','Bearer fixture-xhr-access-token');x.onload=resolve;x.send()});
+                }''')
+                panel.wait_for_function('observations.length===2')
+                observations=panel.evaluate('observations')
+                assert [x['path'] for x in observations]==['/api/user/self','/api/log/self']
+                assert all(x['type']=='panel-access' for x in observations)
+                panel.close()
+                # New API memory-only login: explicit capture reloads the selected
+                # tab once, observes only its own Bearer request and uses real APIs.
+                import usage_sites
+                newsite={'site_id':'site-newapi-fixture','name':'New API fixture','base_url':'https://newapi.example'}
+                usage_sites._save([newsite]);newclient=usage_sites.client(newsite['site_id'])
+                def newapi_request(path,*_a,**_k):
+                    if path=='/api/user/self':data={'id':456,'email':'newapi@example.com','quota':500000}
+                    elif path=='/api/status':data={'quota_per_unit':500000}
+                    elif path=='/api/user/self/groups':data={'default':{'ratio':1}}
+                    else:raise AssertionError('unexpected New API endpoint: '+path)
+                    return {'success':True,'data':data}
+                newclient.upstream_request=newapi_request
+                newtoken=jwt();newjob=bridge.create_capture({'site_id':newsite['site_id']})
+                result=worker.evaluate('''async arg=>{
+                    fixture.originalTabs=chrome.tabs.query;fixture.originalScript=chrome.scripting.executeScript;
+                    fixture.newToken=arg.token;fixture.reloads=0;
+                    chrome.tabs.query=async()=>[{id:2,url:arg.origin+'/dashboard'}];
+                    chrome.scripting.executeScript=async({func,args})=>{
+                        const store={getItem:k=>k==='system-config-storage'?'{}':null};
+                        const run=new Function('location','localStorage','sessionStorage','args','return ('+func.toString()+')(...args)');
+                        return [{result:run({origin:arg.origin},store,{getItem:()=>null},args)}];
+                    };
+                    chrome.tabs.reload=async id=>{
+                        if(id!==2)throw Error('wrong tab reloaded');fixture.reloads++;
+                        await observePanelRequest({tabId:2,url:arg.origin+'/api/user/self',requestHeaders:[{name:'Authorization',value:'Bearer '+fixture.newToken},{name:'Cookie',value:'do-not-read-or-upload'}]});
+                    };
+                    return capture(arg.job,{url:fixture.stored.config.origin+'/cache.html',tab:{id:99}});
+                }''',{'origin':newsite['base_url'],'token':newtoken,'job':dict(newjob)})
+                assert result['ok'] and result['connection']['panel']=='newapi'
+                assert worker.evaluate('fixture.reloads')==1
+                assert newclient.load_session()['access_token']==newtoken
+                assert newtoken not in worker.evaluate('JSON.stringify(fixture.stored)')
+                assert 'do-not-read-or-upload' not in worker.evaluate('JSON.stringify(fixture.stored)')
+                refreshed=jwt()
+                worker.evaluate('''async arg=>{
+                    await getRoster(await settings(),true);
+                    await observePanelRequest({tabId:2,url:arg.origin+'/api/log/self',requestHeaders:[{name:'Authorization',value:'Bearer '+arg.token}]});
+                    if(running)await running;
+                }''',{'origin':newsite['base_url'],'token':refreshed})
+                assert newclient.load_session()['access_token']==refreshed
+                assert worker.evaluate('fixture.reloads')==1,'background sync reloaded the website'
+                worker.evaluate('''async()=>{
+                    const before=observedLogins.size;
+                    await observePanelRequest({tabId:3,url:'https://unconfigured.example/api/user/self',requestHeaders:[{name:'Authorization',value:'Bearer '+fixture.newToken}]});
+                    if(observedLogins.size!==before)throw Error('unconfigured origin read');
+                    chrome.tabs.query=fixture.originalTabs;chrome.scripting.executeScript=fixture.originalScript;
+                }''')
                 # Popup script loads without inline script/CSP or syntax assumptions.
                 popup=context.new_page();popup.goto(origin+'/_popup-fixture')
                 popup.set_content((ROOT/'integrations/browser-sync/popup.html').read_text(encoding='utf-8').replace('<script src="popup.js"></script>',''))
@@ -241,8 +323,19 @@ def main():
                 page.keyboard.press('Escape')
                 page.locator('#browserSyncBtn').click()
                 assert not page.locator('#browserSyncModal details').evaluate('node=>node.open')
+                page.locator('#browserSyncModal summary').click()
+                assert page.locator('.guide-steps li').count()==4
+                assert page.locator('.guide-browser-links a').nth(0).get_attribute('href')=='chrome://extensions/'
+                assert page.locator('.guide-browser-links a').nth(1).get_attribute('href')=='edge://extensions/'
+                page.evaluate('''()=>{window.chrome.runtime.sendMessage=async m=>m.type==='open-extensions'?{ok:true}:window.fixtureCapture(m)}''')
+                page.locator('.guide-browser-links a').first.click()
+                page.wait_for_function('document.querySelector("#guideLinkMessage").textContent.includes("已打开")')
+                page.screenshot(path=str(Path(tempfile.gettempdir())/'linx-sync-guide-mobile.png'))
+                assert page.locator('#browserSyncModal').evaluate('n=>n.scrollWidth<=n.clientWidth')
+                page.set_viewport_size({'width':1440,'height':1000})
+                page.screenshot(path=str(Path(tempfile.gettempdir())/'linx-sync-guide-dark.png'))
                 box=page.locator('#browserSyncModal').bounding_box()
-                assert box['x']>=0 and box['x']+box['width']<=390
+                assert box['x']>=0 and box['x']+box['width']<=1440
                 page.screenshot(path=str(Path(tempfile.gettempdir())/'linx-browser-sync-dialog-mobile.png'))
                 assert not errors,errors
                 browser.close()

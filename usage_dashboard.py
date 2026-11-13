@@ -1,6 +1,6 @@
 """Isolated, read-only Sub2API usage client; one instance per connected site."""
 from __future__ import annotations
-import json, math, os, threading, time, secrets, socket, ipaddress, http.client
+import json, math, os, threading, time, secrets, socket, ipaddress, http.client, sys
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -24,6 +24,8 @@ WARMING = set()
 SHANGHAI = timezone(timedelta(hours=8))
 META = None
 SESSION = None
+NEWAPI_LOCK = threading.RLock()
+NEWAPI_STATE = {}
 
 class UsageError(Exception):
     def __init__(self, message, status=502, code='UPSTREAM_ERROR'):
@@ -63,8 +65,21 @@ class PublicHTTPSHandler(HTTPSHandler):
 
 
 def request(path, token='', payload=None):
-    if not path.startswith('/api/v1/') or '..' in path:
+    session=load_session()
+    if session and session.get('panel')=='newapi':
+        import usage_newapi
+        return usage_newapi.request(sys.modules[__name__],path,token or session['access_token'],payload)
+    return upstream_request(path,token,payload)
+
+
+def upstream_request(path, token='', payload=None):
+    from urllib.parse import urlsplit
+    allowed={'/api/user/self','/api/user/self/groups','/api/log/self','/api/status'}
+    if ('..' in path or not path.startswith('/') or path.startswith('//')
+        or (not path.startswith('/api/v1/') and urlsplit(path).path not in allowed)):
         raise UsageError('不支持的接口', 400)
+    if not path.startswith('/api/v1/') and payload is not None:
+        raise UsageError('New API 连接仅允许只读查询。',400,'INVALID_INPUT')
     headers={'Accept':'application/json','Content-Type':'application/json','User-Agent':'Mozilla/5.0 LinX-Usage/1.0',
              'Origin':BASE,'Referer':BASE+'/usage'}
     if token: headers['Authorization']='Bearer '+token
@@ -78,16 +93,33 @@ def request(path, token='', payload=None):
         if e.code==401: raise UsageError('站点登录已过期，请重新连接账户。',502,'RECONNECT_REQUIRED') from None
         if e.code==429: raise UsageError('站点限制了查询频率，请稍后刷新。',429,'RATE_LIMITED') from None
         if e.code in (400,403): raise UsageError('站点拒绝了请求（HTTP '+str(e.code)+'）。请核对官网登录令牌；若 API 也被 Cloudflare 拦截，登录令牌仍不能绕过该验证。',502,'UPSTREAM_DENIED') from None
-        raise UsageError('站点接口返回 HTTP '+str(e.code)+'，请稍后刷新。') from None
+        raise UsageError('站点接口返回 HTTP '+str(e.code)+'，请稍后刷新。',502,'UPSTREAM_NOT_FOUND' if e.code in (404,405) else 'UPSTREAM_ERROR') from None
     except (URLError,TimeoutError,OSError):
         raise UsageError('连接站点超时或网络异常，请稍后刷新。') from None
     except (ValueError,UnicodeError):
-        raise UsageError('站点返回的不是有效的用量数据。') from None
+        raise UsageError('站点返回的不是有效的用量数据。',502,'INVALID_UPSTREAM_DATA') from None
     if isinstance(data,dict) and 'code' in data:
         if data['code'] not in (0,200,'0'):
             raise UsageError('站点未接受此次查询，请检查账户连接。')
         return data.get('data')
     return data
+
+
+def verify_profile(token,panel='auto'):
+    if panel not in ('auto','sub2api','newapi'):
+        raise UsageError('不支持的面板类型。',400,'INVALID_INPUT')
+    if panel=='auto' and (load_session() or {}).get('panel')=='newapi':panel='newapi'
+    if panel!='newapi':
+        try:
+            profile=request('/api/v1/auth/me',token)
+            if isinstance(profile,dict) and profile.get('id'):
+                current=load_session()
+                return profile,(current or {}).get('panel','sub2api')
+            if panel=='sub2api':raise UsageError('无法确认站点账户身份。')
+        except UsageError as error:
+            if panel!='auto' or error.code not in ('UPSTREAM_NOT_FOUND','INVALID_UPSTREAM_DATA'):raise
+    import usage_newapi
+    return usage_newapi.profile(sys.modules[__name__],token,include_balance=False),'newapi'
 
 def cipher():
     PRIVATE.mkdir(mode=0o700,parents=True,exist_ok=True); os.chmod(PRIVATE,0o700)
@@ -141,7 +173,7 @@ def api(path):
 def connect(payload):
     global META
     mode=payload.get('mode','token')
-    with LOCK:
+    with REFRESH_LOCK:
         if mode=='token':
             access=str(payload.get('access_token','')).strip();refresh=str(payload.get('refresh_token','')).strip()
             if access.startswith('Bearer '):access=access[7:].strip()
@@ -156,26 +188,29 @@ def connect(payload):
             access=result.get('access_token','');refresh=result.get('refresh_token','')
             if not access:raise UsageError('站点没有返回登录令牌，请使用登录令牌方式连接。')
         else:raise UsageError('连接方式无效',400,'INVALID_INPUT')
-        profile=request('/api/v1/auth/me',access)
+        profile,panel=verify_profile(access,payload.get('panel','auto'))
         if not isinstance(profile,dict) or not profile.get('id'):raise UsageError('无法确认站点账户身份，未保存此次连接。')
-        save_session({'access_token':access,'refresh_token':refresh,'user_id':profile['id'],
-                      'username':profile.get('username') or profile.get('email') or '站点用户','connected_at':datetime.now().isoformat(timespec='seconds')})
+        save_session({'access_token':access,'refresh_token':refresh if panel=='sub2api' else '','panel':panel,'user_id':profile['id'],
+                      'username':profile.get('username') or profile.get('email') or '站点用户','connected_at':datetime.now().isoformat(timespec='microseconds')})
         CACHE.clear();RANGES.clear();META=None
+        with NEWAPI_LOCK:NEWAPI_STATE.clear()
         return status()
 
 def disconnect():
     global SESSION,META
-    with LOCK:
+    with REFRESH_LOCK:
         p=PRIVATE/'connection.enc'
         if p.exists():p.unlink()
         SESSION=None;META=None;CACHE.clear();RANGES.clear()
+        with NEWAPI_LOCK:NEWAPI_STATE.clear()
     return {'ok':True,'connected':False}
 
 def status():
     # Reading the saved connection never waits for an in-flight usage query.
     s=load_session()
     return {'connected':bool(s),'site_id':SITE_ID,'site_name':SITE_NAME,'base_url':BASE,
-            'username':s.get('username') if s else None,'connected_at':s.get('connected_at') if s else None}
+            'username':s.get('username') if s else None,'connected_at':s.get('connected_at') if s else None,
+            'panel':s.get('panel','sub2api') if s else None}
 
 
 def number(value):
@@ -184,6 +219,9 @@ def number(value):
     return n if math.isfinite(n) else None
 
 def normalize_row(row):
+    if row.get('_source')=='newapi':
+        import usage_newapi
+        return usage_newapi.normalize_row(row)
     out={k:row.get(k) for k in ('id','model','created_at','group_id','input_tokens','output_tokens','cache_read_tokens',
          'cache_creation_tokens','actual_cost','total_cost','rate_multiplier','first_token_ms','duration_ms','stream','reasoning_effort')}
     for k in ('input_tokens','output_tokens','cache_read_tokens','cache_creation_tokens'):
@@ -212,7 +250,7 @@ def period_summary(data):
              'total_tokens':'total_tokens','actual_cost':'total_actual_cost'}
     out={k:number(data.get(v)) for k,v in mapping.items()}
     vals=[out[k] for k in ('input_tokens','cache_read_tokens','cache_creation_tokens')]
-    out['input_total']=sum(vals) if all(x is not None for x in vals) else None
+    out['input_total']=number(data.get('total_input_total')) if 'total_input_total' in data else sum(vals) if all(x is not None for x in vals) else None
     out['cache_rate']=out['cache_read_tokens']/out['input_total']*100 if out['input_total'] and out['cache_read_tokens'] is not None else None
     return out
 
@@ -246,6 +284,7 @@ def query_params(params):
 def _metadata_unlocked():
     global META
     if META and time.monotonic()-META[0]<120:return META[1]
+    identity=status().get('connected_at')
     warnings=[];groups=[];balance=None
     with ThreadPoolExecutor(max_workers=2) as pool:
         gf=pool.submit(api,'/api/v1/groups/available');pf=pool.submit(api,'/api/v1/auth/me')
@@ -258,13 +297,17 @@ def _metadata_unlocked():
             if isinstance(profile,dict):
                 name=profile.get('username') or profile.get('email') or '站点用户'
                 current=load_session()
-                if current and current.get('username')!=name:
+                if current and current.get('connected_at')==identity and current.get('username')!=name:
                     with REFRESH_LOCK:
-                        save_session(dict(load_session(),username=name))
+                        current=load_session()
+                        if current and current.get('connected_at')==identity:save_session(dict(current,username=name))
 
         except UsageError as e:warnings.append(str(e))
-    result=dict(status(),groups=groups,balance=balance,warnings=warnings)
-    META=(time.monotonic(),result);return result
+    with REFRESH_LOCK:
+        if status().get('connected_at')!=identity:
+            raise UsageError('连接已更新，正在重新读取用量。',409,'CONNECTION_CHANGED')
+        result=dict(status(),groups=groups,balance=balance,warnings=warnings)
+        META=(time.monotonic(),result);return result
 
 def metadata():
     with LOCK:return _metadata_unlocked()
@@ -301,12 +344,13 @@ def range_rows(q):
             rows.extend(normalize_row(r) for r in raw['items'] if isinstance(r,dict))
         if len(rows)!=expected or len({r['id'] for r in rows})!=len(rows):
             raise UsageError('上游分页记录不完整或有重复，请重新查询。',409,'RANGE_CHANGED')
-        if identity!=status().get('connected_at') or not status()['connected']:
-            raise UsageError('账户连接已变化，请重新查询。',409,'CONNECT_REQUIRED')
-        if len(RANGES)>4:RANGES.clear()
-        entry=(time.monotonic(),rows,datetime.now(SHANGHAI).isoformat(timespec='seconds'))
-        RANGES[key]=entry
-        return entry
+        with REFRESH_LOCK:
+            if identity!=status().get('connected_at') or not status()['connected']:
+                raise UsageError('账户连接已变化，请重新查询。',409,'CONNECT_REQUIRED')
+            if len(RANGES)>4:RANGES.clear()
+            entry=(time.monotonic(),rows,datetime.now(SHANGHAI).isoformat(timespec='seconds'))
+            RANGES[key]=entry
+            return entry
 
 
 def warm_range(q):
@@ -345,6 +389,7 @@ def minute_range(q):
 
 def snapshot(params):
     with LOCK:
+        identity=status().get('connected_at')
         q=query_params(params);key=urlencode(q);now=time.monotonic()
         # Short deduplication window; a 10-second refresh always gets fresh usage.
         if key in CACHE and now-CACHE[key][0]<3:return CACHE[key][1]
@@ -374,6 +419,9 @@ def snapshot(params):
                 'page_summary':summary(rows),'period_summary':period,'balance':meta.get('balance'),
                 'groups':meta['groups'],'warnings':warnings+meta['warnings'],'filters':q,
                 'fetched_at':RANGES[range_key(q)][2] if (use_range or q['start_time']!='00:00' or q['end_time']!='23:59') else datetime.now(SHANGHAI).isoformat(timespec='seconds')}
-        if not use_range:warm_range(dict(q))
-        if len(CACHE)>80:CACHE.clear()
-        CACHE[key]=(time.monotonic(),result);return result
+        with REFRESH_LOCK:
+            if status().get('connected_at')!=identity:
+                raise UsageError('连接已更新，正在重新读取用量。',409,'CONNECTION_CHANGED')
+            if not use_range:warm_range(dict(q))
+            if len(CACHE)>80:CACHE.clear()
+            CACHE[key]=(time.monotonic(),result);return result
