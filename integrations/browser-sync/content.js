@@ -1,7 +1,7 @@
 'use strict';
 // Only injected into the paired monitor origin, never into relay pages.
-if(!window.__linxCaptureBridge){
- window.__linxCaptureBridge=true;
+if(window.__linxCaptureBridgeVersion!==chrome.runtime.getManifest().version){
+ window.__linxCaptureBridgeVersion=chrome.runtime.getManifest().version;
  chrome.runtime.onMessage?.addListener(message=>{if(message?.type==='linx-capture-progress'&&typeof message.request_id==='string'&&typeof message.text==='string')window.postMessage(message,location.origin)});
  window.addEventListener('message',async event=>{
   const m=event.data;

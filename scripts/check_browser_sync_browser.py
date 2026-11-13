@@ -39,7 +39,7 @@ def main():
                     const api={
                         storage:{local:{async get(keys){if(typeof keys==='string')keys=[keys];return Object.fromEntries(keys.map(k=>[k,fixture.stored[k]]))},async set(v){Object.assign(fixture.stored,v)}}},
                         permissions:{async contains(){return fixture.allowed}},
-                        tabs:{async query(){return [{id:1,url:'https://luluai.win/dashboard'}]},onUpdated:event,onActivated:event},
+                        tabs:{async create(options){fixture.openedTab=options;return {id:71,...options}},async query(){return [{id:1,url:'https://luluai.win/dashboard'}]},onUpdated:event,onActivated:event},
                         scripting:{async getRegisteredContentScripts({ids}={}){return ids?fixture.registered.filter(s=>ids.includes(s.id)):fixture.registered},async unregisterContentScripts({ids}){fixture.registered=fixture.registered.filter(s=>!ids.includes(s.id))},async registerContentScripts(s){fixture.registered.push(...s)},async executeScript({func,args,files}){
                             if(files)return [];
                             const store={getItem:k=>fixture.relay[k]||null};
@@ -47,10 +47,16 @@ def main():
                             return [{result:run({origin:'https://luluai.win'},store,{getItem:()=>null},args)}]
                         }},
                         action:{async setBadgeText(){},async setBadgeBackgroundColor(){}},
-                        alarms:{async create(){},onAlarm:event},runtime:{onInstalled:event,onStartup:event,onMessage:event}
+                        alarms:{async create(){},onAlarm:event},runtime:{onInstalled:event,onStartup:event,onMessage:{addListener(fn){fixture.runtimeListener=fn}}}
                     };Object.defineProperty(window,'chrome',{value:api,configurable:true});
                 }''',{'origin':origin,'key':pair['device_key']})
                 worker.add_script_tag(content=(ROOT/'integrations/browser-sync/background.js').read_text(encoding='utf-8'))
+                opened=worker.evaluate('''async()=>{
+                    const m={type:'open-extensions',url:'edge://extensions/'};
+                    const result=await new Promise(resolve=>fixture.runtimeListener(m,{url:fixture.stored.config.origin+'/cache.html',tab:{id:99}},resolve));
+                    if(!result.ok)throw Error(result.error);return fixture.openedTab;
+                }''')
+                assert opened['url']=='chrome://extensions/' and opened['active'],'wrong-browser internal URL was not normalized'
                 worker.evaluate('t=>fixture.relay.auth_token=t',second)
                 worker.evaluate('sync()')
                 assert client.load_session()['access_token']==first,'permission was bypassed'
@@ -73,6 +79,9 @@ def main():
                 def trend_response(route):
                     q=parse_qs(urlparse(route.request.url).query)
                     trend_calls.append(q)
+                    if q.get('granularity')==['hour']:
+                        pts=[dict(trend_points[0],date=q['start_date'][0]+'T'+str(h).zfill(2)+':00+08:00',total_tokens=h*100) for h in range(24)]
+                        route.fulfill(json={'points':pts,'filters':{'granularity':'hour'},'site_id':'lulu'});return
                     pts=[] if q.get('model')==['fixture-other'] else [p for p in trend_points if q['start_date'][0]<=p['date']<=q['end_date'][0]]
                     route.fulfill(json={'points':pts,'site_id':q.get('site_id',['lulu'])[0]})
                 page.route('**/api/cache/trend?**',trend_response)
@@ -89,6 +98,14 @@ def main():
                 page.screenshot(path=str(Path(tempfile.gettempdir())/'linx-usage-trends-dark.png'))
                 page.locator('#usageTrend canvas').hover()
                 assert page.locator('#usageTrend .ut-tip').is_visible()
+                page.locator('[data-days="1"]').click()
+                page.wait_for_function('document.querySelector("#usageTrend canvas").getAttribute("aria-label").includes("24")')
+                assert trend_calls[-1].get('granularity')==['hour']
+                assert trend_calls[-1]['start_date']==trend_calls[-1]['end_date']
+                assert '逐小时' in page.locator('.ut-foot').inner_text()
+                assert page.locator('#utSummaryPeak').inner_text()=='23:00'
+                page.screenshot(path=str(Path(tempfile.gettempdir())/'linx-usage-hourly.png'))
+                page.locator('[data-days="7"]').click()
                 page.locator('#utClose').click();assert not page.locator('#usageTrend').is_visible()
                 page.locator('#usageTrendOpen').click();assert page.locator('#usageTrend').is_visible()
                 page.locator('#utPickerButton').click()
@@ -114,13 +131,13 @@ def main():
                 page.wait_for_selector('.ui-report-grid')
                 assert '+85.7%' in page.locator('.ui-report-grid').inner_text()
                 assert '+5.00' in page.locator('.ui-report-grid').inner_text()
-                assert len(trend_calls)==1,'calendar and report triggered duplicate upstream reads'
+                assert len([q for q in trend_calls if q.get('granularity')!=['hour']])==1,'calendar and report triggered duplicate upstream reads'
                 page.screenshot(path=str(Path(tempfile.gettempdir())/'linx-usage-report-dark.png'))
                 page.locator('.ui-date').fill('2026-11-05')
                 page.wait_for_function('document.querySelector(".ui-report-grid")?.textContent.includes("暂无可用统计")')
                 page.locator('.ui-date').fill('2026-11-11')
                 page.wait_for_function('document.querySelector(".ui-report-grid")?.textContent.includes("7.8M")')
-                assert len(trend_calls)==1,'changing the report day should reuse month aggregates'
+                assert len([q for q in trend_calls if q.get('granularity')!=['hour']])==1,'changing the report day should reuse month aggregates'
                 original_model=page.evaluate('applied.model')
                 page.evaluate("applied.model='fixture-other'")
                 page.wait_for_function('document.querySelector(".ui-report-grid")?.textContent.includes("暂无可用统计")')
@@ -168,7 +185,7 @@ def main():
                 await_token=jwt();worker.evaluate('t=>fixture.relay.auth_token=t',await_token)
                 page.route('**/api/sites',lambda route:route.fulfill(json={'sites':[{'name':'噜噜 AI','url':'https://luluai.win'}]}))
                 page.expose_function('fixtureCapture',lambda m:worker.evaluate('''m=>capture(m,{url:fixture.stored.config.origin+'/cache.html',tab:{id:99}}).catch(e=>({ok:false,error:e.message}))''',m))
-                page.evaluate('window.chrome={runtime:{sendMessage:m=>window.fixtureCapture(m)}}')
+                page.evaluate('window.chrome={runtime:{getManifest:()=>({version:"fixture"}),sendMessage:m=>window.fixtureCapture(m)}}')
                 page.add_script_tag(content=(ROOT/'integrations/browser-sync/content.js').read_text(encoding='utf-8'))
                 page.locator('#addSiteBtn').click()
                 page.locator('.editor-site-option').click()
@@ -324,10 +341,12 @@ def main():
                 page.locator('#browserSyncBtn').click()
                 assert not page.locator('#browserSyncModal details').evaluate('node=>node.open')
                 page.locator('#browserSyncModal summary').click()
+                assert page.locator('.guide-copy-actions button').count()==2
+                assert page.locator('.account-status-row #connectionState').count()==1
                 assert page.locator('.guide-steps li').count()==4
                 assert page.locator('.guide-browser-links a').nth(0).get_attribute('href')=='chrome://extensions/'
                 assert page.locator('.guide-browser-links a').nth(1).get_attribute('href')=='edge://extensions/'
-                page.evaluate('''()=>{window.chrome.runtime.sendMessage=async m=>m.type==='open-extensions'?{ok:true}:window.fixtureCapture(m)}''')
+                page.evaluate('''()=>{window.chrome.runtime.sendMessage=async m=>{if(m.type!=='open-extensions')return window.fixtureCapture(m);await new Promise(resolve=>setTimeout(resolve,1200));return {ok:true}}}''')
                 page.locator('.guide-browser-links a').first.click()
                 page.wait_for_function('document.querySelector("#guideLinkMessage").textContent.includes("已打开")')
                 page.screenshot(path=str(Path(tempfile.gettempdir())/'linx-sync-guide-mobile.png'))

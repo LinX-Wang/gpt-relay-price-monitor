@@ -22,18 +22,21 @@ def trend(params):
         raise UsageError('模型或分组参数无效。',400,'INVALID_INPUT')
     identity=client.status().get('connected_at')
     if not identity:raise UsageError('请先连接站点账户。',409,'CONNECT_REQUIRED')
-    filters={'start_date':str(start),'end_date':str(end),'granularity':'day','timezone':'Asia/Shanghai'}
+    granularity=get('granularity','day')
+    if granularity not in ('day','hour') or (granularity=='hour' and start!=end):
+        raise UsageError('小时趋势仅支持单日查询。',400,'INVALID_INPUT')
+    filters={'start_date':str(start),'end_date':str(end),'granularity':granularity,'timezone':'Asia/Shanghai'}
     if model:filters['model']=model
     if group:filters['group_id']=group
     key=(sid,identity,urlencode(filters))
     with LOCK:
         saved=CACHE.get(key)
-        if saved and time.monotonic()-saved[0]<60:return saved[1]
+        if saved and time.monotonic()-saved[0]<(10 if granularity=='hour' else 60):return saved[1]
         # A month already read by another tab can also serve a shorter range.
         for cached_key,(at,result) in reversed(list(CACHE.items())):
             f=result['filters']
-            if (cached_key[:2]==key[:2] and time.monotonic()-at<60
-                and f.get('model','')==model and f.get('group_id','')==group
+            if (granularity=='day' and cached_key[:2]==key[:2] and time.monotonic()-at<60
+                and f.get('model','')==model and f.get('group_id','')==group and f.get('granularity','day')==granularity
                 and f['start_date']<=str(start) and f['end_date']>=str(end)):
                 return dict(result,filters=filters,points=[p for p in result['points'] if str(start)<=p['date']<=str(end)])
         flight=INFLIGHT.get(key)
@@ -48,7 +51,7 @@ def trend(params):
             raise UsageError('连接已变化，请重新读取趋势。',409,'CONNECT_REQUIRED')
         return flight['result']
     try:
-        result=_read(client,sid,identity,filters,start,end)
+        result=_hourly(client,sid,identity,filters,start) if granularity=='hour' else _read(client,sid,identity,filters,start,end)
         with LOCK:
             if len(CACHE)>80:CACHE.clear()
             CACHE[key]=(time.monotonic(),result)
@@ -61,6 +64,33 @@ def trend(params):
         with LOCK:
             INFLIGHT.pop(key,None)
             flight['event'].set()
+
+
+def _hourly(client,sid,identity,filters,day):
+    # One complete range read, shared with the records page, not 24 API calls.
+    q={k:v for k,v in filters.items() if k!='granularity'}
+    q.update(page=1,page_size=100,start_time='00:00',end_time='23:59')
+    rows=client.range_rows(q)[1]
+    by_hour={}
+    for row in rows:
+        if filters.get('model') and row['model']!=filters['model']:continue
+        if filters.get('group_id') and str(row['group_id'])!=filters['group_id']:continue
+        try:
+            stamp=datetime.fromisoformat(str(row['created_at']).replace('Z','+00:00'))
+            if stamp.tzinfo is None:raise ValueError()
+            stamp=stamp.astimezone(SHANGHAI)
+        except (ValueError,TypeError):raise UsageError('记录缺少有效时区时间，无法生成小时趋势。') from None
+        if stamp.date()==day:by_hour.setdefault(stamp.hour,[]).append(row)
+    now=datetime.now(SHANGHAI);points=[]
+    fields=('requests','input_tokens','output_tokens','cache_creation_tokens','cache_read_tokens','input_total','total_tokens','actual_cost','cache_rate')
+    for hour in range(24):
+        stamp=datetime.combine(day,datetime.min.time()).replace(tzinfo=SHANGHAI)+timedelta(hours=hour)
+        if hour in by_hour:values=client.summary(by_hour[hour])
+        elif stamp<=now:values={k:0 if k!='cache_rate' else None for k in fields}
+        else:values={k:None for k in fields}
+        points.append(dict(date=stamp.isoformat(timespec='minutes'),**values))
+    if client.status().get('connected_at')!=identity:raise UsageError('连接已变化，请重新读取趋势。',409,'CONNECT_REQUIRED')
+    return {'site_id':sid,'points':points,'filters':filters,'fetched_at':now.isoformat(timespec='seconds')}
 
 
 def _read(client,sid,identity,filters,start,end):

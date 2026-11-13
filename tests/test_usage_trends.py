@@ -2,6 +2,30 @@ import unittest
 import test_core
 class TrendTests(unittest.TestCase):
     run_case=test_core.CoreTests.run_case
+    def test_hourly_buckets_filters_timezone_and_daily_cache_isolation(self):
+        self.run_case('''
+            import usage_trends as t,usage_dashboard as u
+            u.request=lambda *a,**k:{'id':1}
+            u.connect({'access_token':'fixture-token-for-hourly-test'})
+            rows=[{'created_at':'2026-11-10T01:10:00Z','model':'sol','group_id':1,'input_tokens':100,'output_tokens':20,'cache_read_tokens':900,'cache_creation_tokens':0,'total_tokens':1020,'input_total':1000,'actual_cost':.01},
+                  {'created_at':'2026-11-10T09:40:00+08:00','model':'sol','group_id':1,'input_tokens':300,'output_tokens':10,'cache_read_tokens':700,'cache_creation_tokens':0,'total_tokens':1010,'input_total':1000,'actual_cost':.02},
+                  {'created_at':'2026-11-10T10:00:00+08:00','model':'other','group_id':2}]
+            calls=[]
+            u.range_rows=lambda q:(calls.append(q) or (0,rows,'fixture'))
+            q={k:[v] for k,v in {'site_id':'lulu','start_date':'2026-11-10','end_date':'2026-11-10','granularity':'hour','model':'sol','group_id':'1'}.items()}
+            r=t.trend(q);assert len(r['points'])==24
+            assert r['points'][9]['requests']==2 and r['points'][9]['cache_rate']==80
+            assert r['points'][9]['total_tokens']==2030 and r['points'][9]['actual_cost']==.03
+            assert r['points'][10]['requests']==0 and r['points'][10]['cache_rate'] is None
+            assert len(calls)==1 and calls[0]['start_time']=='00:00'
+            t.trend(q);assert len(calls)==1
+            u.api=lambda path:{'trend':[{'date':'2026-11-10','requests':9}]}
+            daily=t.trend(dict(q,granularity=['day']))
+            assert len(daily['points'])==1 and daily['points'][0]['requests']==9
+            try:t.trend(dict(q,end_date=['2026-11-11']))
+            except u.UsageError as e:assert e.code=='INVALID_INPUT'
+            else:raise AssertionError('multiday hourly query allowed')
+        ''')
     def test_weighted_daily_cache_missing_dates_and_cache_isolation(self):
         self.run_case('''
             import usage_trends as t,usage_dashboard as u

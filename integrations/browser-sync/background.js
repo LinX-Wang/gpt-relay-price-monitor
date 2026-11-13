@@ -205,7 +205,10 @@ chrome.runtime.onMessage.addListener((message,sender,sendResponse)=>{
     try{const origin=new URL(sender.url).origin;if(!sender.tab||origin!==message.origin)return;observePanelRequest({tabId:sender.tab.id,url:origin+message.path,requestHeaders:[{name:'Authorization',value:message.authorization}]}).catch(()=>{})}catch{}return;
   }
   if(message?.type==='open-extensions'){
-    (async()=>{const config=await settings();if(!config?.key||!sender.tab||new URL(sender.url).origin!==config.origin||!['chrome://extensions/','edge://extensions/'].includes(message.url))throw Error('请从已配对的监测页面打开扩展管理');await chrome.tabs.create({url:message.url});return {ok:true}})().then(sendResponse,error=>sendResponse({ok:false,error:error.message}));return true;
+    (async()=>{const config=await settings();if(!config?.key||!sender.tab||new URL(sender.url).origin!==config.origin||!['chrome://extensions/','edge://extensions/'].includes(message.url))throw Error('请从已配对的监测页面打开扩展管理');
+     const url=/Edg[/]/.test(navigator.userAgent)?'edge://extensions/':'chrome://extensions/';
+     const tab=await chrome.tabs.create({url,active:true});if(!tab?.id)throw Error('浏览器没有创建扩展管理标签页');return {ok:true,url};
+    })().then(sendResponse,error=>sendResponse({ok:false,error:error.message}));return true;
   }
   if(message?.type==='capture'){capture(message,sender).then(sendResponse,error=>sendResponse({ok:false,code:error.code,error:error.message||'自动连接未完成，请重试'}));return true}
   if(message?.type==='sites'){settings().then(c=>getRoster(c,true)).then(sendResponse,error=>sendResponse({error:error.message}));return true}
