@@ -265,7 +265,7 @@ def main():
                     fixture.newToken=arg.token;fixture.reloads=0;
                     chrome.tabs.query=async()=>[{id:2,url:arg.origin+'/dashboard'}];
                     chrome.scripting.executeScript=async({func,args})=>{
-                        const store={getItem:k=>k==='system-config-storage'?'{}':null};
+                        const store={getItem:()=>null};
                         const run=new Function('location','localStorage','sessionStorage','args','return ('+func.toString()+')(...args)');
                         return [{result:run({origin:arg.origin},store,{getItem:()=>null},args)}];
                     };

@@ -109,8 +109,10 @@ async function readSiteLogin(origin,tabs){
 }
 async function acquireLogin(origin,tabs,reload=false,progress=async()=>{}){
  const result=await readSiteLogin(origin,tabs);
- if(result.login||!reload||!result.matching||result.panel!=='newapi')return result;
- await progress('已识别 New API，正在刷新官网以读取当前登录…');
+ if(result.login||!reload||!result.matching)return result;
+ // A panel's optional config-storage key is not proof of its architecture.
+ // An explicit capture must also observe memory-only logins without that key.
+ await progress('正在刷新所选官网，识别其当前登录方式…');
  await chrome.tabs.reload(result.tabs[0].id);
  const deadline=Date.now()+12000;
  while(Date.now()<deadline){const v=observedLogins.get(origin);if(v&&v.expires*1000>Date.now()+20000){result.login=v;break}await new Promise(resolve=>setTimeout(resolve,100))}
@@ -186,7 +188,7 @@ async function capture(message,sender){
  const {login,matching,panel}=await acquireLogin(origin,tabs,true,progress);
  // Explicit one-click capture may reload this site's tab once to let its own app
  // bootstrap auth. We never call or rotate the site's refresh endpoint ourselves.
- if(!login)throw Error(matching?(panel==='newapi'?'未收到 New API 的有效访问令牌。请确认官网已登录、扩展已授权，然后刷新官网重试。仅 Cookie 登录的旧版面板需要可用的访问令牌。':'未找到有效登录令牌，请先在该站官网登录后重试'):'请在当前浏览器打开该站官网并登录后重试');
+ if(!login)throw Error(matching?'已检查所选官网，但未收到可用的访问令牌。这不代表官网已退出登录；请确认扩展获准访问该站并重新加载，Cookie 登录面板可能尚不兼容。':'请在当前浏览器打开该站官网并登录后重试');
  await progress('已获取登录，服务器正在向该站验证账户…');
  const result=await request(config,'capture',{request_id:message.request_id,site_id:site.site_id,origin,access_token:login.token,panel:login.panel||'sub2api'});
  return {ok:true,connection:result.connection};

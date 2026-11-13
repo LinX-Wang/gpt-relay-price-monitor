@@ -101,7 +101,7 @@
    const job=await request('create-capture',{site_id:sid});
    const result=await new Promise((resolve,reject)=>{
     let polling=false;function cleanup(){clearTimeout(missing);clearTimeout(timeout);clearInterval(poll);window.removeEventListener('message',listener)}
-    const missing=setTimeout(()=>{cleanup();reject(Error('未检测到新版扩展。请在「自动同步登录」下载 1.1.2，更新扩展并配对，刷新本页后重试。'))},2500);
+    const missing=setTimeout(()=>{cleanup();reject(Error('未检测到新版扩展。请在「自动同步登录」下载 1.1.3，更新扩展并配对，刷新本页后重试。'))},2500);
     const timeout=setTimeout(()=>{cleanup();reject(Error('官网登录验证未及时完成，请检查该站官网状态后重试。'))},45000);
     const poll=setInterval(async()=>{if(polling)return;polling=true;try{const s=await request('capture-status/'+encodeURIComponent(job.request_id));if(s.state==='done'){cleanup();resolve({ok:true,connection:s.connection})}}catch{}finally{polling=false}},1500);
     function listener(event){if(event.source!==window||event.origin!==location.origin||event.data?.request_id!==job.request_id)return;if(event.data?.type==='linx-capture-ack'){clearTimeout(missing);return}if(event.data?.type==='linx-capture-progress'){message.textContent=event.data.text;return}if(event.data?.type!=='linx-capture-result')return;cleanup();resolve(event.data)}
