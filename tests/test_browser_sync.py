@@ -92,10 +92,45 @@ class BrowserSyncTests(unittest.TestCase):
             assert call(prefix+'sites',auth=key)[0]==200
             assert call(prefix+'sites')[0]==401
             assert call(prefix+'create-pairing',{},auth=key)[0]==401
+            assert call(prefix+'create-capture',{'site_id':'lulu'},auth=key)[0]==401
+            assert call(prefix+'capture-status/unknown',auth=key)[0]==401
             assert call('/api/sites',auth=key)[0]==401
             assert call(prefix+'unpair',{},auth=key)[0]==200
             assert call(prefix+'sites',auth=key)[0]==401
             server.shutdown();server.server_close()
+        ''')
+
+    def test_capture_initial_connection_is_explicit_single_use_and_account_safe(self):
+        self.run_case('''
+            import browser_sync as b,usage_dashboard as u,json,base64,time
+            encoded=base64.urlsafe_b64encode(json.dumps({'exp':time.time()+7200}).encode()).decode().rstrip('=')
+            token='header.'+encoded+'.signature'
+            u.request=lambda *a,**k:{'id':123,'email':'demo@example.com'}
+            job=b.create_capture({'site_id':'lulu'})
+            payload=dict(job,access_token=token)
+            try:b.capture_token(dict(payload,origin='https://wrong.example'))
+            except b.UsageError as e:assert e.code=='ORIGIN_MISMATCH'
+            else:raise AssertionError('incorrect origin accepted')
+            assert not u.load_session()
+            assert b.capture_token(payload)['ok']
+            assert b.capture_status(job['request_id'])['state']=='done'
+            assert u.load_session()['user_id']==123
+            assert token.encode() not in (u.PRIVATE/'connection.enc').read_bytes()
+            assert token not in json.dumps(b.CAPTURES)
+            try:b.capture_token(payload)
+            except b.UsageError as e:assert e.code=='CAPTURE_EXPIRED'
+            else:raise AssertionError('job replay accepted')
+            second=b.create_capture({'site_id':'lulu'})
+            u.request=lambda *a,**k:{'id':999,'email':'other@example.com'}
+            changed=base64.urlsafe_b64encode(json.dumps({'exp':time.time()+9000}).encode()).decode().rstrip('=')
+            try:b.capture_token(dict(second,access_token='header.'+changed+'.signature'))
+            except b.UsageError as e:assert e.code=='ACCOUNT_MISMATCH'
+            else:raise AssertionError('existing account replaced')
+            assert u.load_session()['user_id']==123
+            expired=b.create_capture({'site_id':'lulu'});b.CAPTURES[expired['request_id']]['expires']=0
+            try:b.capture_token(dict(expired,access_token=token))
+            except b.UsageError as e:assert e.code=='CAPTURE_EXPIRED'
+            else:raise AssertionError('expired job accepted')
         ''')
 
 if __name__=='__main__':unittest.main()

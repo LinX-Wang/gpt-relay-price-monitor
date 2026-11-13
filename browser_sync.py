@@ -10,6 +10,49 @@ ROOT = Path(__file__).resolve().parent
 STATE = usage_sites.PRIVATE / 'browser-sync.json'
 LOCK = threading.RLock()
 PREFIX = '/api/cache/browser-sync/'
+CAPTURES = {}
+
+
+def create_capture(payload):
+    sid = str(payload.get('site_id', ''))
+    site = next((s for s in usage_sites.sites() if s['site_id'] == sid), None)
+    if not site:
+        raise UsageError('请先选择并添加站点。', 404, 'SITE_NOT_FOUND')
+    with LOCK:
+        for key in list(CAPTURES):
+            if CAPTURES[key]['expires'] < time.time():CAPTURES.pop(key)
+        if len(CAPTURES) >= 40:
+            raise UsageError('连接请求过多，请稍后重试。', 429, 'CAPTURE_LIMIT')
+        request_id = secrets.token_urlsafe(24)
+        CAPTURES[request_id] = {'site_id':sid,'origin':site['base_url'].rstrip('/'),
+                               'expires':time.time()+90,'state':'pending'}
+    return {'request_id':request_id,'site_id':sid,'origin':site['base_url'].rstrip('/')}
+
+
+def capture_status(request_id):
+    with LOCK:
+        job = CAPTURES.get(request_id)
+        if not job or job['expires'] < time.time():
+            raise UsageError('获取请求已过期，请重新点击。', 410, 'CAPTURE_EXPIRED')
+        return {k:job[k] for k in ('site_id','state')}
+
+
+def capture_token(payload):
+    request_id = str(payload.get('request_id',''))
+    with LOCK:
+        job = CAPTURES.get(request_id)
+        if not job or job['expires'] < time.time() or job['state'] != 'pending':
+            raise UsageError('获取请求已过期或已处理，请重新点击。', 409, 'CAPTURE_EXPIRED')
+        if payload.get('site_id') != job['site_id'] or payload.get('origin') != job['origin']:
+            raise UsageError('令牌来源与选择的站点不一致。', 400, 'ORIGIN_MISMATCH')
+        job['state'] = 'connecting'
+    try:
+        result = sync_token(payload, allow_initial=True)
+        with LOCK:job['state'] = 'done'
+        return result
+    except Exception:
+        with LOCK:job['state'] = 'failed'
+        raise
 
 def _digest(value):
     return hashlib.sha256(value.encode()).hexdigest()
@@ -85,7 +128,7 @@ def configured_sites():
     return {'sites': [{k: s[k] for k in ('site_id', 'name', 'base_url', 'connected')}
                       for s in usage_sites.sites()]}
 
-def sync_token(payload):
+def sync_token(payload, allow_initial=False):
     sid = str(payload.get('site_id', ''))
     site = next((s for s in usage_sites.sites() if s['site_id'] == sid), None)
     if not site or payload.get('origin') != site['base_url'].rstrip('/'):
@@ -102,8 +145,11 @@ def sync_token(payload):
     client = usage_sites.client(sid)
     with client.LOCK:
         old = client.load_session()
-        if not old:
+        if not old and not allow_initial:
             raise UsageError('该站点尚未连接或已手动断开，请先在用量页连接一次。', 409, 'CONNECT_REQUIRED')
+        if not old:
+            client.connect({'mode':'token','access_token':token,'refresh_token':''})
+            return {'ok':True,'changed':True}
         if secrets.compare_digest(old['access_token'], token):
             return {'ok': True, 'changed': False}
         # Verify against the site's own API; decoding a JWT is not verification.
@@ -120,7 +166,7 @@ def sync_token(payload):
 def extension_archive():
     stream = io.BytesIO()
     with zipfile.ZipFile(stream, 'w', zipfile.ZIP_DEFLATED) as out:
-        for name in ('manifest.json', 'background.js', 'popup.html', 'popup.js', 'icon.png'):
+        for name in ('manifest.json', 'background.js', 'content.js', 'popup.html', 'popup.js', 'icon.png'):
             out.write(ROOT / 'integrations/browser-sync' / name, 'linx-browser-sync/' + name)
         out.write(ROOT / 'docs/BROWSER_SYNC.md', 'linx-browser-sync/安装说明.md')
     return stream.getvalue()
@@ -136,7 +182,7 @@ def handle(handler, path, send_json, payload=None):
             raise UsageError('请求格式无效。', 400, 'INVALID_INPUT')
         if (method, action) == ('POST', 'pair'):
             result = pair(payload)
-        elif (method, action) in (('GET', 'sites'), ('POST', 'token'), ('POST', 'unpair')):
+        elif (method, action) in (('GET', 'sites'), ('POST', 'token'), ('POST', 'capture'), ('POST', 'unpair')):
             device_id = authorize(handler.headers.get('Authorization', ''))
             if action == 'unpair':
                 with LOCK:
@@ -145,7 +191,7 @@ def handle(handler, path, send_json, payload=None):
                     _save(state)
                 result = {'ok': True}
             else:
-                result = configured_sites() if method == 'GET' else sync_token(payload)
+                result = configured_sites() if method == 'GET' else capture_token(payload) if action == 'capture' else sync_token(payload)
             touch(device_id)
         else:
             if not handler.require_auth(api=True):
@@ -155,6 +201,10 @@ def handle(handler, path, send_json, payload=None):
                 raise UsageError('请从本站用量页面管理自动同步。', 403, 'INVALID_ORIGIN')
             if (method, action) == ('GET', 'status'):
                 result = admin_status()
+            elif (method, action) == ('POST', 'create-capture'):
+                result = create_capture(payload)
+            elif method == 'GET' and action.startswith('capture-status/'):
+                result = capture_status(action.split('/',1)[1])
             elif (method, action) == ('POST', 'create-pairing'):
                 result = create_pairing()
             elif (method, action) == ('POST', 'revoke'):

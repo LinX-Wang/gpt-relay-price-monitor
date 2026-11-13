@@ -34,13 +34,14 @@ def main():
                 worker=context.new_page();worker.goto(origin+'/_sync-fixture')
                 second=jwt()
                 worker.evaluate('''config=>{
-                    window.fixture={stored:{config},relay:{},allowed:false,listeners:[],uploads:0};
+                    window.fixture={stored:{config},relay:{},allowed:false,listeners:[],uploads:0,registered:[]};
                     const event={addListener(fn){fixture.listeners.push(fn)}};
                     const api={
                         storage:{local:{async get(keys){if(typeof keys==='string')keys=[keys];return Object.fromEntries(keys.map(k=>[k,fixture.stored[k]]))},async set(v){Object.assign(fixture.stored,v)}}},
                         permissions:{async contains(){return fixture.allowed}},
                         tabs:{async query(){return [{id:1,url:'https://luluai.win/dashboard'}]},onUpdated:event,onActivated:event},
-                        scripting:{async executeScript({func,args}){
+                        scripting:{async getRegisteredContentScripts(){return fixture.registered},async unregisterContentScripts(){fixture.registered=[]},async registerContentScripts(s){fixture.registered=s},async executeScript({func,args,files}){
+                            if(files)return [];
                             const store={getItem:k=>fixture.relay[k]||null};
                             const run=new Function('location','localStorage','sessionStorage','args','return ('+func.toString()+')(...args)');
                             return [{result:run({origin:'https://luluai.win'},store,{getItem:()=>null},args)}]
@@ -55,6 +56,9 @@ def main():
                 assert client.load_session()['access_token']==first,'permission was bypassed'
                 worker.evaluate('fixture.allowed=true;sync()')
                 assert client.load_session()['access_token']==second
+                worker.evaluate('installCaptureBridge()')
+                assert worker.evaluate('fixture.registered[0].matches[0]')==origin+'/*'
+                assert worker.evaluate('fixture.registered[0].js[0]')=='content.js'
                 before=len(calls);worker.evaluate('sync()');assert len(calls)==before,'duplicate token uploaded'
                 assert second not in worker.evaluate('JSON.stringify(fixture.stored)'),'JWT persisted in extension storage'
                 # Real dashboard management and recovery after an expired connection.
@@ -157,6 +161,35 @@ def main():
                 profile['id']=999;fourth=jwt();worker.evaluate('t=>fixture.relay.auth_token=t',fourth);worker.evaluate('sync()')
                 assert client.load_session()['access_token']==third
                 assert '另一个账户' in worker.evaluate('fixture.stored.results[0].message')
+                # First-time connection via selected station, content bridge and real server job.
+                profile['id']=123;client.disconnect()
+                await_token=jwt();worker.evaluate('t=>fixture.relay.auth_token=t',await_token)
+                page.route('**/api/sites',lambda route:route.fulfill(json={'sites':[{'name':'噜噜 AI','url':'https://luluai.win'}]}))
+                page.expose_function('fixtureCapture',lambda m:worker.evaluate('''m=>capture(m,{url:fixture.stored.config.origin+'/cache.html',tab:{id:99}}).catch(e=>({ok:false,error:e.message}))''',m))
+                page.evaluate('window.chrome={runtime:{sendMessage:m=>window.fixtureCapture(m)}}')
+                page.add_script_tag(content=(ROOT/'integrations/browser-sync/content.js').read_text(encoding='utf-8'))
+                page.locator('#addSiteBtn').click()
+                page.locator('.editor-site-option').click()
+                assert page.locator('#siteToken').input_value()==''
+                page.screenshot(path=str(Path(tempfile.gettempdir())/'linx-capture-connect.png'))
+                page.evaluate("document.documentElement.dataset.theme='dark'")
+                page.wait_for_timeout(250)
+                page.screenshot(path=str(Path(tempfile.gettempdir())/'linx-capture-connect-dark.png'))
+                page.set_viewport_size({'width':320,'height':740})
+                assert page.locator('#addSiteModal').evaluate('n=>n.scrollWidth<=n.clientWidth')
+                page.screenshot(path=str(Path(tempfile.gettempdir())/'linx-capture-connect-mobile.png'))
+                page.set_viewport_size({'width':1440,'height':1000})
+                page.locator('#captureLogin').click()
+                page.wait_for_function('!document.querySelector("#addSiteModal").open && !busy')
+                assert client.load_session()['access_token']==await_token
+                assert await_token not in page.content(),'token exposed to monitor page'
+                # An unpermitted site must not be read, even for explicit first connect.
+                worker.evaluate('fixture.allowed=false')
+                job=bridge.create_capture({'site_id':'lulu'})
+                denied=worker.evaluate('''m=>capture(m,{url:fixture.stored.config.origin+'/cache.html',tab:{id:99}}).catch(e=>({ok:false,error:e.message}))''',{'request_id':job['request_id'],'site_id':'lulu'})
+                assert not denied['ok'] and '授权站点' in denied['error']
+                assert bridge.capture_status(job['request_id'])['state']=='pending'
+                worker.evaluate('fixture.allowed=true')
                 # Popup script loads without inline script/CSP or syntax assumptions.
                 popup=context.new_page();popup.goto(origin+'/_popup-fixture')
                 popup.set_content((ROOT/'integrations/browser-sync/popup.html').read_text(encoding='utf-8').replace('<script src="popup.js"></script>',''))

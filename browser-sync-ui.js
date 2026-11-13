@@ -74,3 +74,34 @@
   }
   setInterval(recoverConnection,10000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)recoverConnection()});window.addEventListener('online',recoverConnection);
 })();
+
+(()=>{
+ 'use strict';
+ const form=document.getElementById('addSiteForm'),token=document.getElementById('siteToken');if(!form||!token)return;
+ const box=document.createElement('div');box.className='capture-connect';box.innerHTML='<div class="capture-title"><span>浏览器快速连接</span><small>官网已登录？无需复制令牌</small></div><button type="button" id="captureLogin">↗ 从已打开的官网获取并连接</button><p id="captureMessage" role="status">使用已配对的 LinX 登录同步扩展，仅获取所选站点。</p>';
+ const label=token.closest('label')||token;label.before(box);
+ const style=document.createElement('style');style.textContent='html body#cache-dashboard .capture-connect{padding:14px;border:1px solid var(--line);background:var(--soft);border-radius:12px;margin:14px 0}.capture-title{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:11px}.capture-title span{font-size:12px;font-weight:650;color:var(--ink)}.capture-title small{font-size:10px;color:var(--sub)}html body#cache-dashboard #captureLogin{width:100%;height:38px;border:1px solid var(--brand)!important;background:var(--brand)!important;color:var(--surface)!important;border-radius:9px;font-size:12px;font-weight:650}.capture-connect p{font-size:10px;line-height:1.8;color:var(--sub);margin:9px 0 0}.capture-connect button:disabled{opacity:.65;cursor:wait}@media(max-width:450px){.capture-title{display:block}.capture-title small{display:block;margin-top:5px}}';document.head.append(style);
+ const button=box.querySelector('button'),message=box.querySelector('p');let active=false;
+ async function request(path,body){const r=await fetch('/api/cache/browser-sync/'+path,{method:body?'POST':'GET',cache:'no-store',headers:{'Content-Type':'application/json'},...(body?{body:JSON.stringify(body)}:{})});const d=await r.json();if(!r.ok)throw Error(d.error||'自动连接暂时不可用');return d}
+ button.onclick=async()=>{
+  if(active)return;active=true;button.disabled=true;const save=document.getElementById('saveSiteBtn');save.disabled=true;
+  try{
+   const choice=editorSiteRows.find(x=>x.key===selectedEditorSiteKey);if(!choice)throw Error('请先在上方搜索并选中站点');
+   message.textContent='正在准备 '+choice.name+' 的浏览器连接…';let sid=choice.existing?.site_id;
+   if(!sid){const created=await api('sites',{name:choice.name.slice(0,32),base_url:choice.origin});sid=created.site_id;choice.existing=created}
+   const job=await request('create-capture',{site_id:sid});
+   const result=await new Promise((resolve,reject)=>{
+    const missing=setTimeout(()=>{clearTimeout(timeout);window.removeEventListener('message',listener);reject(Error('未检测到新版扩展。请在「自动同步登录」下载 1.1.0，更新扩展并配对，刷新本页后重试。'))},2500);
+    const timeout=setTimeout(()=>{clearTimeout(missing);window.removeEventListener('message',listener);reject(Error('官网登录验证超时，请检查站点连接后重试。'))},45000);
+    function listener(event){if(event.source!==window||event.origin!==location.origin||event.data?.request_id!==job.request_id)return;if(event.data?.type==='linx-capture-ack'){clearTimeout(missing);return}if(event.data?.type!=='linx-capture-result')return;clearTimeout(missing);clearTimeout(timeout);window.removeEventListener('message',listener);resolve(event.data)}
+    window.addEventListener('message',listener);window.postMessage({type:'linx-capture-request',request_id:job.request_id,site_id:sid},location.origin);
+    message.textContent='正在从 '+choice.name+' 官网获取并验证登录。首次使用请在扩展中点击「授权站点」。';
+   });
+   if(!result.ok)throw Error(result.error||'未能获取官网登录，请在当前浏览器登录该站后重试');
+   const status=await request('capture-status/'+encodeURIComponent(job.request_id));if(status.state!=='done')throw Error('连接尚未完成，请重试');
+   epoch++;clearSiteSnapshots(sid);await loadSites(sid);try{localStorage.setItem('linx-usage-site',sid)}catch{}
+   token.value='';document.getElementById('addSiteModal').close();data=null;dates();capture();render();note('已从官网登录状态连接，正在读取最新用量。');await load();
+  }catch(error){message.textContent=error.message}
+  finally{active=false;button.disabled=false;save.disabled=!selectedEditorSiteKey}
+ };
+})();

@@ -40,6 +40,7 @@ $('pair').onclick=async()=>{
     await chrome.storage.local.set({preferredOrigin:origin});
     config={origin};const data=await api('pair',{code,name:'Chrome / Edge 浏览器'});
     await chrome.storage.local.set({config:{origin,key:data.device_key,id:data.device_id,paused:false},fingerprints:{},results:[],lastError:'',lastSuccess:{}});
+    await chrome.runtime.sendMessage({type:'sync'});
     $('code').value='';await render();$('message').textContent='已配对。请点击「授权站点」，允许读取已添加站点的登录状态。';
   }catch(error){$('message').textContent=error.message}finally{$('pair').disabled=false}
 };
@@ -63,6 +64,7 @@ $('reset').onclick=async()=>{
   try{await api('unpair',{})}catch{/* Local deletion must remain possible offline. */}
   const preferredOrigin=config.origin;await chrome.storage.local.clear();await chrome.storage.local.set({preferredOrigin});await chrome.alarms.clear('linx-login-sync');
   const permissions=await chrome.permissions.getAll();if(permissions.origins?.length)await chrome.permissions.remove({origins:permissions.origins});
+  await chrome.scripting.unregisterContentScripts({ids:['linx-capture']});
   await chrome.action.setBadgeText({text:''});await render();
 };
 render();

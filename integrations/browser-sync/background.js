@@ -89,13 +89,33 @@ async function sync(){
     await chrome.action.setBadgeText({text:'!'});
   }finally{running=false}
 }
-async function start(){await chrome.alarms.create(ALARM,{periodInMinutes:1});await sync()}
+async function installCaptureBridge(){
+ const config=await settings();if(!config?.key)return;
+ if(!await chrome.permissions.contains({origins:[config.origin+'/*']}))return;
+ const scripts=await chrome.scripting.getRegisteredContentScripts({ids:['linx-capture']});
+ if(scripts.length&&scripts[0].matches[0]!==config.origin+'/*')await chrome.scripting.unregisterContentScripts({ids:['linx-capture']});
+ if(!scripts.length||scripts[0].matches[0]!==config.origin+'/*')await chrome.scripting.registerContentScripts([{id:'linx-capture',matches:[config.origin+'/*'],js:['content.js'],runAt:'document_idle'}]);
+ const tabs=await chrome.tabs.query({});for(const tab of tabs){try{if(new URL(tab.url).origin===config.origin)await chrome.scripting.executeScript({target:{tabId:tab.id},files:['content.js']})}catch{}}
+}
+async function capture(message,sender){
+ const config=await settings();if(!config?.key||!sender.tab||new URL(sender.url).origin!==config.origin)throw Error('请先在当前浏览器配对此监测网站');
+ const site=(await request(config,'sites')).sites.find(s=>s.site_id===message.site_id);if(!site)throw Error('所选站点不存在，请重新选择');
+ const origin=new URL(site.base_url).origin;
+ if(!await chrome.permissions.contains({origins:[origin+'/*']}))throw Error('请先打开 LinX 登录同步扩展，点击「授权站点」，再回来重试');
+ const tabs=await chrome.tabs.query({}),matching=tabs.filter(t=>{try{return new URL(t.url).origin===origin}catch{return false}}),found=[];
+ for(const tab of matching){try{const values=await chrome.scripting.executeScript({target:{tabId:tab.id},func:readLogin,args:[origin]});const login=values[0]?.result;if(login?.origin===origin)found.push(login)}catch{}}
+ found.sort((a,b)=>b.expires-a.expires);const login=found[0];if(!login)throw Error(matching.length?'未找到有效登录令牌，请先在该站官网登录后重试':'请在当前浏览器打开该站官网并登录后重试');
+ await request(config,'capture',{request_id:message.request_id,site_id:site.site_id,origin,access_token:login.token});
+ return {ok:true};
+}
+async function start(){await chrome.alarms.create(ALARM,{periodInMinutes:1});await installCaptureBridge();await sync()}
 chrome.runtime.onInstalled.addListener(start);
 chrome.runtime.onStartup.addListener(start);
 chrome.alarms.onAlarm.addListener(alarm=>{if(alarm.name===ALARM)sync()});
 chrome.tabs.onUpdated.addListener((_id,change)=>{if(change.status==='complete')sync()});
 chrome.tabs.onActivated.addListener(()=>sync());
-chrome.runtime.onMessage.addListener((message,_sender,sendResponse)=>{
+chrome.runtime.onMessage.addListener((message,sender,sendResponse)=>{
+  if(message?.type==='capture'){capture(message,sender).then(sendResponse,error=>sendResponse({ok:false,error:error.message||'自动连接未完成，请重试'}));return true}
   if(message?.type!=='sync')return;
   start().then(()=>sendResponse({ok:true}),()=>sendResponse({ok:false}));return true;
 });
