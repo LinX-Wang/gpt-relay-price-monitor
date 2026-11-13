@@ -29,9 +29,9 @@
     function receive(e){if(e.source!==window||e.origin!==location.origin||e.data?.type!=='linx-open-extensions-result'||e.data.id!==id)return;clearTimeout(timer);window.removeEventListener('message',receive);status.textContent=e.data.ok?'已打开扩展管理页。':e.data.error||'请将 '+url+' 粘贴到地址栏打开。'}
     window.addEventListener('message',receive);setTimeout(()=>window.removeEventListener('message',receive),20000);window.postMessage({type:'linx-open-extensions',url,id},location.origin);
   });
-  const copies=document.createElement('div');copies.className='guide-copy-actions';
-  for(const [name,url] of [['Chrome','chrome://extensions/'],['Edge','edge://extensions/']]){const b=document.createElement('button');b.type='button';b.textContent='复制 '+name+' 地址';b.onclick=async()=>{const status=guide.querySelector('#guideLinkMessage');try{await navigator.clipboard.writeText(url);status.textContent='已复制 '+url+'，粘贴到浏览器地址栏即可打开。'}catch{status.textContent='请复制到地址栏：'+url}};copies.append(b)}
-  guide.querySelector('.guide-browser-links').after(copies);
+  const copyIcon='<svg viewBox="0 0 20 20" aria-hidden="true"><rect x="7" y="7" width="9" height="10" rx="2"/><path d="M12 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h2"/></svg>';
+  for(const link of guide.querySelectorAll('[data-extension-page]')){const card=document.createElement('div');card.className='guide-browser-card';link.before(card);card.append(link);const b=document.createElement('button');b.type='button';b.className='guide-copy-icon';b.title='复制地址';b.setAttribute('aria-label','复制 '+link.textContent.split(' ')[0]+' 扩展管理地址');b.innerHTML=copyIcon;b.onclick=async()=>{const url=link.dataset.extensionPage,status=guide.querySelector('#guideLinkMessage');try{await navigator.clipboard.writeText(url);b.innerHTML='<svg viewBox="0 0 20 20" aria-hidden="true"><path d="m4 10 4 4 8-8"/></svg>';b.classList.add('copied');b.title='已复制';status.textContent='地址已复制，可粘贴到浏览器地址栏打开。';setTimeout(()=>{b.innerHTML=copyIcon;b.classList.remove('copied');b.title='复制地址'},1800)}catch{status.textContent='请复制到地址栏：'+url}};card.append(b)}
+  style.textContent+='#browserSyncModal .guide-browser-card{display:flex;align-items:center;min-width:0;border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:3px;transition:border-color .15s}#browserSyncModal .guide-browser-card:hover{border-color:var(--brand)}html body#cache-dashboard #browserSyncModal .guide-browser-card a{flex:1;border:0;background:transparent!important;padding:11px 7px 11px 9px;font-size:12px}html body#cache-dashboard #browserSyncModal .guide-copy-icon{display:grid;place-items:center;flex:none;width:28px;height:28px;padding:6px;margin-right:4px;border:0;border-radius:7px;background:transparent;color:var(--sub)}html body#cache-dashboard #browserSyncModal .guide-copy-icon:hover,html body#cache-dashboard #browserSyncModal .guide-copy-icon.copied{background:var(--soft);color:var(--brand)}#browserSyncModal .guide-copy-icon svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}#browserSyncModal .guide-copy-icon:focus-visible{outline:2px solid var(--brand);outline-offset:2px}';
   const state=document.getElementById('connectionState'),identity=document.querySelector('.account-identity');
   if(state&&identity){const row=document.createElement('div');row.className='account-status-row';const label=identity.querySelector('.account-label');identity.prepend(row);if(label)row.append(label);row.append(state)}
   style.textContent+='html body#cache-dashboard .account-status-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:5px}html body#cache-dashboard .account-status-row .account-label{margin:0}html body#cache-dashboard .account-status-row .connection-state{margin:0;flex:none}html body#cache-dashboard .site-heading>div{flex:1;min-width:0}html body#cache-dashboard #siteName{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;overflow-wrap:anywhere;line-height:1.5}@media(max-width:650px){html body#cache-dashboard .account-status-row{float:right;margin:0 0 0 6px}html body#cache-dashboard #siteName{max-height:3em;overflow:auto!important}}';
@@ -41,6 +41,52 @@
   modal.querySelector('#syncDeviceRefresh').innerHTML='<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M16 7a6 6 0 1 0 0 6M16 3v4h-4"/></svg><span>刷新状态</span>';
   modal.querySelector('#syncModalClose').innerHTML='<svg viewBox="0 0 20 20" aria-hidden="true"><path d="m4 10 4 4 8-8"/></svg><span>完成</span>';
   style.textContent+='html body#cache-dashboard #browserSyncModal #syncModalClose span{color:inherit!important;font-size:12px;font-weight:650}';
+  const connectionPanel=document.createElement('section');connectionPanel.className='sync-connection-panel';
+  const body=modal.querySelector('.sync-body');
+  for(const child of [...body.children])if(child!==guide)connectionPanel.append(child);
+  body.prepend(connectionPanel);
+  style.textContent+=`
+    #browserSyncModal{width:min(1040px,calc(100vw - 32px));max-height:90dvh;box-sizing:border-box}
+    #browserSyncModal .sync-head{padding:24px 28px 0;align-items:center}
+    #browserSyncModal .sync-body{display:grid;grid-template-columns:280px minmax(0,1fr);gap:26px;padding:24px 28px}
+    #browserSyncModal .sync-connection-panel{min-width:0;padding-right:24px;border-right:1px solid var(--line)}
+    #browserSyncModal .sync-endpoint{flex-direction:column;align-items:flex-start;gap:6px;padding-bottom:18px}
+    #browserSyncModal .sync-endpoint code{overflow-wrap:anywhere}
+    #browserSyncModal .sync-actions{gap:8px}
+    #browserSyncModal .sync-actions #syncPairCreate{flex:1}
+    #browserSyncModal .sync-actions #syncDeviceRefresh{width:100%;justify-content:center}
+    #browserSyncModal .sync-device{flex-wrap:wrap;gap:10px}
+    #browserSyncModal .sync-device>div{flex:1;min-width:0;overflow-wrap:anywhere}
+    #browserSyncModal .sync-guide{margin:0;align-self:start}
+    #browserSyncModal .guide-content{padding:0 16px 16px}
+    #browserSyncModal .sync-guide>summary{padding:16px}
+    #browserSyncModal .guide-steps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 20px}
+    #browserSyncModal .guide-steps li{padding:13px 0;gap:10px}
+    #browserSyncModal .guide-steps li:nth-child(-n+2){grid-column:1/-1}
+    #browserSyncModal .guide-steps p,#browserSyncModal .guide-note p{line-height:1.75;font-size:12px}
+    #browserSyncModal .guide-note{padding:10px 12px}
+    #browserSyncModal .guide-note small{margin-top:5px;line-height:1.7}
+    #browserSyncModal .sync-foot{position:sticky;bottom:0;background:var(--surface);z-index:1}
+    @media(max-width:860px){
+      #browserSyncModal{width:min(720px,calc(100vw - 24px))}
+      #browserSyncModal .sync-body{grid-template-columns:minmax(0,1fr);gap:18px}
+      #browserSyncModal .sync-connection-panel{padding:0;border:0}
+      #browserSyncModal .sync-endpoint{flex-direction:row;flex-wrap:wrap;align-items:center}
+      #browserSyncModal .sync-actions #syncDeviceRefresh{width:auto}
+      #browserSyncModal .sync-section-title{margin-top:18px}
+      #browserSyncModal .sync-device{padding:12px 0}
+    }
+    @media(max-width:480px){
+      #browserSyncModal .sync-head{padding:18px 16px 0}
+      #browserSyncModal .sync-body{padding:18px 16px}
+      #browserSyncModal .sync-head h2{font-size:18px}
+      #browserSyncModal .guide-steps{grid-template-columns:minmax(0,1fr)}
+      #browserSyncModal .guide-steps li{grid-column:1}
+      #browserSyncModal .guide-content{padding:0 12px 12px}
+      #browserSyncModal .sync-foot{padding:12px 16px}
+      #browserSyncModal .sync-foot span{max-width:65%;line-height:1.6}
+    }
+  `;
   document.body.append(modal);
   const get=id=>document.getElementById(id);get('syncMonitorOrigin').textContent=location.origin;
   async function call(path,payload){

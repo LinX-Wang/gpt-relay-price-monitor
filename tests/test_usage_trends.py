@@ -2,6 +2,32 @@ import unittest
 import test_core
 class TrendTests(unittest.TestCase):
     run_case=test_core.CoreTests.run_case
+    def test_completed_days_reused_when_recent_statistics_expire(self):
+        self.run_case('''
+            import usage_trends as t,usage_dashboard as u
+            from datetime import datetime,timedelta
+            from urllib.parse import urlsplit,parse_qs
+            u.request=lambda *a,**k:{'id':1}
+            u.connect({'access_token':'fixture-history-cache-token'})
+            today=datetime.now(u.SHANGHAI).date();yesterday=today-timedelta(days=1);calls=[]
+            def upstream(path):
+                q=parse_qs(urlsplit(path).query);calls.append(q)
+                days=[];day=datetime.fromisoformat(q['start_date'][0]).date()
+                while day<=datetime.fromisoformat(q['end_date'][0]).date():
+                    days.append({'date':str(day),'requests':1,'total_tokens':100});day+=timedelta(days=1)
+                return {'trend':days}
+            u.api=upstream
+            q={'site_id':['lulu'],'start_date':[str(yesterday)],'end_date':[str(today)]}
+            t.trend(q);assert len(calls)==1
+            t.CACHE.clear()
+            for key,(at,point) in list(t.DAILY_CACHE.items()):t.DAILY_CACHE[key]=(at-120,point)
+            result=t.trend(q)
+            assert len(calls)==2 and calls[-1]['start_date']==[str(today)]
+            assert len(result['points'])==2 and result['points'][0]['total_tokens']==100
+            t.CACHE.clear()
+            u.save_session(dict(u.load_session(),connected_at='new-account'))
+            t.trend(q);assert calls[-1]['start_date']==[str(yesterday)]
+        ''')
     def test_hourly_buckets_filters_timezone_and_daily_cache_isolation(self):
         self.run_case('''
             import usage_trends as t,usage_dashboard as u

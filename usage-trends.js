@@ -12,12 +12,12 @@
  // One shared range and one in-flight request for all three views.
  const dailyPool=new Map();
  function connectionIdentity(sid){return typeof siteList==='undefined'?'':siteList.find(s=>s.site_id===sid)?.connected_at||''}
- function sharedRange(q){if(q.granularity==="hour")return {...q};const today=dateDay(new Date()),endMonth=q.end_date.slice(0,7),d=new Date(endMonth+'-01T12:00:00+08:00');d.setUTCMonth(d.getUTCMonth()-1);let start=dateDay(d);d.setUTCMonth(d.getUTCMonth()+2);let end=dateDay(new Date(+d-86400000));if(end>today)end=today;if(q.start_date<start)start=q.start_date;if(q.end_date>end)end=q.end_date;if((new Date(end)-new Date(start))/86400000>90)return {...q};return {...q,start_date:start,end_date:end}}
- function poolEntry(q){const range=sharedRange(q),key=JSON.stringify([range,connectionIdentity(q.site_id)]);return {range,key,entry:dailyPool.get(key)}}
+ function sharedRange(q){return {...q}}
+ function poolEntry(q){const identity=connectionIdentity(q.site_id),hour=q.granularity==='hour';for(const [key,entry] of [...dailyPool].reverse()){const range=entry.range;if(!range||entry.identity!==identity||range.site_id!==q.site_id||range.model!==q.model||range.group_id!==q.group_id||(range.granularity==='hour')!==hour)continue;if(range.start_date<=q.start_date&&range.end_date>=q.end_date&&(entry.promise||entry.data&&Date.now()-entry.at<(hour?10000:60000)))return {range,key,entry}}const range=sharedRange(q),key=JSON.stringify([range,identity]);return {range,key,entry:dailyPool.get(key)}}
  function cachedDaily(q){const {entry}=poolEntry(q);return entry?.data?{...entry.data,points:entry.data.points.filter(p=>p.date.slice(0,10)>=q.start_date&&p.date.slice(0,10)<=q.end_date)}:null}
  async function readDaily(q){
   const {range,key}=poolEntry(q);let entry=dailyPool.get(key);if(entry?.data&&Date.now()-entry.at<(q.granularity==="hour"?10000:60000))return cachedDaily(q);
-  if(!entry){entry={};dailyPool.set(key,entry);if(dailyPool.size>20){const old=[...dailyPool].find(([k,v])=>k!==key&&!v.promise);if(old)dailyPool.delete(old[0])}}
+  if(!entry){entry={range,identity:connectionIdentity(q.site_id)};dailyPool.set(key,entry);if(dailyPool.size>20){const old=[...dailyPool].find(([k,v])=>k!==key&&!v.promise);if(old)dailyPool.delete(old[0])}}
   if(entry.error&&Date.now()-entry.failedAt<10000)throw entry.error;
   if(!entry.promise){const request=new AbortController(),timeout=setTimeout(()=>request.abort(),35000);const identity=connectionIdentity(q.site_id);
    entry.promise=(async()=>{try{const r=await fetch('/api/cache/trend?'+new URLSearchParams(range),{cache:'no-store',signal:request.signal}),d=await r.json();if(!r.ok)throw Error(d.error||'暂时无法读取逐天统计');if(!Array.isArray(d.points))throw Error('该站暂未提供兼容的逐天统计');if(identity!==connectionIdentity(q.site_id))throw Error('连接已更新，正在重新准备统计');entry.data=d;entry.at=Date.now();entry.error=null;return d}catch(e){entry.error=e.name==='AbortError'?Error('统计读取超时，请稍后重试'):e;entry.failedAt=Date.now();throw entry.error}finally{clearTimeout(timeout);entry.promise=null}})();

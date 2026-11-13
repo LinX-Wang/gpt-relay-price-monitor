@@ -89,7 +89,10 @@ def main():
                 page.goto(origin+'/cache.html');page.wait_for_function('typeof siteList!=="undefined" && siteList.length && !busy')
                 assert not page.locator('#usageTrend').is_visible()
                 page.wait_for_function('document.querySelector("#utContext").textContent.includes("全部分组")')
-                assert len(trend_calls)==1,'background fetch should prepare all three views'
+                assert len(trend_calls)==1,'initial trend should issue one range read'
+                from datetime import date
+                initial=trend_calls[0]
+                assert (date.fromisoformat(initial['end_date'][0])-date.fromisoformat(initial['start_date'][0])).days==6,'7-day trend fetched unnecessary history'
                 page.locator('#usageTrendOpen').click()
                 page.wait_for_function('document.querySelector("#utContext").textContent.includes("全部分组")')
                 assert page.locator('#utSummaryRate').inner_text()!='—','known input_total was ignored'
@@ -131,13 +134,13 @@ def main():
                 page.wait_for_selector('.ui-report-grid')
                 assert '+85.7%' in page.locator('.ui-report-grid').inner_text()
                 assert '+5.00' in page.locator('.ui-report-grid').inner_text()
-                assert len([q for q in trend_calls if q.get('granularity')!=['hour']])==1,'calendar and report triggered duplicate upstream reads'
+                assert len([q for q in trend_calls if q.get('granularity')!=['hour']])==2,'calendar and report triggered duplicate upstream reads'
                 page.screenshot(path=str(Path(tempfile.gettempdir())/'linx-usage-report-dark.png'))
                 page.locator('.ui-date').fill('2026-11-05')
                 page.wait_for_function('document.querySelector(".ui-report-grid")?.textContent.includes("暂无可用统计")')
                 page.locator('.ui-date').fill('2026-11-11')
                 page.wait_for_function('document.querySelector(".ui-report-grid")?.textContent.includes("7.8M")')
-                assert len([q for q in trend_calls if q.get('granularity')!=['hour']])==1,'changing the report day should reuse month aggregates'
+                assert len([q for q in trend_calls if q.get('granularity')!=['hour']])==2,'changing the report day should reuse month aggregates'
                 original_model=page.evaluate('applied.model')
                 page.evaluate("applied.model='fixture-other'")
                 page.wait_for_function('document.querySelector(".ui-report-grid")?.textContent.includes("暂无可用统计")')
@@ -341,18 +344,28 @@ def main():
                 page.locator('#browserSyncBtn').click()
                 assert not page.locator('#browserSyncModal details').evaluate('node=>node.open')
                 page.locator('#browserSyncModal summary').click()
-                assert page.locator('.guide-copy-actions button').count()==2
+                assert page.locator('.guide-browser-card .guide-copy-icon').count()==2
                 assert page.locator('.account-status-row #connectionState').count()==1
                 assert page.locator('.guide-steps li').count()==4
                 assert page.locator('.guide-browser-links a').nth(0).get_attribute('href')=='chrome://extensions/'
                 assert page.locator('.guide-browser-links a').nth(1).get_attribute('href')=='edge://extensions/'
+                page.evaluate("Object.defineProperty(navigator,'clipboard',{configurable:true,value:{async writeText(text){window.copiedGuideAddress=text}}})")
+                page.locator('.guide-copy-icon').first.click()
+                assert page.evaluate('window.copiedGuideAddress')=='chrome://extensions/'
+                assert page.locator('.guide-copy-icon').first.evaluate('n=>n.classList.contains("copied")')
                 page.evaluate('''()=>{window.chrome.runtime.sendMessage=async m=>{if(m.type!=='open-extensions')return window.fixtureCapture(m);await new Promise(resolve=>setTimeout(resolve,1200));return {ok:true}}}''')
                 page.locator('.guide-browser-links a').first.click()
                 page.wait_for_function('document.querySelector("#guideLinkMessage").textContent.includes("已打开")')
                 page.screenshot(path=str(Path(tempfile.gettempdir())/'linx-sync-guide-mobile.png'))
                 assert page.locator('#browserSyncModal').evaluate('n=>n.scrollWidth<=n.clientWidth')
                 page.set_viewport_size({'width':1440,'height':1000})
+                page.locator('#browserSyncModal').evaluate('n=>n.scrollTop=0')
+                panel=page.locator('.sync-connection-panel').bounding_box()
+                guide_box=page.locator('.sync-guide').bounding_box()
+                assert panel['x']+panel['width']<=guide_box['x'],'desktop guide should sit beside connection panel'
                 page.screenshot(path=str(Path(tempfile.gettempdir())/'linx-sync-guide-dark.png'))
+                page.evaluate("document.documentElement.dataset.theme='light'")
+                page.screenshot(path=str(Path(tempfile.gettempdir())/'linx-sync-guide-light.png'))
                 box=page.locator('#browserSyncModal').bounding_box()
                 assert box['x']>=0 and box['x']+box['width']<=1440
                 page.screenshot(path=str(Path(tempfile.gettempdir())/'linx-browser-sync-dialog-mobile.png'))

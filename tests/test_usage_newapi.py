@@ -67,7 +67,7 @@ p=r['points'][0]
 assert p['requests']==2 and p['total_tokens']==2250
 assert p['input_total']==2000 and p['cache_rate']==90
 assert abs(p['actual_cost']-.0015)<1e-9
-assert r['points'][1]['total_tokens'] is None
+assert r['points'][1]['total_tokens']==0 and r['points'][1]['cache_rate'] is None
 ''')
 
     def test_pagination_is_complete_deduplicated_and_shared_concurrently(self):

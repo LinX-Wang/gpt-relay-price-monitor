@@ -2,11 +2,13 @@
 from datetime import datetime, timedelta
 from urllib.parse import urlencode
 import threading,time
+from concurrent.futures import ThreadPoolExecutor
 import usage_sites
 from usage_dashboard import UsageError,SHANGHAI,number
 CACHE={}
 LOCK=threading.Lock()
 INFLIGHT={}
+DAILY_CACHE={}
 
 def trend(params):
     get=lambda key,default='':str(params.get(key,[default])[0]).strip()
@@ -94,6 +96,42 @@ def _hourly(client,sid,identity,filters,day):
 
 
 def _read(client,sid,identity,filters,start,end):
+    # Closed days rarely change. Reuse verified daily aggregates across 7/30-day
+    # views instead of downloading all of their request logs every minute.
+    now=time.monotonic();today=datetime.now(SHANGHAI).date()
+    scope=(sid,identity,filters.get('model',''),filters.get('group_id',''))
+    points={};missing=[];day=start
+    with LOCK:
+        while day<=end:
+            date=str(day);saved=DAILY_CACHE.get(scope+(date,))
+            ttl=21600 if day<today and saved and saved[1].get('requests') is not None else 60
+            if saved and now-saved[0]<ttl:points[date]=saved[1]
+            else:missing.append(day)
+            day+=timedelta(days=1)
+    ranges=[]
+    for day in missing:
+        if ranges and day==ranges[-1][1]+timedelta(days=1):ranges[-1]=(ranges[-1][0],day)
+        else:ranges.append((day,day))
+    def fetch(bounds):
+        first,last=bounds
+        f=dict(filters,start_date=str(first),end_date=str(last))
+        return _read_upstream(client,sid,identity,f,first,last)
+    if len(ranges)==1:results=[fetch(ranges[0])]
+    elif ranges:
+        with ThreadPoolExecutor(max_workers=3) as pool:results=list(pool.map(fetch,ranges))
+    else:results=[]
+    with LOCK:
+        if len(DAILY_CACHE)>10000:DAILY_CACHE.clear()
+        for result in results:
+            for point in result['points']:
+                points[point['date']]=point
+                DAILY_CACHE[scope+(point['date'],)]=(time.monotonic(),point)
+    if client.status().get('connected_at')!=identity:
+        raise UsageError('连接已变化，请重新读取趋势。',409,'CONNECT_REQUIRED')
+    return {'site_id':sid,'points':[points[d] for d in sorted(points)],'filters':filters,'fetched_at':datetime.now(SHANGHAI).isoformat(timespec='seconds')}
+
+
+def _read_upstream(client,sid,identity,filters,start,end):
     raw=client.api('/api/v1/usage/dashboard/trend?'+urlencode(filters))
     if not isinstance(raw,dict) or not isinstance(raw.get('trend'),list):
         raise UsageError('该站暂未提供兼容的逐天趋势统计。',502,'TREND_UNAVAILABLE')

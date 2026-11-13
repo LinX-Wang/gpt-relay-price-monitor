@@ -210,4 +210,10 @@ def request(c,path,token,payload=None):
         norm=normalize_row(row)
         if not norm['created_at']:raise c.UsageError('New API 记录缺少有效时间，暂不展示逐天统计。')
         days.setdefault(norm['created_at'][:10],[]).append(norm)
+    # The complete log range was verified, so absent closed days are known empty.
+    # Keep future dates unknown rather than manufacturing zero usage.
+    first=datetime.fromisoformat(q['start_date'][0]).date()
+    last=min(datetime.fromisoformat(q['end_date'][0]).date(),datetime.now(SHANGHAI).date())
+    while first<=last:
+        days.setdefault(str(first),[]);first+=timedelta(days=1)
     return {'trend':[dict(date=day,**c.summary(items)) for day,items in sorted(days.items())]}
