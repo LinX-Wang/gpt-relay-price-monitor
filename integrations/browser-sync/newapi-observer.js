@@ -5,7 +5,7 @@
  const paths=new Set(['/api/user/self','/api/user/self/groups','/api/user/models','/api/log/self','/api/log/self/stat']);
  let last=null;
  function publish(url,authorization){
-  try{const u=new URL(url,location.href);if(u.origin!==location.origin||!paths.has(u.pathname)||typeof authorization!=='string'||!/^Bearer[ ]/i.test(authorization)||authorization.length>16020)return;
+  try{const u=new URL(url,location.href);if(u.origin!==location.origin||(!paths.has(u.pathname)&&!u.pathname.startsWith('/api/'))||typeof authorization!=='string'||!/^Bearer[ ]/i.test(authorization)||authorization.length>16020)return;
    last={type:'linx-panel-access',origin:location.origin,path:u.pathname,authorization};window.postMessage(last,location.origin);
   }catch{}
  }

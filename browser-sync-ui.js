@@ -140,7 +140,10 @@
     try{
       const previous=siteList.find(x=>x.site_id===sid);
       const r=await fetch('/api/cache/status?site_id='+encodeURIComponent(sid),{cache:'no-store'});if(!r.ok)return;const s=await r.json();
-      if(currentSite!==sid||busy||switching||!s.connected||!previous||s.connected_at===previous.connected_at)return;
+      if(currentSite!==sid||busy||switching||!s.connected||!previous)return;
+      // A failed usage request can mark the page expired before the extension
+      // finishes syncing. Recover even when the connection timestamp is unchanged.
+      if(s.connected_at===previous.connected_at&&connected&&!reconnectNeeded)return;
       clearSiteSnapshots(sid);epoch++;setConnected(s);data=null;page=1;pendingLoad=false;refreshRelativeUsageDates();capture();render();
       note('登录连接已自动更新，正在同步最新用量。');await load();
     }catch{/* Ordinary refresh handles user-visible network errors. */}finally{checking=false}
